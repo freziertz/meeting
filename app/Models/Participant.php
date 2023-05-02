@@ -5,18 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class Participant extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'meeting_id',
-        'user_id',
+        'participant_id',  // responsible user id
         'meeting_role_id',
         'title',
-        'group_id'
+        'group_id',
+        'created_by',
+        'account_id'
+
     ];
 
 

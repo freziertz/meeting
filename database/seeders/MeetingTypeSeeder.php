@@ -15,13 +15,17 @@ class MeetingTypeSeeder extends Seeder
     {
         DB::table('meeting_types')->insert([
             'name' => 'Board',
-            'description' =>'Board Meeting',           
+            'description' =>'Board Meeting',
+            'account_id'  => 1,
+            'created_by'  => 1,
         ]);
 
 
         DB::table('meeting_types')->insert([
             'name' => 'Management',
-            'description' =>'Management Meeting',           
+            'description' =>'Management Meeting',
+            'account_id'  => 1,
+            'created_by'  => 1,
         ]);
     }
 }

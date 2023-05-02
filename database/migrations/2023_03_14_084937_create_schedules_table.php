@@ -18,6 +18,9 @@ return new class extends Migration
             $table->time('meeting_start_time');
             $table->time('meeting_end_time');
             $table->boolean('primary')->default(false);
+            $table->foreignId('account_id');
+            $table->foreignId('created_by'); // login user who create the meeting
+            $table->softDeletes();
             $table->timestamps();
         });
     }

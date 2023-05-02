@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\AccountController;
+
 use App\Http\Controllers\ActionController;
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\ContributorController;
@@ -19,6 +21,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrganizerController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\ReviewRoomController;
+use App\Http\Controllers\ParticipantController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\MeetingRoleController;
 use App\Http\Controllers\AnnouncementController;
@@ -53,39 +56,60 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
+
+    Route::put('/status/{id}', [MeetingController::class, 'status'])->name('meeting.status');
+
+
+
+
+    Route::resources([
+        'accounts' => AccountController::class,
+        'actions' => ActionController::class,
+        'announcements' => AnnouncementController::class,
+        'contributors' => ContributorController::class,
+        'agendas' => AgendaController::class,
+        'documents' => DocumentController::class,
+        'meetings' => MeetingController::class,
+        'meeting-types' => MeetingTypeController::class,
+        'notifications' => NotificationController::class,
+        'purposes' => PurposeController::class,
+        'resolutions' => ResolutionController::class,
+        'organizers' => OrganizerController::class,
+        'schedules' => ScheduleController::class,
+        'timezones' => TimezoneController::class,
+        'users' => UserController::class,
+        'votes' => VoteController::class,
+        'participants' => ParticipantController::class,
+        'meeting-roles' => MeetingRoleController::class,
+        'groups' => GroupController::class,
+        'reviews' => ReviewRoomController::class,
+        'directories' => DirectoryController::class,
+        'admins' => AdminController::class,
+    ]);
+
+
+
+    // Route::put('/meetings/{id}', [MeetingController::class, 'status'])->name('meetings.status');
 });
+
+
+Route::put('/meetings/status', [MeetingController::class, 'status'])->name('meetings.status');
+
+
+
+// Route::controller(MeetingController::class)->group(function () {
+
+//     Route::put('/meetings/{id}', 'status')->name('meetings.status');
+//     // Route::put('/meetings/{id}', 'close')->name('meetings.close');
+
+// });
 
 
 // Route::put('/meetings/{id}', [MeetingController::class, 'publish'])->name('meetings.publish');
 
 
 
-Route::controller(MeetingController::class)->group(function () {
-    Route::put('/meetings/{id}', 'publish');
-    
-});
 
 
-Route::resources([
-    'actions' => ActionController::class,
-    'announcements' => AnnouncementController::class,
-    'contributors' => ContributorController::class,
-    'agendas' => AgendaController::class,
-    'documents' => DocumentController::class,
-    'meetings' => MeetingController::class,
-    'meeting-types' => MeetingTypeController::class,
-    'notifications' => NotificationController::class,
-    'purposes' => PurposeController::class,
-    'resolutions' => ResolutionController::class,
-    'organizers' => OrganizerController::class,
-    'schedules' => ScheduleController::class,
-    'timezones' => TimezoneController::class,
-    'users' => UserController::class,
-    'votes' => VoteController::class,
-    'meeting-roles' => MeetingRoleController::class,
-    'groups' => GroupController::class,
-    'reviews' => ReviewRoomController::class,
-    'directories' => DirectoryController::class,
-    'admins' => AdminController::class,
-]);
+
 

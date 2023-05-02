@@ -15,7 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('subject');
             $table->text('note_to_voters'); // note to voters
-            $table->date('voting_deadline'); 
+            $table->date('voting_deadline');
+            $table->foreignId('account_id');
+            $table->foreignId('created_by'); // login user who create the meeting
+            $table->softDeletes();
             $table->timestamps();
         });
     }

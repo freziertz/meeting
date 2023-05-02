@@ -37,13 +37,15 @@ class CreateNewUser implements CreatesNewUsers
                 'last_name' => $input['last_name'],
                 'initials' => $input['initials'],
                 'email' => $input['email'],
-                'designation' => $input['designation'],                
-                'organization_id' => $input['organization_id'],                
+                'designation' => $input['designation'],
+                'organization_id' => $input['organization_id'],
                 'storage_limit' => $input['storage_limit'],
                 'pa_email' => $input['pa_email'], // person assistance email
                 'send_welcome_email' => $input['send_welcome_email'],
                 'send_start_guide' => $input['send_start_guide'],
                 'password' => Hash::make($input['password']), // should be generated automatically then the user should change at first login
+                'created_by' => 1,
+                'account_id' => 1,
             ]), function (User $user) {
                 $this->createTeam($user);
             });

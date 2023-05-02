@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Meeting extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'meeting_type_id',
@@ -19,9 +22,33 @@ class Meeting extends Model
         'description',
         'participants_notes',
         'organizer_notes',
-        'reminder',      
-        'status'
+        'reminder',
+        'status',
+        'uuid',
+        'visible',
+        'slug',
+        'created_by', // organizer id, user id
+        'account_id'
     ];
+
+    //default value
+
+    protected $attributes = [
+        'visible' => false,
+    ];
+
+
+    //Retun slug instead of meeting id
+
+    // public function getRouteKeyName()
+    // {
+    //     return 'slug';
+    // }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
 
     public function organizers(): HasMany
@@ -36,7 +63,7 @@ class Meeting extends Model
 
     public function contributors(): HasMany // Agenda Contributors
     {
-        return $this->hasMany(Contributor::class); 
+        return $this->hasMany(Contributor::class);
     }
 
     public function agendas(): HasMany
@@ -49,4 +76,13 @@ class Meeting extends Model
         return $this->hasMany(Action::class);
     }
 
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function schedules(): HasMany
+    {
+        return $this->hasMany(Schedule::class);
+    }
 }

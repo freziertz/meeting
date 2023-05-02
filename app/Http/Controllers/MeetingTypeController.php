@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\MeetingTypeType;
+use App\Models\MeetingType;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreMeetingTypeRequest;
+use Illuminate\Support\Facades\Auth;
 
 class MeetingTypeController extends Controller
 {
@@ -15,8 +17,8 @@ class MeetingTypeController extends Controller
      */
     public function index()
     {
-        $meeting_type_types = MeetingTypeType::all(); 
-        return Inertia::render('MeetingTypes/Index',compact('meeting_type_types'));
+        $meeting_types = MeetingType::all();
+        return Inertia::render('MeetingTypes/Index',compact('meeting_types'));
     }
 
     /**
@@ -30,11 +32,17 @@ class MeetingTypeController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMeetingTypeRequest $request)
+    public function store(Request $request)
     {
+        $request['created_by'] =  Auth::user()->id;
+
+        $account = User::find($request['created_by'])->account;
+
+        $request['account_id'] = $account->id;
+
         MeetingType::create($request->all());
 
-        return redirect()->route('meeting_type-types.index')
+        return redirect()->route('meeting-types.index')
                         ->with('success','MeetingType type created successfully.');
     }
 
@@ -59,16 +67,16 @@ class MeetingTypeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreMeetingTypeRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         $meeting_type = MeetingType::find($id);
 
         $meeting_type->name = $request->input('name');
         $meeting_type->description = $request->input('description');
 
-        $meeting_type->save();        
+        $meeting_type->save();
 
-        return redirect()->route('meeting_types.index')
+        return redirect()->route('meeting-types.index')
                         ->with('success','MeetingType updated successfully');
     }
 
@@ -78,7 +86,7 @@ class MeetingTypeController extends Controller
     public function destroy(string $id)
     {
         DB::table("meeting_types")->where('id', $id)->delete();
-        return redirect()->route('meeting_types.index')
+        return redirect()->route('meeting-types.index')
                         ->with('success','MeetingType deleted successfully');
     }
 }

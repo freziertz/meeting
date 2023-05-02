@@ -7,12 +7,21 @@ import ActionSection from '@/Components/ActionSection.vue';
 import DialogModal from '@/Components/DialogModal.vue';
 import InputError from '@/Components/InputError.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import NotificationButton from '@/Components/NotificationButton.vue';
+import EditButtonLink from '@/Components/EditButtonLink.vue';
+import TabButton from '@/Components/TabButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import SectionBorder from '@/Components/SectionBorder.vue';
+
+
+import MeetingOrganizerForm from '@/Pages/Meetings/Partials/MeetingOrganizerForm.vue';
 
 const props = defineProps({
     sessions: Array,
     meeting: Object,
+    users: Array,
+    organizers:Array,
     schedules: Array,
     notifications:Array
 });
@@ -21,25 +30,27 @@ const confirmingLogout = ref(false);
 const passwordInput = ref(null);
 
 
+
+
 const meetingStatus = computed(() => {
-   
+
 
    switch (props.meeting.status){
-   case 1: 
+   case 1:
        return 'UnPublished'
        break;
 
-    case 2: 
+    case 2:
        return 'Published'
        break;
 
 
-    case 3: 
+    case 3:
        return 'Progress'
        break;
 
 
-    case 4: 
+    case 4:
        return 'Closed'
        break;
    }
@@ -48,32 +59,73 @@ const meetingStatus = computed(() => {
 
 const form = useForm({
     _method: 'PUT',
-    id: props.meeting.id,    
-    status: props.meeting.status,   
-    
+    id: props.meeting.id,
+    status: props.meeting.status,
+
 });
 
-const publishMeeting = () => { 
+const formEdit = useForm({
+    // id: props.meeting.id,
+
+});
+
+const publishMeeting = () => {
     form.status =  2;
-    form.post(route('meetings.publish', props.meeting.id), {    
+    form.post(route('meeting.status', props.meeting.id), {
         preserveScroll: true,
     });
 };
 
 
-const startMeeting = () => { 
+const startMeeting = () => {
     form.status =  3;
-    form.post(route('meetings.publish', props.meeting.id), {    
+    form.post(route('meeting.status', props.meeting.id), {
         preserveScroll: true,
     });
 };
 
 const closeMeeting = () => {
     form.status =  4;
-    form.post(route('meetings.publish', props.meeting.id), {    
+    form.post(route('meeting.status', props.meeting.id), {
         preserveScroll: true,
     });
 };
+
+
+const resetMeeting = () => {
+    form.status =  1;
+    form.post(route('meeting.status', props.meeting.id), {
+        preserveScroll: true,
+    });
+};
+
+const scheduleNextMeeting = () => {
+    formEdit.get(route('meetings.edit', props.meeting.id), {
+        preserveScroll: true,
+    });
+};
+
+const exportDraftMeeting = () => {
+    formEdit.get(route('meetings.edit', props.meeting.id), {
+        preserveScroll: true,
+    });
+};
+
+const exportSendMeeting = () => {
+    formEdit.get(route('meetings.edit', props.meeting.id), {
+        preserveScroll: true,
+    });
+};
+
+const editMeeting = () => {
+    formEdit.get(route('meetings.edit', props.meeting.id), {
+        preserveScroll: true,
+    });
+};
+
+
+
+
 
 const logoutOtherBrowserSessions = () => {
     form.delete(route('other-browser-sessions.destroy'), {
@@ -99,119 +151,135 @@ const closeModal = () => {
 
         <template #description>
 
-                         
-                        
+
+
 
         </template>
 
         <template #content>
+
+            <div class="flex space-x-2 mb-2 justify-end">
+
+               <NotificationButton @click="scheduleNextMeeting" >
+                    Schedule Next Meeting
+               </NotificationButton>
+               <EditButtonLink @click="exportDraftMinutes" >
+                    Export Draft Minutes
+                </EditButtonLink>
+               <NotificationButton @click="sendExportMeetingPack" >
+                    Export/ Send Meeting Pack
+               </NotificationButton>
+               <EditButtonLink @click="editMeeting" >
+                    Edit
+                </EditButtonLink>
+            </div>
             <div class=" w-full text-sm text-gray-600">
                             <table class="w-full whitespace-nowrap">
                                 <tbody>
                                 <tr class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t p-2">
-                                        Meeting type           
+                                        Meeting type
                                     </td>
-                                    <td class="border-t p-2">                                 
-                                        {{ meeting.meeting_type}}                                            
+                                    <td class="border-t p-2">
+                                        {{ meeting.meeting_type}}
                                     </td>
                                 </tr>
                                 <tr class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t p-2">
-                                        Meeting title           
+                                        Meeting title
                                     </td>
-                                    <td class="border-t p-2">                                 
-                                        {{ meeting.title }}                                            
+                                    <td class="border-t p-2">
+                                        {{ meeting.title }}
                                     </td>
                                 </tr>
                                 <tr v-for="(schedule, index) in schedules" :key="schedule.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td v-show="index == 0" class="border-t p-2">
-                                        Meeting Schedule            
+                                        Meeting Schedule
                                     </td>
                                     <td v-show="index != 0" class="border-t p-2">
-                                                
+
                                     </td>
-                                    <td class="border-t p-2">                                 
-                                        {{ moment(schedule.meeting_date).format('dddd, MMMM DD, YYYY') }} {{ moment(schedule.meeting_start_time, 'HH:mm:ss').format('hh:mm A') }} to {{ moment(schedule.meeting_end_time, 'HH:mm').format('hh:mm A') }}                                            
+                                    <td class="border-t p-2">
+                                        {{ moment(schedule.meeting_date).format('dddd, MMMM DD, YYYY') }} {{ moment(schedule.meeting_start_time, 'HH:mm:ss').format('hh:mm A') }} to {{ moment(schedule.meeting_end_time, 'HH:mm').format('hh:mm A') }}
                                     </td>
                                 </tr>
 
                                 <tr class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t p-2">
-                                        Timezone          
+                                        Timezone
                                     </td>
-                                    <td class="border-t p-2">                                 
-                                        {{ meeting.timezone_id }}                                            
+                                    <td class="border-t p-2">
+                                        {{ meeting.timezone_id }}
                                     </td>
                                 </tr>
 
                                 <tr class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t p-2">
-                                        Venue           
+                                        Venue
                                     </td>
-                                    <td class="border-t p-2">                                 
-                                        {{ meeting.venue }}                                            
+                                    <td class="border-t p-2">
+                                        {{ meeting.venue }}
                                     </td>
                                 </tr>
 
                                 <tr class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t p-2">
-                                        Google map url           
+                                        Google map url
                                     </td>
-                                    <td class="border-t p-2">                                 
-                                        {{ meeting.google_map_url }}                                            
+                                    <td class="border-t p-2">
+                                        {{ meeting.google_map_url }}
                                     </td>
                                 </tr>
 
                                 <tr v-for="(notification, index) in notifications" :key="notification.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
 
                                     <td v-show="index == 0" class="border-t p-2">
-                                        Reminder            
+                                        Reminder
                                     </td>
                                     <td v-show="index != 0" class="border-t p-2">
-                                              
+
                                     </td>
 
 
 
-                                    <td class="border-t p-2">                                 
-                                        {{ notification.notification_date }}                                              
+                                    <td class="border-t p-2">
+                                        {{ notification.notification_date }}
                                     </td>
                                 </tr>
 
                                 <tr class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t p-2">
-                                        Description          
+                                        Description
                                     </td>
-                                    <td class="border-t p-2">                                 
-                                        {{ meeting.description }}                                            
+                                    <td class="border-t p-2">
+                                        {{ meeting.description }}
                                     </td>
                                 </tr>
 
                                 <tr class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t p-2">
-                                        Notes for participants         
+                                        Notes for participants
                                     </td>
-                                    <td class="border-t p-2">                                 
-                                        {{ meeting.participants_notes }}                                            
+                                    <td class="border-t p-2">
+                                        {{ meeting.participants_notes }}
                                     </td>
                                 </tr>
 
                                 <tr class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t p-2">
-                                        Notes for participants         
+                                        Notes for participants
                                     </td>
-                                    <td class="border-t p-2">                                 
-                                        {{ meeting.organizer_notes }}                                            
+                                    <td class="border-t p-2">
+                                        {{ meeting.organizer_notes }}
                                     </td>
                                 </tr>
 
                                 <tr class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t p-2">
-                                        Status         
+                                        Status
                                     </td>
-                                    <td class="border-t p-2">                                 
-                                        {{ meetingStatus }}                                            
+                                    <td class="border-t p-2">
+                                        {{ meetingStatus }}
                                     </td>
                                 </tr>
                                 <tr v-if="meeting.length === 0">
@@ -256,7 +324,19 @@ const closeModal = () => {
             </div>
 
 
-            
+
+            <div class="flex items-center mt-5" >
+                <PrimaryButton @click="resetMeeting" >
+                    Reset Meeting
+                </PrimaryButton>
+
+                <ActionMessage :on="form.recentlySuccessful" class="ml-3">
+                    Done.
+                </ActionMessage>
+            </div>
+
         </template>
+
+
     </ActionSection>
 </template>

@@ -21,7 +21,7 @@ const form = useForm({
 
 const createAccount = () => {
   form.post(route("accounts.store"), {
-    onFinish: () => form.reset(),
+    // onFinish: () => form.reset(),
   });
 };
 </script>

@@ -8,10 +8,12 @@ import DialogModal from '@/Components/DialogModal.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import SectionBorder from '@/Components/SectionBorder.vue';
 import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
 import PartialFormSection from '@/Components/PartialFormSection.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import DeleteButton from '@/Components/DeleteButton.vue';
 
 const props = defineProps({
     users: Array,
@@ -30,10 +32,10 @@ const passwordInput = ref(null);
 
 
 
-const form = useForm({   
+const form = useForm({
     title: null,
     primary: false,
-    user_id: null,
+    organizer_id: null,
     meeting_id: props.meeting.id,
 });
 
@@ -44,47 +46,48 @@ const createMeetingOrganizer = () => {
         preserveScroll: true,
         onSuccess: () => form.reset(),
         // onSuccess: () => clearPhotoFileInput(),
-    }); 
+    });
 };
 
 
 
 
-const showOrganizerForm = () => { 
+const showOrganizerForm = () => {
     return showForm.value = !showForm.value ;
+
 };
 
 
-const deleteOrganizer = () => {
-    form.delete(route('current-user.destroy'), {
+const deleteOrganizer = ( organizer_id) => {
+    form.delete(route('organizers.destroy', organizer_id), {
         preserveScroll: true,
-        onSuccess: () => closeModal(),
-        onError: () => passwordInput.value.focus(),
-        onFinish: () => form.reset(),
+        // onSuccess: () => closeModal(),
+
+        // onFinish: () => form.reset(),
     });
 };
 
 
 
 const meetingStatus = computed(() => {
-   
+
 
    switch (props.meeting.status){
-   case 1: 
+   case 1:
        return 'UnPublished'
        break;
 
-    case 2: 
+    case 2:
        return 'Published'
        break;
 
 
-    case 3: 
+    case 3:
        return 'Progress'
        break;
 
 
-    case 4: 
+    case 4:
        return 'Closed'
        break;
    }
@@ -116,8 +119,18 @@ const closeModal = () => {
 <template>
     <ActionSection>
 
+        <template #title>
+            Organizers
+        </template>
+
+        <template #description>
+            Manage Organizers
+        </template>
 
         <template #content>
+
+
+
 
             <div class=" w-full text-sm text-gray-600">
                             <table class="w-full whitespace-nowrap">
@@ -134,15 +147,15 @@ const closeModal = () => {
 
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/organizers/${organizer.id}`">
-                                            {{ organizer.first_name }} {{ organizer.last_name }} 
-                                        
+                                            {{ organizer.first_name }} {{ organizer.last_name }}
+
                                         </Link>
                                     </td>
 
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/organizers/${organizer.id}`">
                                             {{ organizer.designation }}
-                                        
+
                                         </Link>
                                     </td>
 
@@ -150,8 +163,18 @@ const closeModal = () => {
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/organizers/${organizer.id}`">
                                             {{ organizer.primary ? 'Yes' : 'No' }}
-                                        
+
+                                            {{ organizer.id }}
+
+
+
                                         </Link>
+                                    </td>
+
+                                   <td class="border-t">
+
+                                    <delete-button @delete="deleteOrganizer(`${organizer.organizer_id}`)">Delete</delete-button>
+
                                     </td>
 
                                 </tr>
@@ -160,15 +183,15 @@ const closeModal = () => {
             </div>
 
             <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showOrganizerForm">
-                <p v-show="!showForm">Add Meeting Organizer</p> 
-                <p v-show="showForm">Close Meeting Organizer</p>           
+                <p v-show="!showForm">Add Meeting Organizer</p>
+                <p v-show="showForm">Close Meeting Organizer</p>
             </button>
 
             <SectionBorder />
 
-        
 
-        
+
+
 
             <div v-show="showForm">
 
@@ -180,26 +203,27 @@ const closeModal = () => {
 
 
 
-       
-                   
-        
+
+
+
 
             <!-- User Id -->
 
             <div class="col-span-6 sm:col-span-4">
+
             <InputLabel for="user_id" value="Select user" />
-            
-                <select 
-                   v-model="form.user_id" 
-                   :error="form.errors.user_id" 
+
+                <select
+                   v-model="form.organizer_id"
+                   :error="form.errors.organizer_id"
                    class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User">
 
                         <option v-for="user in users" :key="user.id" :value="user.id">{{ user.first_name + " " + user.last_name}}</option>
                 </select>
 
-    
+
             </div>
- 
+
 
             <!-- Primary -->
 
@@ -213,21 +237,21 @@ const closeModal = () => {
                 </label>
             </div>
 
-   
+
 
 
             <!-- Meeting Id-->
 
- 
-            
-              
+
+
+
                 <TextInput
                     id="meeting_id"
                     v-model="form.meeting_id"
                     type="hidden"
                      />
-                
-           
+
+
 
 
 
@@ -277,7 +301,7 @@ const closeModal = () => {
             </PrimaryButton>
 
 
-                       
+
 
         </template>
 
@@ -288,9 +312,9 @@ const closeModal = () => {
 
 
 
-            
-       
-            
+
+
+
         </template>
     </ActionSection>
 </template>

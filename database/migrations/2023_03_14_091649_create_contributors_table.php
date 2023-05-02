@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('contributors', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->foreignId('contributor_id'); // user id who is adenda contributor for this meeting
             $table->foreignId('meeting_id');
-            $table->string('title')->nullable();           
+            $table->string('title')->nullable();
+            $table->foreignId('account_id');
+            $table->foreignId('created_by'); // login user who create the meeting
+            $table->softDeletes();
             $table->timestamps();
         });
     }

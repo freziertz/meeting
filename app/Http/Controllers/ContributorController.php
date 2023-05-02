@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Contributor;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreContributorRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ContributorController extends Controller
 {
@@ -31,16 +33,22 @@ class ContributorController extends Controller
      */
     public function store(Request $request)
     {
+         $created_by =  Auth::user()->id;
+
+         $account = User::find($created_by)->account;
+
          $contributor = Contributor::where('meeting_id', $request->input('meeting_id'))
-                               ->where('user_id', $request->input('user_id'))
+                               ->where('contributor_id', $request->input('contributor_id'))
                             ->first();
 
         if (is_null($contributor)) {
                 Contributor::create([
                     'meeting_id' => $request->input('meeting_id'),
-                    'user_id' => $request->input('user_id'),
+                    'contributor_id' => $request->input('contributor_id'),
                     'title' => $request->input('title'),
-                   
+                    'created_by' => $created_by,
+                    'account_id' => $account->id,
+
                  ]);
          }
     }
@@ -64,7 +72,7 @@ class ContributorController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreContributorRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -72,10 +80,10 @@ class ContributorController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        DB::table("meetings")->where('id', $id)->delete();
-        return redirect()->route('meetings.index')
-                        ->with('success','Meeting deleted successfully');
+
+        DB::table("contributors")->where('id', $id)->delete();
+
     }
 }

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Purpose;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StorePurposeRequest;
+use Illuminate\Support\Facades\Auth;
 
 class PurposeController extends Controller
 {
@@ -15,8 +17,8 @@ class PurposeController extends Controller
      */
     public function index()
     {
-        $purposes = Purpose::all(); 
-        return Inertia::render('Purposes/Index',compact('purposes'));        
+        $purposes = Purpose::all();
+        return Inertia::render('Purposes/Index',compact('purposes'));
     }
 
     /**
@@ -32,6 +34,13 @@ class PurposeController extends Controller
      */
     public function store(Request $request)
     {
+
+        $request['created_by'] =  Auth::user()->id;
+
+        $account = User::find($request['created_by'])->account;
+
+        $request['account_id'] = $account->id;
+
         Purpose::create($request->all());
 
         return redirect()->route('purposes.index')
@@ -59,7 +68,7 @@ class PurposeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StorePurposeRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         $purpose = Purpose::find($id);
 
@@ -67,7 +76,7 @@ class PurposeController extends Controller
         $purpose->description = $request->input('description');
 
 
-        $purpose->save();        
+        $purpose->save();
 
         return redirect()->route('purposes.index')
                         ->with('success','Purpose updated successfully');

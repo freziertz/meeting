@@ -8,55 +8,76 @@ import DialogModal from '@/Components/DialogModal.vue';
 import Checkbox from '@/Components/Checkbox.vue';
 import SectionBorder from '@/Components/SectionBorder.vue';
 import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
 import PartialFormSection from '@/Components/PartialFormSection.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import CalendarButton from '@/Components/CalendarButton.vue';
+import NotificationButton from '@/Components/NotificationButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import DeleteButton from '@/Components/DeleteButton.vue';
 
 const props = defineProps({
     users: Array,
+    groups: Array,
+    meeting_roles: Array,
     user: Object,
     sessions: Array,
-    contributors: Array,
+    participants: Array,
     meeting: Object,
 });
 
 const confirmingLogout = ref(false);
 const showForm = ref(false);
-const showMeetingOrganizer = ref(false);
+const showMeetingParticipant = ref(false);
 const passwordInput = ref(null);
 
 
 
 
 
-const form = useForm({   
+const form = useForm({
     title: null,
     primary: false,
-    user_id: null,
+    participant_id: null,
+    meeting_role_id: null,
+    group_id: null,
     meeting_id: props.meeting.id,
 });
 
 
-const createMeetingAgendaContributor = () => {
-    form.post(route('contributors.store'), {
+const createMeetingParticipant = () => {
+    form.post(route('participants.store'), {
         // errorBag: 'updateProfileInformation',
         preserveScroll: true,
         onSuccess: () => form.reset(),
         // onSuccess: () => clearPhotoFileInput(),
-    }); 
+    });
 };
 
 
+const sendNotificationToParticipants = () => {
+    form.post(route('notifications.participant', props.meeting.id), {
+        preserveScroll: true,
+    });
+};
+
+const checkScheduleConflict = () => {
+    form.post(route('schedules.conflict', props.meeting.id), {
+        preserveScroll: true,
+    });
+}
 
 
-const showOrganizerForm = () => { 
+
+
+const showParticipantForm = () => {
     return showForm.value = !showForm.value ;
 };
 
 
-const deleteOrganizer = () => {
-    form.delete(route('current-user.destroy'), {
+const deleteParticipant = (id) => {
+    form.delete(route('participants.destroy', id), {
         preserveScroll: true,
         onSuccess: () => closeModal(),
         onError: () => passwordInput.value.focus(),
@@ -74,55 +95,82 @@ const deleteOrganizer = () => {
 <template>
     <ActionSection>
         <template #title>
-            Agenda Contributor
+            Participants
         </template>
 
-        <template #description>    
-                  <div>
-                Manage agenda contributor            
-                                       
-           
-
-                  </div>                       
-                        
-
+        <template #description>
+            Manage Participants
         </template>
 
         <template #content>
+
+        <div class="flex space-x-2 justify-end">
+                <CalendarButton @click="checkScheduleConflict" >
+                    Check Schedule Conflict
+                </CalendarButton>
+               <NotificationButton @click="sendNotificationToParticipants" >
+                    Send Notification
+               </NotificationButton>
+         </div>
 
             <div class=" w-full text-sm text-gray-600">
                             <table class="w-full whitespace-nowrap">
                                 <thead>
                                     <tr class="text-left font-bold">
-                                        <th class="pb-4 pt-6 px-6">Organizer</th>
+                                        <th class="pb-4 pt-6 px-6">Participant</th>
+
                                         <th class="pb-4 pt-6 px-6">Title</th>
-                                        <th class="pb-4 pt-6 px-6">Primary?</th>
+                                        <th class="pb-4 pt-6 px-6">Meeting Role</th>
+                                        <th class="pb-4 pt-6 px-6">Group</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="contributor in contributors" :key="contributor.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+                                <tr v-for="participant in participants" :key="participant.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
 
 
                                     <td class="border-t">
-                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contributors/${contributor.id}`">
-                                            {{ contributor.first_name }} {{ contributor.last_name }} 
-                                        
+                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/participants/${participant.id}`">
+                                            {{ participant.first_name }} {{ participant.last_name }}
+
                                         </Link>
                                     </td>
 
                                     <td class="border-t">
-                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contributors/${contributor.id}`">
-                                            {{ contributor.designation }}
-                                        
+                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/participants/${participant.id}`">
+                                            {{ participant.designation }}
+
                                         </Link>
                                     </td>
 
 
                                     <td class="border-t">
-                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/contributors/${contributor.id}`">
-                                            {{ contributor.primary ? 'Yes' : 'No' }}
-                                        
+                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/participants/${participant.id}`">
+                                            {{ participant.meeting_role_name }}
+
                                         </Link>
+                                    </td>
+
+
+                                    <td class="border-t">
+                                    <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/participants/${participant.id}`">
+                                            {{ participant.group_name }}
+
+                                        </Link>
+                                    </td>
+
+
+                                    <td class="border-t">
+                                    <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/participants/${participant.id}`">
+                                            {{ participant.group }}
+
+                                        </Link>
+                                    </td>
+
+
+                                    <td class="border-t">
+
+                                    <delete-button @delete="deleteParticipant(`${participant.participant_id}`)">Delete</delete-button>
+
                                     </td>
 
                                 </tr>
@@ -130,20 +178,20 @@ const deleteOrganizer = () => {
                     </table>
             </div>
 
-            <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showOrganizerForm">
-                <p v-show="!showForm">Add Meeting Organizer</p> 
-                <p v-show="showForm">Close Meeting Organizer</p>           
+            <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showParticipantForm">
+                <p v-show="!showForm">Add Meeting Participant</p>
+                <p v-show="showForm">Close Meeting Participant</p>
             </button>
 
             <SectionBorder />
 
-        
 
-        
+
+
 
             <div v-show="showForm">
 
-            <PartialFormSection @submitted="createMeetingAgendaContributor" >
+            <PartialFormSection @submitted="createMeetingParticipant" >
 
 
               <template #form>
@@ -151,41 +199,77 @@ const deleteOrganizer = () => {
 
 
 
-       
-                   
-        
+
+
+
 
             <!-- User Id -->
 
             <div class="col-span-6 sm:col-span-4">
             <InputLabel for="user_id" value="Select user" />
-            
-                <select 
-                   v-model="form.user_id" 
-                   :error="form.errors.user_id" 
+
+                <select
+                   v-model="form.participant_id"
+                   :error="form.errors.participant_id"
                    class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User">
 
                         <option v-for="user in users" :key="user.id" :value="user.id">{{ user.first_name + " " + user.last_name}}</option>
                 </select>
 
-    
+
             </div>
 
-   
+
+
+            <!-- Meeting Role Id -->
+
+            <div class="col-span-6 sm:col-span-4">
+            <InputLabel for="meeting_role_id" value="Select Meeting Role" />
+
+                <select
+                   v-model="form.meeting_role_id"
+                   :error="form.errors.meeting_role_id"
+                   class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Meeting Role">
+
+                        <option v-for="meeting_role in meeting_roles" :key="meeting_role.id" :value="meeting_role.id">{{ meeting_role.name }}</option>
+                </select>
+
+
+            </div>
+
+
+
+            <!-- Group Id -->
+
+            <div class="col-span-6 sm:col-span-4">
+            <InputLabel for="group_id" value="Select Group" />
+
+                <select
+                   v-model="form.group_id"
+                   :error="form.errors.group_id"
+                   class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Group">
+
+                        <option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name}}</option>
+                </select>
+
+
+            </div>
+
+
 
 
             <!-- Meeting Id-->
 
- 
-            
-              
+
+
+
                 <TextInput
                     id="meeting_id"
                     v-model="form.meeting_id"
                     type="hidden"
                      />
-                
-           
+
+
 
 
 
@@ -235,7 +319,7 @@ const deleteOrganizer = () => {
             </PrimaryButton>
 
 
-                       
+
 
         </template>
 
@@ -246,9 +330,9 @@ const deleteOrganizer = () => {
 
 
 
-            
-       
-            
+
+
+
         </template>
     </ActionSection>
 </template>

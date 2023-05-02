@@ -39,7 +39,7 @@ const props = defineProps({
                                     <option value="only">Only Trashed</option>
                                     </select>
                                 </search-filter> -->
-                                <Link class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" :href="`/${url_prefix}/accounts/create`">
+                                <Link class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" :href="`/accounts/create`">
                                     <span>Create</span>
                                     <span class="hidden md:inline">&nbsp;Account</span>
                                 </Link>
@@ -55,7 +55,7 @@ const props = defineProps({
                                 <tbody>
                                 <tr v-for="account in accounts" :key="account.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t">
-                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/${url_prefix}/accounts/${account.id}/edit`">
+                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/accounts/${account.id}/edit`">
                                             {{ account.name }}
                                             <icon v-if="account.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                                         </Link>

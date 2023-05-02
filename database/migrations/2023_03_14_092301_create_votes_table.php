@@ -16,6 +16,9 @@ return new class extends Migration
             $table->foreignId('agendar_id');
             $table->foreignId('meeting_id');
             $table->string('subject');
+            $table->foreignId('account_id');
+            $table->foreignId('created_by'); // login user who create the meeting
+            $table->softDeletes();
             $table->timestamps();
         });
     }

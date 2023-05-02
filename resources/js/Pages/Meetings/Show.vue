@@ -5,9 +5,13 @@ import DeleteUserForm from '@/Pages/Meetings/Partials/DeleteUserForm.vue';
 import LogoutOtherBrowserSessionsForm from '@/Pages/Meetings/Partials/LogoutOtherBrowserSessionsForm.vue';
 import SectionBorder from '@/Components/SectionBorder.vue';
 
+import TabButton from '@/Components/TabButton.vue';
+import DeleteButton from '@/Components/DeleteButton.vue';
+
 
 import MeetingInfoForm from '@/Pages/Meetings/Partials/MeetingInfoForm.vue';
 import MeetingAgendaForm from '@/Pages/Meetings/Partials/MeetingAgendaForm.vue';
+import ParticipantForm from '@/Pages/Meetings/Partials/ParticipantForm.vue';
 import MeetingAgendaContributorForm from '@/Pages/Meetings/Partials/MeetingAgendaContributorForm.vue';
 
 import MeetingOrganizerForm from '@/Pages/Meetings/Partials/MeetingOrganizerForm.vue';
@@ -22,6 +26,9 @@ defineProps({
     sessions: Array,
     meeting: Object,
     users: Array,
+    meeting_roles: Array,
+    groups: Array,
+    purposes: Array,
     organizers:Array,
     contributors:Array,
     agendas:Array,
@@ -37,16 +44,42 @@ const showMeetingAgendaContributorSection = ref(false);
 
 const showMeetingAgendaSection = ref(false);
 
-const showOrganizerSection = () => { 
-    return showMeetingOrganizerSection.value = !showMeetingOrganizerSection.value ;
-}; 
+const preserveScroll = ref(false);
 
-const showContributorSection = () => { 
+
+const showMeetingParticipantSection = ref(false);
+
+const showOrganizerSection = () => {
+
+    showMeetingAgendaContributorSection.value = false;
+    showMeetingAgendaSection.value = false;
+    showMeetingParticipantSection.value = false;
+    preserveScroll: true;
+    return showMeetingOrganizerSection.value = !showMeetingOrganizerSection.value ;
+};
+
+const showContributorSection = () => {
+    showMeetingOrganizerSection.value = false;
+    showMeetingAgendaSection.value = false;
+    showMeetingParticipantSection.value = false;
+    preserveScroll: true;
     return showMeetingAgendaContributorSection.value = !showMeetingAgendaContributorSection.value ;
 };
 
-const showAgendaSection = () => { 
+const showAgendaSection = () => {
+    showMeetingOrganizerSection.value = false;
+     showMeetingAgendaContributorSection.value = false;
+     showMeetingParticipantSection.value = false;
     return showMeetingAgendaSection.value = !showMeetingAgendaSection.value ;
+};
+
+
+const showParticipantSection = () => {
+     showMeetingOrganizerSection.value = false;
+     showMeetingAgendaContributorSection.value = false;
+     showMeetingAgendaSection.value = false;
+     preserveScroll: true;
+    return showMeetingParticipantSection.value = !showMeetingParticipantSection.value;
 };
 
 </script>
@@ -60,56 +93,87 @@ const showAgendaSection = () => {
         </template>
 
         <div>
-            <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto pt-10 sm:px-6 lg:px-8">
 
-                 <MeetingInfoForm  :meeting = "meeting" :schedules = "schedules" :notifications="notifications" class="mt-10 sm:mt-0" />
+                 <MeetingInfoForm  :meeting = "meeting" :schedules = "schedules" :notifications="notifications" class="mt-10 sm:mt-0" >
+                 </MeetingInfoForm>
+
+
+              <div class="flex justify-end mt-5 ml-">
+                <TabButton @click="showOrganizerSection" >
+                    Organizer
+                </TabButton>
+
+                <TabButton @click="showContributorSection" >
+                    Contributor
+                </TabButton>
+
+
+                <TabButton @click="showAgendaSection" >
+                    Agenda
+                </TabButton>
+
+
+                <TabButton @click="showParticipantSection" >
+                    Participant
+                </TabButton>
+
+
+
+
+            </div>
+
+
 
                  <SectionBorder />
 
 
-                        <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showOrganizerSection">
-                <p v-show="!showMeetingOrganizerSection">Add Meeting Organizer</p> 
-                <p v-show="showMeetingOrganizerSection">Close Meeting Organizer</p>           
-            </button>
 
             </div>
 
-            <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-               
-                    <MeetingOrganizerForm :users="users" :organizers="organizers" :meeting="meeting" :user="$page.props.auth.user" v-show="showMeetingOrganizerSection" id="organizer"/>
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <SectionBorder />
-                  
+                    <MeetingOrganizerForm
+                       :users="users"
+                       :organizers="organizers"
+                       :meeting="meeting"
+                       :user="$page.props.auth.user"
+                       v-show="showMeetingOrganizerSection"
+                       />
 
-                <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showContributorSection">
-                <p v-show="!showMeetingAgendaContributorSection">Add Agenda Contributor</p> 
-                <p v-show="showMeetingAgendaContributorSection">Close Agenda Contributor</p>           
-            </button>
+
+                    <MeetingAgendaContributorForm
+                        :users="users"
+                        :contributors="contributors"
+                        :meeting="meeting"
+                        :user="$page.props.auth.user"
+                        v-show="showMeetingAgendaContributorSection"
+                        />
+
+
+                    <MeetingAgendaForm
+                       :users="users"
+                       :agendas="agendas"
+                       :purposes = "purposes"
+                       :meeting="meeting"
+                       :user="$page.props.auth.user"
+                       v-show="showMeetingAgendaSection" />
+
+                   <ParticipantForm
+                      :users="users"
+                      :groups="groups"
+                      :meeting_roles="meeting_roles"
+                      :participants="participants"
+                      :meeting="meeting"
+                      :user="$page.props.auth.user"
+                      v-show="showMeetingParticipantSection"
+                      />
+
 
                 </div>
 
-              <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">              
-                    <MeetingAgendaContributorForm :users="users" :contributors="contributors" :meeting="meeting" :user="$page.props.auth.user" v-show="showMeetingAgendaContributorSection" />
-
-                    <SectionBorder />
 
 
-            <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showAgendaSection">
-                <p v-show="!showMeetingAgendaSection">Add Agenda </p> 
-                <p v-show="showMeetingAgendaSection">Close Agenda </p>           
-            </button>
-
-                    
-                </div>
-
-               <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">              
-                    <MeetingAgendaForm :users="users" :agendas="agendas" :meeting="meeting" :user="$page.props.auth.user" v-show="showMeetingAgendaSection" />
-
-                    <SectionBorder />
-                </div>
-
-               
-          
         </div>
     </AppLayout>
 </template>

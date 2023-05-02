@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Group;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class GroupController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-        public function index()
+    public function index()
     {
-        $groups = Group::all(); 
-        return Inertia::render('Group/Index',compact('groups'));
+        $groups = Group::all();
+        return Inertia::render('Groups/Index',compact('groups'));
     }
 
     /**
@@ -21,7 +25,7 @@ class GroupController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Group/Create');
+        return Inertia::render('Groups/Create');
     }
 
     /**
@@ -29,6 +33,12 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
+        $request['created_by'] =  Auth::user()->id;
+
+        $account = User::find($request['created_by'])->account;
+
+        $request['account_id'] = $account->id;
+
         Group::create($request->all());
 
         return redirect()->route('groups.index')
@@ -38,32 +48,32 @@ class GroupController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Group $group)
+    public function show($id)
     {
         $group = Group::findOrFail($id);
-        return Inertia::render('Group/Show',compact('group'));
+        return Inertia::render('Groups/Show',compact('group'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Group $group)
+    public function edit($id)
     {
        $group = Group::findOrFail($id);
-       return Inertia::render('Group/Edit',compact('group'));
+       return Inertia::render('Groups/Edit',compact('group'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Group $group)
+    public function update(Request $request, $id)
     {
         $group = Group::find($id);
 
         $group->name = $request->input('name');
         $group->description = $request->input('description');
 
-        $group->save();        
+        $group->save();
 
         return redirect()->route('groups.index')
                         ->with('success','Group updated successfully');
@@ -72,7 +82,7 @@ class GroupController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Group $group)
+    public function destroy($id)
     {
         DB::table("groups")->where('id', $id)->delete();
         return redirect()->route('groups.index')

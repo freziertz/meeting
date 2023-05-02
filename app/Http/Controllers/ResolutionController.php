@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Resolution;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreResolutionRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ResolutionController extends Controller
 {
@@ -15,8 +17,8 @@ class ResolutionController extends Controller
      */
     public function index()
     {
-        $resolutions = Resolution::all(); 
-        return Inertia::render('Resolution/Index',compact('resolutions'));        
+        $resolutions = Resolution::all();
+        return Inertia::render('Resolution/Index',compact('resolutions'));
     }
 
     /**
@@ -30,8 +32,14 @@ class ResolutionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreResolutionRequest $request)
+    public function store(Request $request)
     {
+        $request['created_by'] =  Auth::user()->id;
+
+        $account = User::find($request['created_by'])->account;
+
+        $request['account_id'] = $account->id;
+
         Resolution::create($request->all());
 
         return redirect()->route('resolution.index')
@@ -46,7 +54,7 @@ class ResolutionController extends Controller
         $resolution = Resolution::findOrFail($id);
         return Inertia::render('Resolutions/Show',compact('resolution'));
     }
-    
+
 
     /**
      * Show the form for editing the specified resource.
@@ -60,7 +68,7 @@ class ResolutionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreResolutionRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         $resolution = Resolution::find($id);
 
@@ -72,9 +80,9 @@ class ResolutionController extends Controller
         $resolution->description = $request->input('description');
         $resolution->participants_notes = $request->input('participants_notes');
         $resolution->organizer_notes = $request->input('organizer_notes');
-        $resolution->status = $request->input('status'); 
+        $resolution->status = $request->input('status');
 
-        $resolution->save();        
+        $resolution->save();
 
         return redirect()->route('resolutions.index')
                         ->with('success','Resolution updated successfully');

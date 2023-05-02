@@ -21,6 +21,9 @@ return new class extends Migration
             $table->foreignId('purpose_id')->nullable();
             $table->string('external_url')->nullable();
             $table->boolean('recurring')->nullable();
+            $table->foreignId('account_id');
+            $table->foreignId('created_by'); // login user who create the meeting
+            $table->softDeletes();
             $table->timestamps();
         });
     }

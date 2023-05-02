@@ -18,6 +18,7 @@ import TextArea from "@/Components/TextArea.vue";
 
 const props = defineProps({
   meeting_types: Array,
+  purpose: Array,
 });
 
 const events = reactive([{
@@ -37,21 +38,22 @@ const removeField = (index, fieldType) => {
 
 
 const form = useForm({
-  meeting_type_id: null,
-  title: null,
+  meeting_type_id: 1,
+  title: 'Annual Board meeting',
   events:[{
-      meeting_date: null,
-      meeting_start_time:null,
-      meeting_end_time:null,
+      meeting_date: '2023-09-22',
+      meeting_start_time:'08:30',
+      meeting_end_time:'12:30',
       }],
-  venue: null,
-  google_map_url: null,
-  timezone_id: null,
-  description: null,
-  participants_notes: null,
-  organizer_notes: null,
+  venue: 'Datahouse HQ',
+  google_map_url: 'http://google.com',
+  timezone_id: 1,
+  description:'Annual Board meeting for meeting management development',
+  participants_notes: 'Meeting Management system develepment resolution and fund requirement ',
+  organizer_notes: 'Prepare agenda for meeting management system development and propose source of fund',
+  organizer_title: 'Administrator',
   reminders: [{
-    reminder:null,
+    reminder: 2,
   }],
   status: 1
 });
@@ -72,6 +74,7 @@ const createMeeting = () => {
         </template>
 
         <div>
+
        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
             <div>
                 <FormSection @submitted="createMeeting">
@@ -91,9 +94,9 @@ const createMeeting = () => {
 
                          <div class="col-span-6 sm:col-span-4">
                          <InputLabel for="Meeting type" value="Meeting type" />
-                            <select 
-                               v-model="form.meeting_type_id" 
-                               :error="form.errors.meeting_type_id" 
+                            <select
+                               v-model="form.meeting_type_id"
+                               :error="form.errors.meeting_type_id"
                                required
                                class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Organization">
 
@@ -101,9 +104,9 @@ const createMeeting = () => {
                             </select>
                         </div>
 
-               
 
- 
+
+
 
 
                         <!-- Meeting Title -->
@@ -123,9 +126,9 @@ const createMeeting = () => {
 
                         <!-- Event or Schedule -->
 
-                     <div v-for="( input , index) in form.events" :key="`Event-${index}`" class="col-span-6 sm:col-span-4 flex" >                
+                     <div v-for="( input , index) in form.events" :key="`Event-${index}`" class="col-span-6 sm:col-span-4 flex" >
 
-             
+
 
 
                         <!-- Meeting Date -->
@@ -142,7 +145,7 @@ const createMeeting = () => {
                             />
 
                           <InputError :message="form.errors.meeting_date" class="mt-2" />
-                            
+
                           </div>
 
 
@@ -192,7 +195,7 @@ const createMeeting = () => {
 
 
 
-                     
+
 
                         </div>
 
@@ -215,6 +218,20 @@ const createMeeting = () => {
                         </div>
 
 
+                        <div class="col-span-6 sm:col-span-4">
+                            <InputLabel for="organizer_title" value="Organizer title" />
+                            <TextInput
+                                id="organizer_title"
+                                v-model="form.organizer_title"
+                                type="text"
+                                class="mt-1 block w-full"
+                                autocomplete="organizer_title"
+                                required
+                            />
+                            <InputError :message="form.errors.organizer_title" class="mt-2" />
+                        </div>
+
+
                         <!-- Google Map Url -->
                         <div class="col-span-6 sm:col-span-4">
                             <InputLabel for="venue" />
@@ -229,7 +246,7 @@ const createMeeting = () => {
                             <InputError :message="form.errors.google_map_url" class="mt-2" />
                         </div>
 
-                        <!-- Meeting Desctiption -->
+                        <!-- Meeting Description -->
                         <div class="col-span-6 sm:col-span-4">
                             <InputLabel for="description" value="Description" />
                             <TextArea
@@ -237,7 +254,7 @@ const createMeeting = () => {
                                 v-model="form.description"
                                 type="textarea"
                                 class="mt-1 block w-full"
-                                autocomplete="description"                               
+                                autocomplete="description"
                             />
                             <InputError :message="form.errors.description" class="mt-2" />
                         </div>
@@ -250,7 +267,7 @@ const createMeeting = () => {
                                 v-model="form.participants_notes"
                                 type="textarea"
                                 class="mt-1 block w-full"
-                                autocomplete="participants_notes"                                
+                                autocomplete="participants_notes"
                             />
                             <InputError :message="form.errors.participants_notes" class="mt-2" />
                         </div>
@@ -263,7 +280,7 @@ const createMeeting = () => {
                                 v-model="form.organizer_notes"
                                 type="textarea"
                                 class="mt-1 block w-full"
-                                autocomplete="organizer_notes"                                
+                                autocomplete="organizer_notes"
                             />
                             <InputError :message="form.errors.organizer_notes" class="mt-2" />
                         </div>
@@ -277,9 +294,9 @@ const createMeeting = () => {
                          <!-- Reminder -->
 
 
-                     <div v-for="( input , index) in form.reminders" :key="`Reminder-${index}`" class="col-span-6 sm:col-span-4 flex" >                
+                     <div v-for="( input , index) in form.reminders" :key="`Reminder-${index}`" class="col-span-6 sm:col-span-4 flex" >
 
-             
+
 
 
                         <!-- Meeting Reminder -->
@@ -297,11 +314,11 @@ const createMeeting = () => {
                             />
 
                           <InputError :message="form.errors.reminder" class="mt-2" />
-                            
+
                           </div>
 
 
-                        
+
 
                         <div class="col-span-1 sm:col-span-1 ml-2 mt-8">
                         <button type="button" @click="addField(input, form.reminders)"  class="text-xl">+</button>
@@ -315,20 +332,20 @@ const createMeeting = () => {
 
 
 
-                     
+
 
                         </div>
 
 
-                        
-
-
-                        
 
 
 
 
-  
+
+
+
+
+
 
                     </template>
 

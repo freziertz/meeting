@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vote;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreVoteRequest;
+use Illuminate\Support\Facades\Auth;
 
 class VoteController extends Controller
 {
@@ -15,7 +17,7 @@ class VoteController extends Controller
      */
     public function index()
     {
-        $votes = Vote::all(); 
+        $votes = Vote::all();
         return Inertia::render('Votes/Index',compact('votes'));
     }
 
@@ -30,8 +32,14 @@ class VoteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreVoteRequest $request)
+    public function store(Request $request)
     {
+        $request['created_by'] =  Auth::user()->id;
+
+        $account = User::find($request['created_by'])->account;
+
+        $request['account_id'] = $account->id;
+
         Vote::create($request->all());
 
         return redirect()->route('votes.index')
@@ -59,7 +67,7 @@ class VoteController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreVoteRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         $vote = Vote::find($id);
 
@@ -71,9 +79,9 @@ class VoteController extends Controller
         $vote->description = $request->input('description');
         $vote->participants_notes = $request->input('participants_notes');
         $vote->organizer_notes = $request->input('organizer_notes');
-        $vote->status = $request->input('status'); 
+        $vote->status = $request->input('status');
 
-        $vote->save();        
+        $vote->save();
 
         return redirect()->route('votes.index')
                         ->with('success','Vote updated successfully');

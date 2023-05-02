@@ -13,6 +13,7 @@ import PartialFormSection from '@/Components/PartialFormSection.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import DeleteButton from '@/Components/DeleteButton.vue';
 
 
 
@@ -65,6 +66,7 @@ const props = defineProps({
     user: Object,
     sessions: Array,
     agendas: Array,
+    purposes: Array,
     meeting: Object,
 
 });
@@ -79,7 +81,7 @@ const pond = ref(['index.html']);
 
 
 
-const form = useForm({   
+const form = useForm({
     title: 'title test' ,
     presenter_id: 1,
     contributor_id: 1,
@@ -89,7 +91,7 @@ const form = useForm({
     recurring: false,
     minutes: 15,
     photo: [],
-    meeting_id: props.meeting.meeting_id,
+    meeting_id: props.meeting.id,
 });
 
 
@@ -99,7 +101,7 @@ const createMeetingAgenda = () => {
         preserveScroll: true,
         // onSuccess: () => form.reset(),
         // onSuccess: () => clearPhotoFileInput(),
-    }); 
+    });
 };
 
 const handleFilePondInit =()=> {
@@ -122,24 +124,24 @@ const onAddFile = (error, file) => {
 
 const updateFilePond = (files) => {
 
-    console.log('FilePond updated');  
+    console.log('FilePond updated');
 
     form.photo = files.map(files => files.file);
 
 };
 
 
-const showAgendaForm = () => { 
+const showAgendaForm = () => {
     return showForm.value = !showForm.value ;
 };
 
 
-const deleteOrganizer = () => {
-    form.delete(route('current-user.destroy'), {
+const deleteAgenda = (id) => {
+    form.delete(route('agendas.destroy', id), {
         preserveScroll: true,
-        onSuccess: () => closeModal(),
-        onError: () => passwordInput.value.focus(),
-        onFinish: () => form.reset(),
+        // onSuccess: () => closeModal(),
+        // onError: () => passwordInput.value.focus(),
+        // onFinish: () => form.reset(),
     });
 };
 
@@ -160,7 +162,15 @@ const deleteOrganizer = () => {
 
 <template>
     <ActionSection>
-       
+
+        <template #title>
+            Agendas
+        </template>
+
+        <template #description>
+            Manage Agendas
+        </template>
+
 
         <template #content>
 
@@ -168,7 +178,7 @@ const deleteOrganizer = () => {
                             <table class="w-full whitespace-nowrap">
                                 <thead>
                                     <tr class="text-left font-bold">
-                                       
+                                        <th class="pb-4 pt-6 px-6">No</th>
                                         <th class="pb-4 pt-6 px-6">Presenter</th>
                                         <th class="pb-4 pt-6 px-6">Contributor</th>
                                         <th class="pb-4 pt-6 px-6">Purpose</th>
@@ -178,15 +188,23 @@ const deleteOrganizer = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr v-for="agenda in agendas" :key="agenda.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+                                <tr v-for="( agenda, index) in agendas" :key="agenda.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
 
 
-        
+                                    <td class="border-t">
+                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/agendas/${agenda.id}`">
+                                            {{ index +1 }}
+
+                                        </Link>
+                                    </td>
+
+
+
 
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/agendas/${agenda.id}`">
                                             {{ agenda.pfirst_name  }} {{ agenda.plast_name }}
-                                        
+
                                         </Link>
                                     </td>
 
@@ -194,36 +212,43 @@ const deleteOrganizer = () => {
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/agendas/${agenda.id}`">
                                             {{ agenda.first_name }} {{ agenda.last_name }}
-                                        
+
                                         </Link>
                                     </td>
 
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/agendas/${agenda.id}`">
                                             {{ agenda.purpose_name }}
-                                        
+
                                         </Link>
                                     </td>
 
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/agendas/${agenda.id}`">
                                             {{ agenda.external_url }}
-                                        
+
                                         </Link>
                                     </td>
 
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/agendas/${agenda.id}`">
                                             {{ agenda.minutes }}
-                                        
+
                                         </Link>
                                     </td>
 
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/agendas/${agenda.id}`">
                                             {{ agenda.recurring? 'Yes': 'No' }}
-                                        
+
                                         </Link>
+                                    </td>
+
+
+                                    <td class="border-t">
+
+                                    <delete-button @delete="deleteAgenda(`${agenda.id}`)">Delete</delete-button>
+
                                     </td>
 
                                 </tr>
@@ -232,15 +257,15 @@ const deleteOrganizer = () => {
             </div>
 
             <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showAgendaForm">
-                <p v-show="!showForm">Add Agenda</p> 
-                <p v-show="showForm">Close Agenda Form</p>           
+                <p v-show="!showForm">Add Agenda</p>
+                <p v-show="showForm">Close Agenda Form</p>
             </button>
 
             <SectionBorder />
 
-        
 
-        
+
+
 
             <div v-show="showForm">
 
@@ -264,49 +289,51 @@ const deleteOrganizer = () => {
                 />
                 <InputError :message="form.errors.title" class="mt-2" />
             </div>
-                   
-        
+
+
 
             <!-- Presenter Id -->
 
             <div class="col-span-6 sm:col-span-4">
             <InputLabel for="presenter_id" value="Select presenter" />
-            
-                <select 
-                   v-model="form.presenter_id" 
-                   :error="form.errors.presenter_id" 
+
+                <select
+                   v-model="form.presenter_id"
+                   :error="form.errors.presenter_id"
                    class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Presenter">
 
                         <option v-for="user in users" :key="user.id" :value="user.id">{{ user.first_name + " " + user.last_name}}</option>
-                </select>    
+                </select>
             </div>
 
             <!-- Contributor Id -->
 
             <div class="col-span-6 sm:col-span-4">
             <InputLabel for="contributor_id" value="Select contributor" />
-            
-                <select 
-                   v-model="form.contributor_id" 
-                   :error="form.errors.contributor_id" 
+
+                <select
+                   v-model="form.contributor_id"
+                   :error="form.errors.contributor_id"
                    class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Contributor">
 
                         <option v-for="user in users" :key="user.id" :value="user.id">{{ user.first_name + " " + user.last_name}}</option>
-                </select>    
+                </select>
             </div>
 
             <!-- Purpose -->
-            <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="purpose_id" value="Purpose" />
-                <TextInput
-                    id="purpose_id"
-                    v-model="form.purpose_id"
-                    type="text"
-                    class="mt-1 block w-full"
-                    autocomplete="purpose_id"
-                />
-                <InputError :message="form.errors.purpose_id" class="mt-2" />
-            </div>
+
+                 <div class="col-span-6 sm:col-span-4">
+                 <InputLabel for="purpose" value="Purpose" />
+                    <select
+                       v-model="form.purpose_id"
+                       :error="form.errors.purpose_id"
+
+                       class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Organization">
+
+                            <option v-for="purpose in purposes" :key="purpose.id" :value="purpose.id">{{ purpose.name }}</option>
+                    </select>
+                </div>
+
 
 
             <!-- External Url -->
@@ -350,50 +377,48 @@ const deleteOrganizer = () => {
 
 
 
-        
-   
+
+
 
 
             <!-- Meeting Id-->
 
- 
-            
-              
-                <TextInput  id="meeting_id"  v-model="form.meeting_id"  type="hidden"  />
+
+
+
+                <TextInput  id="meeting_id"  v-model="form.meeting_id"  type="text"  />
 
 
 
 
-               
 
 
-                           
-             
 
 
-                    
 
 
-        
 
 
-        <file-pond            
+
+
+
+
+
+        <file-pond
             name="test"
             ref="pond"
             class-name="my-pond"
             label-idle="Drop files here..."
             allow-multiple="true"
             allow-reorder="true"
-            max-files = 10   
-            chunk-uploads = "true"        
+            max-files = 10
+            chunk-uploads = "true"
             v-bind:files="myFiles"
             v-on:init="handleFilePondInit"
             v-on:updatefiles= "updateFilePond"
-            @processfile="onProcessFile" 
+            @processfile="onProcessFile"
             @addfile="onAddFile"
         />
-                
-           
 
 
 
@@ -401,7 +426,9 @@ const deleteOrganizer = () => {
 
 
 
- 
+
+
+
             </div>
         </template>
 
@@ -415,7 +442,7 @@ const deleteOrganizer = () => {
             </PrimaryButton>
 
 
-                       
+
 
         </template>
 
@@ -426,9 +453,9 @@ const deleteOrganizer = () => {
 
 
 
-            
-       
-            
+
+
+
         </template>
     </ActionSection>
 </template>

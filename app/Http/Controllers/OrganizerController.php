@@ -3,16 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Models\Organizer;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreOrganizerRequest;
+use Illuminate\Support\Facades\Auth;
 
 class OrganizerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    // protected $meeting;
+    // protected $created_by;
+    // protected $account;
+
+
+    function __constructor()
+    {
+        // $this->meeting = $meeting;
+
+    }
+
+
     public function index()
     {
         //
@@ -31,17 +45,24 @@ class OrganizerController extends Controller
      */
     public function store(Request $request)
     {
+        $created_by =  Auth::user()->id;
+        $account = User::find($created_by)->account;
+
+
 
         $organizer = Organizer::where('meeting_id', $request->input('meeting_id'))
-                               ->where('user_id', $request->input('user_id'))
+                               ->where('organizer_id', $request->input('organizer_id'))
                             ->first();
 
         if (is_null($organizer)) {
                 Organizer::create([
                     'meeting_id' => $request->input('meeting_id'),
-                    'user_id' => $request->input('user_id'),
+                    'organizer_id' => $request->input('organizer_id'),
                     'title' => $request->input('title'),
                     'primary' => $request->input('primary'),
+                    'created_by' => $created_by,
+                    'account_id' => $account->id
+
                  ]);
          }
 
@@ -68,7 +89,7 @@ class OrganizerController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreOrganizerRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -76,8 +97,9 @@ class OrganizerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+
+        DB::table("organizers")->where('id', $id)->delete();
     }
 }

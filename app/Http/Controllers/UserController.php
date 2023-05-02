@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreUserRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -38,7 +39,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Users/Create');
     }
 
     /**
@@ -46,7 +47,16 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request['created_by'] =  Auth::user()->id;
+
+        $account = User::find($request['created_by'])->account;
+
+        $request['account_id'] = $account->id;
+
+        User::create($request->all());
+
+        return redirect()->route('users.index')
+                        ->with('success','User created successfully.');
     }
 
     /**
@@ -78,6 +88,9 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // DB::table("users")->where('id', $id)->delete();
+
+        // return redirect()->route('users.index')
+        //                 ->with('success','User deleted successfully');
     }
 }

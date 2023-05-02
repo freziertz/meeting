@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Schedule;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreScheduleRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ScheduleController extends Controller
 {
@@ -15,7 +17,7 @@ class ScheduleController extends Controller
      */
     public function index()
     {
-        $schedules = Agenda::all(); 
+        $schedules = Schedule::all();
         return Inertia::render('Schedules/Index',compact('schedules'));
     }
 
@@ -30,8 +32,15 @@ class ScheduleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreScheduleRequest $request)
+    public function store(Request $request)
     {
+
+        $request['created_by'] =  Auth::user()->id;
+
+        $account = User::find($request['created_by'])->account;
+
+        $request['account_id'] = $account->id;
+
         Schedule::create($request->all());
 
         return redirect()->route('schedules.index')
@@ -59,7 +68,7 @@ class ScheduleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreScheduleRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         $schedule = Schedule::find($id);
 
@@ -68,10 +77,10 @@ class ScheduleController extends Controller
         $schedule->meeting_end_date = $request->input('meeting_end_date');
         $schedule->meeting_start_time = $request->input('meeting_start_time');
         $schedule->meeting_end_time = $request->input('meeting_end_time');
-     
 
-        $schedule->save();   
-     
+
+        $schedule->save();
+
 
         return redirect()->route('schedules.index')
                         ->with('success','Schedule updated successfully');

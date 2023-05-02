@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
@@ -12,7 +16,8 @@ class AdminController extends Controller
      */
     public function index()
     {
-        //
+        $admins = Admin::all();
+        return Inertia::render('Admins/Index',compact('admins'));
     }
 
     /**
@@ -20,7 +25,7 @@ class AdminController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Admins/Create');
     }
 
     /**
@@ -28,23 +33,34 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request['created_by'] =  Auth::user()->id;
+
+        $account = User::find($request['created_by'])->account;
+
+        $request['account_id'] = $account->id;
+
+        Admin::create($request->all());
+
+        return redirect()->route('admins.index')
+                        ->with('success','Admin created successfully.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Admin $admin)
+    public function show(string $id)
     {
-        //
+        $vote = Admin::findOrFail($id);
+        return Inertia::render('Admins/Show',compact('admin'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Admin $admin)
+    public function edit(string $id)
     {
-        //
+        $admin = Admin::findOrFail($id);
+        return Inertia::render('Votes/Edit',compact('admin'));
     }
 
     /**
@@ -58,8 +74,11 @@ class AdminController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Admin $admin)
+    public function destroy(string $id)
     {
-        //
+        DB::table("actions")->where('id', $id)->delete();
+
+        return redirect()->route('admins.index')
+                        ->with('success','Admin deleted successfully');
     }
 }

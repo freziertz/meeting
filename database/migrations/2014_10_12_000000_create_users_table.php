@@ -20,19 +20,20 @@ return new class extends Migration
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
-
             $table->string('title')->nullable();
             $table->string('first_name')->nullable();
             $table->string('middle_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('initials')->nullable();
             $table->string('designation')->nullable();
-            $table->string('organization_id')->nullable();
+            $table->foreignId('organization_id')->nullable();
             $table->string('storage_limit')->nullable();
             $table->string('pa_email')->nullable();
             $table->boolean('send_welcome_email')->default(false);
             $table->boolean('send_start_guide')->default(false);
-
+            $table->foreignId('account_id');
+            $table->foreignId('created_by'); // login user who create the meeting
+            $table->softDeletes();
             $table->timestamps();
         });
     }

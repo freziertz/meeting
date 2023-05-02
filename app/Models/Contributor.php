@@ -5,17 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Contributor extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
-
         'meeting_id',
-        'user_id',
-        'title'
-
+        'contributor_id',  // contributor user id
+        'title',
+        'created_by',
+        'account_id'
     ];
 
 

@@ -13,10 +13,13 @@ return new class extends Migration
     {
         Schema::create('organizers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
+            $table->foreignId('organizer_id'); // User id who is responsible in organizing this meeting
             $table->foreignId('meeting_id');
             $table->string('title')->nullable();
-            $table->boolean('primary')->default(false);           
+            $table->boolean('primary')->default(false);
+            $table->foreignId('account_id');
+            $table->foreignId('created_by'); // login user who create the meeting
+            $table->softDeletes();
             $table->timestamps();
         });
     }

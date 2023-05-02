@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
+use App\Models\User;
+use App\Models\Document;
 use App\Models\Agenda;
 use App\Models\Meeting;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreAgendaRequest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class AgendaController extends Controller
 {
@@ -21,7 +24,7 @@ class AgendaController extends Controller
     public function index(Meeting $meeting)
     {
 
-        $agendas = Agenda::find($meeting->id)->agendas;
+        $agendas = Meeting::find($meeting->id)->agendas;
         // $agendas = Agenda::all(); //particular agenda agenda
         return Inertia::render('Agendas/Index',compact('agendas'));
     }
@@ -31,7 +34,7 @@ class AgendaController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Agender/Create');
+        return Inertia::render('Agendas/Create');
     }
 
     /**
@@ -41,20 +44,27 @@ class AgendaController extends Controller
     {
 
         // dd($request->input('photo'));
-      
 
-        $files = $request->allFiles();  
+        $created_by =  Auth::user()->id;
+        $account = User::find($created_by)->account;
+
+        $request['created_by'] = $created_by;
+
+        $request['account_id'] = $account->id;
+
+
+        $files = $request->allFiles();
 
 
 
         $requestKey = array_key_first($files);
 
 
- 
-        if (!empty($files)) {        
-       
-           
-            for( $i = 0; $i < count($files); $i++ ){             
+
+        if (!empty($files)) {
+
+
+            for( $i = 0; $i < count($files); $i++ ){
 
                 for ( $k= 0; $k < count($files[$requestKey]); $k++){
 
@@ -62,32 +72,32 @@ class AgendaController extends Controller
 
                        $filename = $file->getClientOriginalName();
 
-                       $name = $file->hashName(); 
+                       $name = $file->hashName();
 
                        $extension = $file->getClientOriginalExtension();
 
-                       $extensionMime = $file->extension();                    
+                       $extensionMime = $file->extension();
 
 
-                       $path = 'public/documents/'.now()->timestamp.'-'.Str::random(20);                 
+                       $path = 'public/documents/'.now()->timestamp.'-'.Str::random(20);
 
-      
+
                       $file->store(
                             path: $path
                         );
 
                         // $document = Document::create($request->all());
                   }
-             
-            }          
+
+            }
 
         }
 
         $meeting = Meeting::find($request->input('meeting_id'));
 
-    
 
-        
+
+        $document = Document::create($request->all());
 
         $agenda = Agenda::create($request->all());
 
@@ -126,8 +136,8 @@ class AgendaController extends Controller
         $agenda->purpose_id = $request->input('purpose_id');
         $agenda->external_url = $request->input('external_url');
         $agenda->recurring = $request->input('recurring');
-      
-        $agenda->save();        
+
+        $agenda->save();
 
         return redirect()->route('agendas.index')
                         ->with('success','Agenda updated successfully');
@@ -139,7 +149,7 @@ class AgendaController extends Controller
     public function destroy(string $id)
     {
         DB::table("agendas")->where('id', $id)->delete();
-        return redirect()->route('agendas.index')
-                        ->with('success','Agenda deleted successfully');
+        // return redirect()->route('agendas.index')
+        //                 ->with('success','Agenda deleted successfully');
     }
 }

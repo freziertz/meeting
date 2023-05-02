@@ -13,18 +13,20 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->string('name');        
+            $table->string('name');
             $table->text('description')->nullable();
-            $table->uuid('uuid');
-            $table->string('path'); 
-            $table->string('webpath'); 
-            $table->string('fullpath'); 
-            $table->string('filename'); 
+            $table->uuid('uuid')->unique();
+            $table->string('path');
+            $table->string('webpath');
+            $table->string('fullpath');
+            $table->string('filename');
             $table->string('extension');
             $table->string('mime_type');
             $table->string('size');
             $table->string('signature');
-            $table->foreignId('user_id');          
+            $table->foreignId('account_id');
+            $table->foreignId('created_by'); // login user who create the meeting
+            $table->softDeletes();
             $table->timestamps();
         });
     }

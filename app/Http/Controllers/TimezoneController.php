@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Timezone;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreTimezoneRequest;
+use Illuminate\Support\Facades\Auth;
 
 class TimezoneController extends Controller
 {
@@ -15,7 +17,7 @@ class TimezoneController extends Controller
      */
     public function index()
     {
-        $timezones = Timezone::all(); 
+        $timezones = Timezone::all();
         return Inertia::render('Timezones/Index',compact('timezones'));
     }
 
@@ -30,8 +32,14 @@ class TimezoneController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTimezoneRequest $request)
+    public function store(Request $request)
     {
+        $request['created_by'] =  Auth::user()->id;
+
+        $account = User::find($request['created_by'])->account;
+
+        $request['account_id'] = $account->id;
+
         Timezone::create($request->all());
 
         return redirect()->route('timezones.index')
@@ -59,7 +67,7 @@ class TimezoneController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreTimezoneRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         $timezone = Timezone::find($id);
 
@@ -71,9 +79,9 @@ class TimezoneController extends Controller
         $timezone->description = $request->input('description');
         $timezone->participants_notes = $request->input('participants_notes');
         $timezone->organizer_notes = $request->input('organizer_notes');
-        $timezone->status = $request->input('status'); 
+        $timezone->status = $request->input('status');
 
-        $timezone->save();        
+        $timezone->save();
 
         return redirect()->route('timezones.index')
                         ->with('success','Timezone updated successfully');

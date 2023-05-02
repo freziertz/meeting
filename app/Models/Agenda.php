@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Agenda extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -18,7 +20,9 @@ class Agenda extends Model
         'minutes',
         'purpose_id',
         'external_url',
-        'recurring'
+        'recurring',
+        'created_by',
+        'account_id'
     ];
 
 
@@ -28,9 +32,9 @@ class Agenda extends Model
     }
 
 
-    public function user() 
-    { 
-       return $this->belongsTo(User::class); 
+    public function user()
+    {
+       return $this->belongsTo(User::class);
     }
 
     public function presenter()
@@ -59,7 +63,7 @@ class Agenda extends Model
         return Purpose::find($this->purpose_id)->value('name');
     }
 
-  
+
 
 
 }

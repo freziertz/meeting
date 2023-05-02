@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreNotificationRequest;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
@@ -15,7 +17,7 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        $notifications = Notification::all(); 
+        $notifications = Notification::all();
         return Inertia::render('Notification/Index',compact('notifications'));
     }
 
@@ -30,8 +32,14 @@ class NotificationController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreNotificationRequest $request)
+    public function store(Request $request)
     {
+        $request['created_by'] =  Auth::user()->id;
+
+        $account = User::find($request['created_by'])->account;
+
+        $request['account_id'] = $account->id;
+
         Notification::create($request->all());
 
         return redirect()->route('notifications.index')
@@ -59,7 +67,7 @@ class NotificationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreNotificationRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         $notification = Notification::find($id);
 
@@ -71,9 +79,9 @@ class NotificationController extends Controller
         $notification->description = $request->input('description');
         $notification->participants_notes = $request->input('participants_notes');
         $notification->organizer_notes = $request->input('organizer_notes');
-        $notification->status = $request->input('status'); 
+        $notification->status = $request->input('status');
 
-        $notification->save();        
+        $notification->save();
 
         return redirect()->route('notifications.index')
                         ->with('success','Notification updated successfully');

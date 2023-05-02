@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,7 @@ class DocumentController extends Controller
     {
 
         // $url = Storage::url('file1.jpg');
-        $documents = Document::all(); 
+        $documents = Document::all();
         return Inertia::render('Documents/Index',compact('documents'));
     }
 
@@ -40,22 +41,28 @@ class DocumentController extends Controller
 
          $request['user_id'] =  Auth::user()->id;
 
+         $request['created_by'] =  Auth::user()->id;
 
-        $files = $request->allFiles(); 
+         $account = User::find($request['created_by'])->account;
+
+         $request['account_id'] = $account->id;
+
+
+        $files = $request->allFiles();
 
         // dd($files);
 
         $requestKey = array_key_first($files);
- 
-        if (!empty($files)) {        
-       
-           
-            for( $i = 0; $i < count($files); $i++ ){             
+
+        if (!empty($files)) {
+
+
+            for( $i = 0; $i < count($files); $i++ ){
 
                 for ( $k= 0; $k < count($files[$requestKey]); $k++){
 
-                       $file = $request->file($requestKey)[$k];  
-               
+                       $file = $request->file($requestKey)[$k];
+
 
 
                        $filename = $file->getClientOriginalName();
@@ -63,15 +70,15 @@ class DocumentController extends Controller
 
                        $request['filename'] =  $filename;
 
-                       
 
-                       // $request->request->add(['filename' => $filename]); 
+
+                       // $request->request->add(['filename' => $filename]);
 
 
                       $request['size']  = $file->getSize();
 
 
-                       // $request->request->add(['size' => $filesize]); 
+                       // $request->request->add(['size' => $filesize]);
 
 
                       $request['uuid']  = Str::uuid();
@@ -84,15 +91,15 @@ class DocumentController extends Controller
                        // $request->request->add(['uuid' => $uuid ]);
 
 
-                       $filenameWithoutExtension = pathinfo($filename, PATHINFO_FILENAME);                   
+                       $filenameWithoutExtension = pathinfo($filename, PATHINFO_FILENAME);
 
-                       // $hash_name = $file->hashName(); 
+                       // $hash_name = $file->hashName();
 
                           if(empty($request->input('name'))) {
                              $request['name'] = $filenameWithoutExtension;
                                 // $request->request->add(['name' => $filenameWithoutExtension ]);
-                            } 
-                                              
+                            }
+
 
 
 
@@ -100,16 +107,16 @@ class DocumentController extends Controller
 
                        // $request->request->add(['filename' => $extension ]);
 
-                       
+
 
                        // $extensionMime = $file->extension();
 
 
                       $document_folder = now()->timestamp.'-'.Str::random(20);
-                                           
 
 
-                       $path = 'public/documents/'. $document_folder; 
+
+                       $path = 'public/documents/'. $document_folder;
 
                        $request['path'] = $path;
 
@@ -117,11 +124,11 @@ class DocumentController extends Controller
                        $request['webpath'] = '/storage/documents/'. $document_folder;
 
 
-                       $request['fullpath'] = '/storage/documents/'. $document_folder . '/'. $filename; 
+                       $request['fullpath'] = '/storage/documents/'. $document_folder . '/'. $filename;
 
-                       // dd($path);                
+                       // dd($path);
 
-      
+
                       $file->storeAs(
                             $path,
                             $filename
@@ -139,8 +146,8 @@ class DocumentController extends Controller
 
                         $document = Document::create($request->all());
                   }
-             
-            }          
+
+            }
 
         }
 
@@ -172,7 +179,7 @@ class DocumentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreDocumentRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
         $document = Document::find($id);
 
@@ -184,9 +191,9 @@ class DocumentController extends Controller
         $document->description = $request->input('description');
         $document->participants_notes = $request->input('participants_notes');
         $document->organizer_notes = $request->input('organizer_notes');
-        $document->status = $request->input('status'); 
+        $document->status = $request->input('status');
 
-        $document->save();        
+        $document->save();
 
         return redirect()->route('documents.index')
                         ->with('success','Document updated successfully');

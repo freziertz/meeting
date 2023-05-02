@@ -66,7 +66,7 @@ const logout = () => {
 
                                 <NavLink :href="route('documents.index')" :active="route().current('documents.index')">
                                     Document Library
-                                </NavLink> 
+                                </NavLink>
 
                                 <NavLink :href="route('announcements.index')" :active="route().current('announcements.index')">
                                     Announcements
@@ -77,13 +77,71 @@ const logout = () => {
                                     Directory
                                 </NavLink>
 
-                                <NavLink :href="route('admins.index')" :active="route().current('admins.index')">
-                                    System Admin
-                                </NavLink>
+
                             </div>
                         </div>
 
-                        <div class="hidden sm:flex sm:items-center sm:ml-6">
+                            <!-- Settings Dropdown -->
+                            <div class="hidden sm:flex sm:items-center sm:ml-6">
+                            <div class="ml-3 relative">
+                                <Dropdown align="right" width="48">
+                                    <template #trigger>
+                                        <button v-if="$page.props.jetstream.managesProfilePhotos" class="flex text-sm border-2 border-transparent rounded-full focus:outline-none focus:border-gray-300 transition">
+                                            <img class="h-8 w-8 rounded-full object-cover" :src="$page.props.auth.user.profile_photo_url" :alt="$page.props.auth.user.name">
+                                        </button>
+
+                                        <span v-else class="inline-flex rounded-md">
+                                            <button type="button" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50 transition ease-in-out duration-150">
+                                                System Admin
+
+                                                <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </template>
+
+                                    <template #content>
+                                        <!-- Account Management -->
+                                        <DropdownLink :href="route('accounts.index')">
+                                            Accounts
+                                        </DropdownLink>
+
+                                        <DropdownLink :href="route('users.index')">
+                                            Users
+                                        </DropdownLink>
+
+                                        <DropdownLink :href="route('groups.index')">
+                                            Groups
+                                        </DropdownLink>
+
+                                        <!-- <DropdownLink :href="route('roles.index')">
+                                            Roles
+                                        </DropdownLink> -->
+
+
+                                        <div class="border-t border-gray-200" />
+
+                                        <DropdownLink :href="route('meeting-roles.index')">
+                                            Meeting Roles
+                                        </DropdownLink>
+
+                                        <DropdownLink :href="route('meeting-types.index')">
+                                            Meeting Types
+                                        </DropdownLink>
+
+                                        <DropdownLink :href="route('purposes.index')">
+                                            Purposes
+                                        </DropdownLink>
+
+                                    </template>
+                                </Dropdown>
+                            </div>
+
+
+
+
+
                             <div class="ml-3 relative">
                                 <!-- Teams Dropdown -->
                                 <Dropdown v-if="$page.props.jetstream.hasTeamFeatures" align="right" width="60">
@@ -141,6 +199,8 @@ const logout = () => {
                                     </template>
                                 </Dropdown>
                             </div>
+
+
 
                             <!-- Settings Dropdown -->
                             <div class="ml-3 relative">

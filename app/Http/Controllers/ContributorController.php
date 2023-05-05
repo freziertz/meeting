@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Contributor;
 use App\Models\User;
+use App\Models\Meeting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -37,19 +38,22 @@ class ContributorController extends Controller
 
          $account = User::find($created_by)->account;
 
-         $contributor = Contributor::where('meeting_id', $request->input('meeting_id'))
+         $meeting = Meeting::find($request->input('meeting_id'));
+
+         $contributor_exist = Contributor::where('contributable_id', $request->input('meeting_id'))
                                ->where('contributor_id', $request->input('contributor_id'))
                             ->first();
 
-        if (is_null($contributor)) {
-                Contributor::create([
-                    'meeting_id' => $request->input('meeting_id'),
-                    'contributor_id' => $request->input('contributor_id'),
-                    'title' => $request->input('title'),
-                    'created_by' => $created_by,
-                    'account_id' => $account->id,
+        if (is_null($contributor_exist)) {
 
-                 ]);
+                $contributor = new Contributor;
+
+                $contributor->contributor_id = $request->input('contributor_id');
+                $contributor->created_by = $created_by;
+                $contributor->account_id = $account->id;
+                $contributor->title = $request->input('title');
+
+                $meeting->contributors()->save($contributor);
          }
     }
 

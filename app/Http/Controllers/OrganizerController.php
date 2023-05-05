@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Organizer;
 use App\Models\User;
+use App\Models\Meeting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -49,21 +50,26 @@ class OrganizerController extends Controller
         $account = User::find($created_by)->account;
 
 
+        $meeting = Meeting::find($request->input('meeting_id'));
 
-        $organizer = Organizer::where('meeting_id', $request->input('meeting_id'))
+
+
+        $organizer_exist = Organizer::where('organizable_id', $request->input('meeting_id'))
                                ->where('organizer_id', $request->input('organizer_id'))
                             ->first();
 
-        if (is_null($organizer)) {
-                Organizer::create([
-                    'meeting_id' => $request->input('meeting_id'),
-                    'organizer_id' => $request->input('organizer_id'),
-                    'title' => $request->input('title'),
-                    'primary' => $request->input('primary'),
-                    'created_by' => $created_by,
-                    'account_id' => $account->id
+        if (is_null($organizer_exist)) {
 
-                 ]);
+                $organizer = new Organizer;
+
+                $organizer->organizer_id = $request->input('organizer_id');
+                $organizer->created_by = $created_by;
+                $organizer->account_id = $account->id;
+                $organizer->title = $request->input('title');
+                $organizer->primary = true;
+
+
+                $meeting->organizers()->save($organizer);
          }
 
         // return redirect()->route('meetings.index')

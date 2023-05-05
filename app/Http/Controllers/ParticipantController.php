@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Participant;
 use App\Models\User;
+use App\Models\Meeting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -38,23 +39,28 @@ class ParticipantController extends Controller
 
         $account = User::find($created_by)->account;
 
+        $meeting = Meeting::find($request->input('meeting_id'));
 
 
-        $participant = Participant::where(
-                              'meeting_id', $request->input('meeting_id'))
+
+        $participant_exist = Participant::where(
+                              'participantable_id', $request->input('meeting_id'))
                                ->where('participant_id', $request->input('participant_id'))
                             ->first();
 
-        if (is_null($participant)) {
-                Participant::create([
-                    'meeting_id' => $request->input('meeting_id'),
-                    'participant_id' => $request->input('participant_id'),
-                    'group_id' => $request->input('group_id'),
-                    'meeting_role_id' => $request->input('meeting_role_id'),
-                    'title' => $request->input('title'),
-                    'created_by' => $created_by,
-                    'account_id' => $account->id,
-                 ]);
+        if (is_null($participant_exist)) {
+
+                 $participant = new Participant;
+
+                 $participant->participant_id = $request->input('participant_id');
+                 $participant->created_by = $created_by;
+                 $participant->account_id = $account->id;
+                 $participant->title = $request->input('title');
+                 $participant->meeting_role_id = $request->input('meeting_role_id');
+                 $participant->group_id = $request->input('group_id');
+
+
+                 $meeting->participants()->save($participant);
          }
     }
 

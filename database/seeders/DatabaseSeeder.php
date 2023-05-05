@@ -20,9 +20,14 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-        MeetingTypeSeeder::class,
-        TimezoneSeeder::class,
-        MeetingRoleSeeder::class,
-    ]);
+            AccountSeeder::class,
+            GroupSeeder::class,
+            UserSeeder::class,
+            MeetingTypeSeeder::class,
+            TimezoneSeeder::class,
+            MeetingRoleSeeder::class,
+            PurposeSeeder::class,
+            MeetingSeeder::class,
+       ]);
     }
 }

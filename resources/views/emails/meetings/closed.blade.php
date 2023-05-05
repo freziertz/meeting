@@ -1,15 +1,19 @@
 <x-mail::message>
-# Meeting Closed
+# Meeting Published1
 
 <x-mail::panel>
     Title: {{ $title }}
     {{-- Title: {{$title}} --}}
-    {{-- venue: {{$venue}} --}}
+    venue: {{ $venue }}
 </x-mail::panel>
 
     Description
 
     {{ $description}}
+
+    Participant Notes
+
+    {{ participants_notes }}
 
 <x-mail::button :url="$url">
 View Meeting

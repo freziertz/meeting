@@ -15,14 +15,14 @@ const form = useForm({
     password_confirmation: '12345678',
     terms: false,
     title:'Mr',
-    first_name:'Frezier',
-    middle_name:'Beatus',
-    last_name:'Ngonyani',
+    first_name:'Yahaya',
+    middle_name:'',
+    last_name:'Frezier',
     initials:'FBN',
     designation:'Business development manager',
     organization_id:'1',
     storage_limit:'200',
-    pa_email:'yahaya.frezier@datahousetza.com',
+    pa_email:'zera.msanya@datahousetza.com',
     send_welcome_email:false,
     send_start_guide: false
 });

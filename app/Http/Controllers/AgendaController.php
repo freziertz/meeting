@@ -43,6 +43,14 @@ class AgendaController extends Controller
     public function store(Request $request)
     {
 
+        // $agenda = Agenda::find(1);
+
+        // $document= new Document;
+        // $document->name = "Laravel";
+
+
+        // $agenda->documents->save($document);
+
         // dd($request->input('photo'));
 
         $created_by =  Auth::user()->id;
@@ -51,6 +59,27 @@ class AgendaController extends Controller
         $request['created_by'] = $created_by;
 
         $request['account_id'] = $account->id;
+
+
+        $meeting = Meeting::find($request->input('meeting_id'));
+
+
+
+        $agenda = new Agenda;
+
+        $agenda->presenter_id = $request->input('presenter_id');
+        $agenda->created_by = $created_by;
+        $agenda->account_id = $account->id;
+        $agenda->title = $request->input('title');
+        $agenda->contributor_id = $request->input('contributor_id');
+        $agenda->minutes = $request->input('minutes');
+        $agenda->purpose_id = $request->input('purpose_id');
+        $agenda->external_url = $request->input('external_url');
+        $agenda->recurring = $request->input('recurring');
+
+        $meeting->agendas()->save($agenda);
+
+
 
 
         $files = $request->allFiles();
@@ -72,34 +101,52 @@ class AgendaController extends Controller
 
                        $filename = $file->getClientOriginalName();
 
-                       $name = $file->hashName();
+                       $filenameWithoutExtension = pathinfo($filename, PATHINFO_FILENAME);
 
-                       $extension = $file->getClientOriginalExtension();
+                    //    if(empty($request->input('name'))) {
+                    //        $request['name'] = $filenameWithoutExtension;
+                    //    }
 
-                       $extensionMime = $file->extension();
+                       $document_folder = now()->timestamp.'-'.Str::random(20);
+
+                       $path = 'public/documents/'. $document_folder;
 
 
-                       $path = 'public/documents/'.now()->timestamp.'-'.Str::random(20);
+                       $document = new Document();
 
+                       $document->name = $filenameWithoutExtension;
+                       $document->filename = $filename;
+                       $document->description = '';
+                       $document->uuid = Str::uuid();
+                       $document->path  = 'public/documents/'. $document_folder;
+                       $document->extension = $file->getClientOriginalExtension();
+                       $document->mime_type = $file->getClientMimeType();
+                       $document->webpath = '/storage/documents/'. $document_folder;
+                       $document->fullpath = '/storage/documents/'. $document_folder . '/'. $filename;
+                       $document->size = $file->getSize();
 
-                      $file->store(
-                            path: $path
+                       $file->storeAs(
+                            $path,
+                            $filename
                         );
 
-                        // $document = Document::create($request->all());
+                        $contents = Storage::get($path.'/'.$filename);
+
+
+                        $document->signature =  md5($contents);
+                        $document->created_by = $created_by;
+                        $document->account_id = $account->id;
+
+
+
+                        $agenda->documents()->save($document);
+
                   }
 
             }
 
         }
 
-        $meeting = Meeting::find($request->input('meeting_id'));
-
-
-
-        $document = Document::create($request->all());
-
-        $agenda = Agenda::create($request->all());
 
         return redirect()->route('meetings.show',compact('meeting'))
                         ->with('success','Agenda created successfully.');

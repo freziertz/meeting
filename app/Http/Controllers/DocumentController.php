@@ -39,7 +39,7 @@ class DocumentController extends Controller
     public function store(Request $request)
     {
 
-         $request['user_id'] =  Auth::user()->id;
+        //  $request['user_id'] =  Auth::user()->id;
 
          $request['created_by'] =  Auth::user()->id;
 
@@ -63,10 +63,7 @@ class DocumentController extends Controller
 
                        $file = $request->file($requestKey)[$k];
 
-
-
                        $filename = $file->getClientOriginalName();
-
 
                        $request['filename'] =  $filename;
 
@@ -98,7 +95,7 @@ class DocumentController extends Controller
                           if(empty($request->input('name'))) {
                              $request['name'] = $filenameWithoutExtension;
                                 // $request->request->add(['name' => $filenameWithoutExtension ]);
-                            }
+                          }
 
 
 
@@ -132,7 +129,6 @@ class DocumentController extends Controller
                       $file->storeAs(
                             $path,
                             $filename
-
                         );
 
 

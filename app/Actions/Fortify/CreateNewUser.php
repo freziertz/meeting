@@ -37,6 +37,7 @@ class CreateNewUser implements CreatesNewUsers
                 'last_name' => $input['last_name'],
                 'initials' => $input['initials'],
                 'email' => $input['email'],
+                'owner' => true,
                 'designation' => $input['designation'],
                 'organization_id' => $input['organization_id'],
                 'storage_limit' => $input['storage_limit'],

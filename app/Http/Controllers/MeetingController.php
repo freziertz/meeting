@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use App\Models\Meeting;
 use App\Models\User;
+use App\Models\Agenda;
 use App\Models\Organizer;
 use App\Models\Participant;
 use App\Models\Group;
@@ -39,8 +40,7 @@ use App\Jobs\SendMeetingClosedEmailsJob;
 
 use App\Jobs\SendMeetingPublishedEmailsJob;
 
-
-
+use function PHPUnit\Framework\isNull;
 
 class MeetingController extends Controller
 {
@@ -83,6 +83,8 @@ class MeetingController extends Controller
 
          $created_by =  Auth::user()->id;
 
+         $account = User::find($created_by)->account;
+
          $request['slug']= Str::of($request->input('title'))->slug('_');
 
          $request['uuid'] = (string) Str::uuid();
@@ -123,48 +125,48 @@ class MeetingController extends Controller
 
 
 
-                $schedule = $schedule = Schedule::create([
+            $schedule = $schedule = Schedule::create([
                 'meeting_id' => $meeting->id,
                 'meeting_date' => $event['meeting_date'],
                 'meeting_start_time' => $event['meeting_start_time'],
                 'meeting_end_time' => $event['meeting_end_time'],
                 'primary' => $primary,
                 'created_by' => $created_by,
-                'account_id' => 1, // To do take it from Account
+                'account_id' => $account->id,
              ]);
 
                 $primary = false;
             }
 
 
-            $phpWord = new PhpWord();
-            $section = $phpWord->addSection();
+            // $phpWord = new PhpWord();
+            // $section = $phpWord->addSection();
 
-            $fontStyleName = 'oneUserDefinedStyle';
-            $phpWord->addFontStyle($fontStyleName,
-                array('name' => 'Tahoma', 'size' => 14, 'color' => '1B2232', 'bold' => true)
-            );
-            $text = $section->addText($meeting->title, $fontStyleName);
-            $text = $section->addText($meeting->venue);
+            // $fontStyleName = 'oneUserDefinedStyle';
+            // $phpWord->addFontStyle($fontStyleName,
+            //     array('name' => 'Tahoma', 'size' => 14, 'color' => '1B2232', 'bold' => true)
+            // );
+            // $text = $section->addText($meeting->title, $fontStyleName);
+            // $text = $section->addText($meeting->venue);
 
 
-            // $text = $section->addText($request->get('number'),array('name'=>'Arial','size' => 20,'bold' => true));
-            // $section->addImage("./images/prashant.jpg");
+            // // $text = $section->addText($request->get('number'),array('name'=>'Arial','size' => 20,'bold' => true));
+            // // $section->addImage("./images/prashant.jpg");
 
-            //save as a word document
+            // //save as a word document
 
-            $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
-            $objWriter->save('MeetingInfo.docx');
+            // $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+            // $objWriter->save('MeetingInfo.docx');
 
-            //save as odf file
+            // //save as odf file
 
-            $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'ODText');
-            $objWriter->save('MeetingInfo.odt');
+            // $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'ODText');
+            // $objWriter->save('MeetingInfo.odt');
 
-            //save as html file
+            // //save as html file
 
-            $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
-            $objWriter->save('MeetingInfo.html');
+            // $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
+            // $objWriter->save('MeetingInfo.html');
 
 
 
@@ -180,14 +182,27 @@ class MeetingController extends Controller
             }
 
 
-            $organizer = Organizer::create([
-                'meeting_id' => $meeting->id,
-                'organizer_id' => $created_by,
-                'created_by' => $created_by,
-                'account_id' => 1, // To do take it from Account
-                'title' => $request->input('organizer_title'), // TO DO add meeting organizer title in meeting create form
-                'primary' => true,
-             ]);
+
+            $organizer = new Organizer;
+
+            $organizer->organizer_id = $created_by;
+            $organizer->created_by = $created_by;
+            $organizer->account_id = $account->id;
+            $organizer->title = $request->input('organizer_title');
+            $organizer->primary = true;
+
+
+            $meeting->organizers()->save($organizer);
+
+
+            // $organizer = Organizer::create([
+            //     'organizable_id' => $meeting->id,
+            //     'organizer_id' => $created_by,
+            //     'created_by' => $created_by,
+            //     'account_id' => 1, // To do take it from Account
+            //     'title' => $request->input('organizer_title'), // TO DO add meeting organizer title in meeting create form
+            //     'primary' => true,
+            //  ]);
 
 
 
@@ -256,8 +271,9 @@ class MeetingController extends Controller
 
 
 
+
         $organizers = DB::table('organizers')
-                       ->join('meetings', 'meetings.id', '=', 'organizers.meeting_id')
+                       ->join('meetings', 'meetings.id', '=', 'organizers.organizable_id')
                        ->join('users', 'users.id', '=', 'organizers.organizer_id')
                        ->select(
                              'organizers.primary',
@@ -272,7 +288,7 @@ class MeetingController extends Controller
                        ->get();
 
         $participants = DB::table('participants')
-                       ->join('meetings', 'meetings.id', '=', 'participants.meeting_id')
+                       ->join('meetings', 'meetings.id', '=', 'participants.participantable_id')
                        ->join('users', 'users.id', '=', 'participants.participant_id')
                        ->join('meeting_roles', 'meeting_roles.id', '=', 'participants.meeting_role_id')
                        ->join('groups', 'groups.id', '=', 'participants.group_id')
@@ -292,7 +308,7 @@ class MeetingController extends Controller
                        ->get();
 
         $contributors = DB::table('contributors')
-                   ->join('meetings', 'meetings.id', '=', 'contributors.meeting_id')
+                   ->join('meetings', 'meetings.id', '=', 'contributors.contributable_id')
                    ->join('users', 'users.id', '=', 'contributors.contributor_id')
                    ->select(
 
@@ -312,7 +328,7 @@ class MeetingController extends Controller
 
 
         $agendas = DB::table('agendas')
-           ->join('meetings', 'meetings.id', '=', 'agendas.meeting_id')
+           ->join('meetings', 'meetings.id', '=', 'agendas.agendable_id')
            ->join('presenters', 'presenters.id', '=', 'agendas.presenter_id')
            ->join('users', 'users.id', '=', 'agendas.contributor_id')
            ->join('purposes', 'purposes.id', '=', 'agendas.purpose_id')
@@ -330,6 +346,15 @@ class MeetingController extends Controller
                   'purposes.name as purpose_name'
               )->distinct()->where('meetings.id', '=', $id)
            ->get();
+
+        //    foreach ($agendas as $agenda){
+        //        foreach ($agenda->documents as $document){
+        //         if ($document){
+        //             dd($document);
+        //         }
+        //       }
+        //     }
+
 
 
 
@@ -396,6 +421,10 @@ class MeetingController extends Controller
 
         // $request['user_id'] =  Auth::user()->id;
 
+        $created_by =  Auth::user()->id;
+
+        $account = User::find($created_by)->account;
+
 
 
         $request['slug']= Str::of($request->input('title'))->slug('_');
@@ -443,6 +472,8 @@ class MeetingController extends Controller
                 $schedule->meeting_start_time = $event['meeting_start_time'];
                 $schedule->meeting_end_time = $event['meeting_end_time'];
                 $schedule->primary = $primary;
+                $schedule->created_by = $created_by;
+                $schedule->account_id = $account->id;
                 $schedule->save();
             }else{
                 $schedule = $schedule = Schedule::create([
@@ -451,6 +482,9 @@ class MeetingController extends Controller
                     'meeting_start_time' => $event['meeting_start_time'],
                     'meeting_end_time' => $event['meeting_end_time'],
                     'primary' => $primary,
+                    'created_by' => $created_by,
+                    'account_id' => $account->id,
+
                  ]);
             }
 
@@ -471,6 +505,8 @@ class MeetingController extends Controller
                 $notification->meeting_id = $meeting->id;
                 $notification->notification_type_id = $day['notification_type_id'];
                 $notification->reminder = $day['reminder'];
+                $notification->created_by = $created_by;
+                $notification->account_id = $account->id;
                 $notification->notification_date = (new Carbon($meeting_start_date))->subDays($day['reminder']);
                 $notification->save();
 
@@ -479,6 +515,8 @@ class MeetingController extends Controller
                     'meeting_id' => $meeting->id,
                     'notification_type_id' => 1,
                     'reminder' => $day['reminder'],
+                    'created_by' => $created_by,
+                    'account_id' => $account->id,
                     'notification_date'=> (new Carbon($meeting_start_date))->subDays($day['reminder']),
                 ]);
 
@@ -526,13 +564,13 @@ class MeetingController extends Controller
 
 
         $participants = DB::table('participants')
-        ->join('users', 'users.id', '=', 'participants.user_id')
+        ->join('users', 'users.id', '=', 'participants.participant_id')
         ->select(
               'users.email',
               'users.title',
               'users.first_name',
               'users.last_name',
-           )->where('participants.meeting_id', '=', $id)
+           )->where('participants.participantable_id', '=', $id)
         ->get();
 
         if ($request->input('status')== 2){
@@ -542,7 +580,7 @@ class MeetingController extends Controller
 
             foreach ($participants as $recipient){
                 // Mail::to($recipient)->send(new MeetingStarted($meeting));
-                dispatch(new SendMeetingStartedEmailsJob($meeting, $recipient));
+                dispatch(new SendMeetingPublishedEmailsJob($meeting, $recipient));
             }
 
         }else if ($request->input('status')== 3){

@@ -6,7 +6,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
-use App\Http\Requests\StoreUserRequest;
+use Illuminate\Support\Facades\URL;
+// use App\Http\Requests\StoreUserRequest;
+use Illuminate\Support\Facades\Request as Req;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -16,23 +18,53 @@ class UserController extends Controller
      */
     public function index()
     {
-             return Inertia::render('Users/Index', [
-            'filters' => Req::all('search', 'role', 'trashed'),
-            'users' => Auth::user()->account->users()
-                ->orderByName()
-                ->filter(Req::only('search', 'role', 'trashed'))
-                ->paginate(10)
-                ->withQueryString()
-                ->through(fn ($user) => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'owner' => $user->owner,
-                    'photo' => $user->profile_photo_path ? URL::route('image', ['path' => $user->profile_photo_path, 'w' => 40, 'h' => 40, 'fit' => 'crop']) : null,
-                    'deleted_at' => $user->deleted_at,
-                ]),
-        ]);
+
+        $users = User::all();
+        return Inertia::render('Users/Index',compact('users'));
+        // return Inertia::render('Users/Index',  [
+        //     'filters' => Req::all('search', 'role', 'trashed'),
+
+        //     'users' => Auth::user()->account->users()
+        //         ->orderByName()
+        //         ->filter(Req::only('search', 'role', 'trashed'))
+        //         ->paginate(10)
+        //         ->withQueryString()
+        //         ->through(fn ($user) => [
+        //             'id' => $user->id,
+        //             'name' => $user->name,
+        //             'email' => $user->email,
+        //             'owner' => $user->owner,
+        //             'photo' => $user->profile_photo_path ? URL::route('image', ['path' => $user->profile_photo_path, 'w' => 40, 'h' => 40, 'fit' => 'crop']) : null,
+        //             'deleted_at' => $user->deleted_at,
+        //         ]),
+
+
+        // ]);
+
+        // dd($users);
+
+
     }
+
+    // public function indexw()
+    // {
+    //     return Inertia::render('Users/Index', [
+    //         'filters' => Request::all('search', 'role', 'trashed'),
+    //         'users' => Auth::user()->account->users()
+    //             ->orderByName()
+    //             ->filter(Request::only('search', 'role', 'trashed'))
+    //             ->get()
+    //             ->transform(fn ($user) => [
+    //                 'id' => $user->id,
+    //                 'name' => $user->name,
+    //                 'email' => $user->email,
+    //                 'owner' => $user->owner,
+    //                 'photo' => $user->photo_path ? URL::route('image', ['path' => $user->photo_path, 'w' => 40, 'h' => 40, 'fit' => 'crop']) : null,
+    //                 'deleted_at' => $user->deleted_at,
+    //             ]),
+    //     ]);
+
+    // }
 
     /**
      * Show the form for creating a new resource.
@@ -52,6 +84,8 @@ class UserController extends Controller
         $account = User::find($request['created_by'])->account;
 
         $request['account_id'] = $account->id;
+
+        $request['owner'] = false;
 
         User::create($request->all());
 

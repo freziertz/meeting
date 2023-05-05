@@ -16,7 +16,8 @@ return new class extends Migration
             $table->string('title');
             $table->foreignId('presenter_id')->nullable(); // presenter_id = user_id // Participant
             $table->integer('minutes')->nullable(); // minutes allotted for agenda
-            $table->foreignId('meeting_id');
+            $table->unsignedBigInteger('agendable_id');
+            $table->string('agendable_type');
             $table->foreignId('contributor_id');
             $table->foreignId('purpose_id')->nullable();
             $table->string('external_url')->nullable();

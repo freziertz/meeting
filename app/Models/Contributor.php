@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+
 
 class Contributor extends Model
 {
@@ -13,7 +15,8 @@ class Contributor extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'meeting_id',
+        'contributable_id',
+        'contributable_type',
         'contributor_id',  // contributor user id
         'title',
         'created_by',
@@ -21,9 +24,14 @@ class Contributor extends Model
     ];
 
 
-    public function meeting(): BelongsTo
+    // public function meeting(): BelongsTo
+    // {
+    //     return $this->belongsTo(Meeting::class);
+    // }
+
+    public function contributable(): MorphTo
     {
-        return $this->belongsTo(Meeting::class);
+        return $this->morphTo();
     }
 
     public function user(): BelongsTo

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 
 class Organizer extends Model
@@ -14,7 +15,8 @@ class Organizer extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'meeting_id',
+        'organizable_id', // meeting_id
+        'organizable_type',
         'primary',
         'title',
         'organizer_id',  // responsible user id
@@ -23,8 +25,13 @@ class Organizer extends Model
     ];
 
 
-    public function meeting(): BelongsTo
+    // public function meeting(): BelongsTo
+    // {
+    //     return $this->belongsTo(Meeting::class);
+    // }
+
+    public function organizable(): MorphTo
     {
-        return $this->belongsTo(Meeting::class);
+        return $this->morphTo();
     }
 }

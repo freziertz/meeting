@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Document extends Model
 {
@@ -27,4 +28,21 @@ class Document extends Model
             'created_by',
             'account_id'
     ];
+
+
+    public function agendas(): MorphToMany
+    {
+        return $this->morphedByMany(Agenda::class, 'documentable');
+    }
+
+
+    public function resolutions(): MorphToMany
+    {
+        return $this->morphedByMany(Resolution::class, 'documentable');
+    }
+
+    public function review_rooms(): MorphToMany
+    {
+        return $this->morphedByMany(ReviewRoom::class, 'documentable');
+    }
 }

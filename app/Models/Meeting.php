@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Meeting extends Model
 {
@@ -51,25 +52,42 @@ class Meeting extends Model
     }
 
 
-    public function organizers(): HasMany
+    // public function organizers(): HasMany
+    // {
+    //     return $this->hasMany(Organizer::class);
+    // }
+
+    // public function participants(): HasMany
+    // {
+    //     return $this->hasMany(Participant::class);
+    // }
+
+    // public function contributors(): HasMany // Agenda Contributors
+    // {
+    //     return $this->hasMany(Contributor::class);
+    // }
+
+    public function participants(): MorphMany
     {
-        return $this->hasMany(Organizer::class);
+        return $this->morphMany(Participant::class, 'participantable');
     }
 
-    public function participants(): HasMany
+    public function organizers(): MorphMany
     {
-        return $this->hasMany(Participant::class);
+        return $this->morphMany(Organizer::class, 'organizable');
     }
 
-    public function contributors(): HasMany // Agenda Contributors
+    public function contributors(): MorphMany
     {
-        return $this->hasMany(Contributor::class);
+        return $this->morphMany(Contributor::class, 'contributable');
     }
 
-    public function agendas(): HasMany
+    public function agendas(): MorphMany
     {
-        return $this->hasMany(Agenda::class);
+        return $this->morphMany(Agenda::class, 'agendable');
     }
+
+
 
     public function actions(): HasMany
     {

@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('storage_limit')->nullable();
             $table->string('pa_email')->nullable();
             $table->boolean('send_welcome_email')->default(false);
+            $table->boolean('owner')->default(false);
             $table->boolean('send_start_guide')->default(false);
             $table->foreignId('account_id');
             $table->foreignId('created_by'); // login user who create the meeting

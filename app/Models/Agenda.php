@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Agenda extends Model
 {
@@ -15,7 +17,8 @@ class Agenda extends Model
     protected $fillable = [
         'title',
         'presenter_id',
-        'meeting_id',
+        'agendable_id',
+        'agendable_type',
         'contributor_id',
         'minutes',
         'purpose_id',
@@ -26,9 +29,15 @@ class Agenda extends Model
     ];
 
 
-    public function meeting(): BelongsTo
+    public function agendable(): MorphTo
     {
-        return $this->belongsTo(Meeting::class);
+        return $this->morphTo();
+    }
+
+
+    public function documents(): MorphToMany
+    {
+        return $this->morphToMany(Document::class, 'documentable');
     }
 
 

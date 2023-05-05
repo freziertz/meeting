@@ -13,6 +13,19 @@ class PurposeSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        DB::table('purposes')->insert([
+            'name' => 'Voting',
+            'description' =>'For Voting',
+            'account_id'  => 1,
+            'created_by'  => 1,
+        ]);
+
+
+        DB::table('purposes')->insert([
+            'name' => 'Review',
+            'description' =>'For Review',
+            'account_id'  => 1,
+            'created_by'  => 1,
+        ]);
     }
 }

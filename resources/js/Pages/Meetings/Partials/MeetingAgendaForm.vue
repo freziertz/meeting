@@ -15,6 +15,8 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import DeleteButton from '@/Components/DeleteButton.vue';
 import EditButton from '@/Components/EditButton.vue';
+import CalendarButton from '@/Components/CalendarButton.vue';
+import NotificationButton from '@/Components/NotificationButton.vue';
 
 
 
@@ -68,6 +70,7 @@ const props = defineProps({
     sessions: Array,
     agendas: Array,
     purposes: Array,
+    documents:Array,
     meeting: Object,
 
 });
@@ -90,14 +93,15 @@ const pond = ref(['index.html']);
 
 const form = useForm({
     id: null,
-    title: 'title test' ,
-    presenter_id: 1,
-    contributor_id: 1,
-    purpose_id: 1,
-    external_url: 'http://www.goolge.com',
+    title: null ,
+    presenter_id: null,
+    contributor_id: null,
+    purpose_id: null,
+    external_url: null,
     recurring: false,
-    minutes: 15,
+    minutes: null,
     photo: [],
+    agendable_type: 'Meeting',
     meeting_id: props.meeting.id,
 });
 
@@ -112,6 +116,7 @@ let formEdit = useForm({
     recurring: agendaOnEdit.title,
     minutes: agendaOnEdit.title,
     photo: [],
+    agendable_type: 'Meeting',
     meeting_id: props.meeting.id,
 });
 
@@ -249,27 +254,52 @@ const showAgenda = (id) => {
 
 
         <template #content>
+            <div class="flex space-x-2 justify-end">
+                <CalendarButton @click="deliveryStatus" >
+                    Delivery Status
+                </CalendarButton>
+               <NotificationButton @click="addVote" >
+                    Add Vote
+               </NotificationButton>
+
+               <CalendarButton @click="permissions" >
+                    Permissions
+                </CalendarButton>
+               <NotificationButton @click="agendaOptions" >
+                    Options
+               </NotificationButton>
+         </div>
 
             <div class="text-sm text-gray-600 ">
                             <table class="w-full whitespace-nowrap">
                                 <thead>
+                                    <div>
                                     <tr class="text-left font-bold">
+
                                         <th class="pb-4 pt-6 px-6">No</th>
+                                        <th class="pb-4 pt-6 px-6">Title</th>
                                         <th class="pb-4 pt-6 px-6">Presenter</th>
                                         <th class="pb-4 pt-6 px-6">Contributor</th>
                                         <th class="pb-4 pt-6 px-6">Purpose</th>
-
                                         <th class="pb-4 pt-6 px-6">Minutes</th>
                                         <th class="pb-4 pt-6 px-6">Recuring?</th>
                                     </tr>
+                                </div>
                                 </thead>
                                 <tbody>
                                 <tr v-for="( agenda, index) in agendas" :key="agenda.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
-
+                                  <div>
 
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/agendas/${agenda.id}`">
                                             {{ index +1 }}
+
+                                        </Link>
+                                    </td>
+
+                                    <td class="border-t">
+                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/agendas/${agenda.id}`">
+                                            {{ agenda.title }}
 
                                         </Link>
                                     </td>
@@ -323,6 +353,31 @@ const showAgenda = (id) => {
 
                                     </td>
 
+                                </div>
+
+
+
+
+
+
+
+
+
+                                    <div v-for="(document) in documents" :key="document.id">
+
+
+                                        <Link v-if="document.agenda_id == agenda.id" class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/documents/${document.id}`">
+                                        <img :src="`http://localhost:8000/storage/icons/${document.extension}.png`" class="image-fluid w-4 mr-2">
+                                            {{ document.name }}
+                                            <icon v-if="document.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
+                                        </Link>
+
+                                    </div>
+
+
+
+
+
                                 </tr>
                                 </tbody>
                     </table>
@@ -358,6 +413,7 @@ const showAgenda = (id) => {
                     type="text"
                     class="mt-1 block w-full"
                     autocomplete="title"
+                    required
                 />
                 <InputError :message="form.errors.title" class="mt-2" />
             </div>
@@ -460,7 +516,7 @@ const showAgenda = (id) => {
 
                 <TextInput  id="meeting_id"  v-model="form.meeting_id"  type="hidden"  />
 
-                <TextInput  id="meeting_id"  v-model="form.id"  type="hidden"  />
+                <TextInput  id="agendable_type" v-model="form.agendable_type" type="hidden"  />
 
 
 
@@ -545,10 +601,6 @@ const showAgenda = (id) => {
                         type="hidden"
 
                     />
-
-
-
-
 
 
                     <!-- Title -->
@@ -647,34 +699,10 @@ const showAgenda = (id) => {
                     </label>
                 </div>
 
-
-
-
-
-
-
-
-
                 <!-- Meeting Id-->
 
-
-
-
-                    <TextInput  id="meeting_id"  v-model="formEdit.meeting_id"  type="hidden"  />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                <TextInput  id="meeting_id"  v-model="formEdit.meeting_id"  type="hidden"  />
+                <TextInput  id="agendable_type" v-model="formEdit.agendable_type" type="hidden"  />
 
 
 

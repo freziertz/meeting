@@ -4,12 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Action;
 use App\Models\User;
+use App\Models\Notification;
+use App\Models\Participant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreActionRequest;
+use App\Models\ActionHistory;
 use Inertia\Inertia;
 Use App\Models\Meeting;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
+
+use function PHPUnit\Framework\isNull;
 
 class ActionController extends Controller
 {
@@ -31,10 +37,10 @@ class ActionController extends Controller
     //   return Company::find($user->company_id);
     // }
 
-    public function index($meeting)
+    public function index(string $meeting_id)
     {
-        // $actions = Action::all();
-        $actions = Meeting::find($meeting->id)->actions;
+        $actions = Action::all();
+        // $actions = Action::find($meeting_id)->actions;
         return Inertia::render('Actions/Index',compact('actions'));
     }
 
@@ -51,16 +57,99 @@ class ActionController extends Controller
      */
     public function store(Request $request)
     {
+
         $request['created_by'] =  Auth::user()->id;
+
+        $created_by =  $request['created_by'];
+
+        $action_due_date = $request['due_date'];
 
         $account = User::find($request['created_by'])->account;
 
         $request['account_id'] = $account->id;
 
-        Action::create($request->all());
+        $meeting = Meeting::find($request->meeting_id);
 
-        return redirect()->route('actions.index')
+
+        DB::beginTransaction();
+
+        $action = Action::create($request->all());
+
+
+        foreach ($request->input('reminders') as $day ) {
+
+                $notification = new Notification;
+
+                $notification->notifiable_id = $action->id;
+                $notification->notification_type_id = 1;
+                $notification->account_id = $account->id;
+                $notification->created_by = $created_by;
+                $notification->reminder = $day['reminder'] ? $day['reminder'] : 1 ;
+                $notification->notification_date = (new Carbon($action_due_date))->subDays($notification->reminder);
+
+                $action->notifications()->save($notification);
+
+
+            }
+
+            foreach ($request->input('actioners') as $actioner ) {
+
+            $participant_exist = Participant::where(
+                'participantable_id', $action->id)
+                 ->where('participant_id', $actioner['actioner_id'])
+              ->first();
+
+                if (is_null($participant_exist)) {
+
+                $participant = new Participant;
+
+                $participant->participant_id = $actioner['actioner_id'];
+                $participant->created_by = $created_by;
+                $participant->account_id = $account->id;
+                $participant->title = $request->input('title');
+                $participant->meeting_role_id = $request->input('meeting_role_id');
+                $participant->group_id = $request->input('group_id');
+
+                $action->participants()->save($participant);
+                }
+            }
+
+
+
+
+
+
+
+
+            $action_history = new ActionHistory();
+
+            $action_history->action_id = $action->id;
+            $action_history->status_id = $request->input('status_id') ? $request->input('status_id') : 999;
+            $action_history->notes = $request->input('notes') ? $request->input('notes') : 'New';
+            $action_history->as_of_date = $request->input('as_of_date') ? $request->input('as_of_date') : Carbon::now()->format('Y-m-d');
+
+            $action_history->created_by = $created_by;
+            $action_history->account_id = $account->id;
+
+
+            $action_history->save();
+
+
+
+
+
+            if (!$action and !$notification and !$participant and !$action_history) // add participant
+            {
+                DB::rollBack();
+            }else{
+                DB::commit();
+
+                return redirect()->route('meetings.show',compact('meeting'))
                         ->with('success','Action created successfully.');
+            }
+
+
+
     }
 
     /**
@@ -115,9 +204,16 @@ class ActionController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("actions")->where('id', $id)->delete();
+        DB::beginTransaction();
 
-        return redirect()->route('actions.index')
-                        ->with('success','Action deleted successfully');
+        $action = Action::where('id', $id)->delete();
+        $action_history = ActionHistory::where('action_id', $id)->delete();
+
+        if (!$action and !$action_history )
+        {
+            DB::rollBack();
+        }else{
+            DB::commit();
+        }
     }
 }

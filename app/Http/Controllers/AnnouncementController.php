@@ -76,7 +76,7 @@ class AnnouncementController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("announcements")->where('id', $id)->delete();
+        Announcement::where('id', $id)->delete();
 
         return redirect()->route('announcements.index')
                         ->with('success','Announcement deleted successfully');

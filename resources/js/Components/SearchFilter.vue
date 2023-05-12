@@ -1,7 +1,6 @@
 <template>
   <div class="flex items-center">
     <div class="flex w-full bg-white rounded shadow">
-
       <dropdown :auto-close="false" class="focus:z-10 px-4 hover:bg-gray-100 border-r focus:border-white rounded-l focus:ring md:px-6" placement="bottom-start">
         <template #default>
           <div class="flex items-baseline">
@@ -24,8 +23,7 @@
 </template>
 
 <script>
-// import Dropdown from '@/Shared/Dropdown'
-import Dropdown from "@/Components/Dropdown.vue";
+import Dropdown from "@/Components/SearchDropdown.vue";
 
 export default {
   components: {
@@ -38,6 +36,6 @@ export default {
       default: 300,
     },
   },
-  emits: ['update:modelValue', 'reset'],
-}
+  emits: ["update:modelValue", "reset"],
+};
 </script>

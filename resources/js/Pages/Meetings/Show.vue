@@ -12,6 +12,7 @@ import DeleteButton from '@/Components/DeleteButton.vue';
 import MeetingInfoForm from '@/Pages/Meetings/Partials/MeetingInfoForm.vue';
 import MeetingAgendaForm from '@/Pages/Meetings/Partials/MeetingAgendaForm.vue';
 import ParticipantForm from '@/Pages/Meetings/Partials/ParticipantForm.vue';
+import ActionForm from '@/Pages/Meetings/Partials/ActionForm.vue';
 import MeetingAgendaContributorForm from '@/Pages/Meetings/Partials/MeetingAgendaContributorForm.vue';
 
 import MeetingOrganizerForm from '@/Pages/Meetings/Partials/MeetingOrganizerForm.vue';
@@ -24,6 +25,7 @@ import UpdateProfileInformationForm from '@/Pages/Meetings/Partials/UpdateProfil
 defineProps({
     confirmsTwoFactorAuthentication: Boolean,
     sessions: Array,
+    actions: Array,
     meeting: Object,
     users: Array,
     meeting_roles: Array,
@@ -32,6 +34,9 @@ defineProps({
     organizers:Array,
     contributors:Array,
     agendas:Array,
+    statuses:Array,
+    documents:Array,
+    purposes:Array,
     participants: Array,
     schedules: Array,
     notifications: Array
@@ -44,14 +49,27 @@ const showMeetingAgendaContributorSection = ref(false);
 
 const showMeetingAgendaSection = ref(false);
 
+const showMeetingActionSection = ref(false);
+
 const preserveScroll = ref(false);
 
 
 const showMeetingParticipantSection = ref(false);
 
+const showActionSection = () => {
+    showMeetingAgendaContributorSection.value = false;
+    showMeetingOrganizerSection.value = false;
+    showMeetingAgendaSection.value = false;
+    showMeetingParticipantSection.value = false;
+    preserveScroll: true;
+    return showMeetingActionSection.value = !showMeetingActionSection.value ;
+};
+
+
 const showOrganizerSection = () => {
 
     showMeetingAgendaContributorSection.value = false;
+    showMeetingActionSection.value = false;
     showMeetingAgendaSection.value = false;
     showMeetingParticipantSection.value = false;
     preserveScroll: true;
@@ -60,6 +78,7 @@ const showOrganizerSection = () => {
 
 const showContributorSection = () => {
     showMeetingOrganizerSection.value = false;
+    showMeetingActionSection.value = false;
     showMeetingAgendaSection.value = false;
     showMeetingParticipantSection.value = false;
     preserveScroll: true;
@@ -69,6 +88,7 @@ const showContributorSection = () => {
 const showAgendaSection = () => {
     showMeetingOrganizerSection.value = false;
      showMeetingAgendaContributorSection.value = false;
+     showMeetingActionSection.value = false;
      showMeetingParticipantSection.value = false;
     return showMeetingAgendaSection.value = !showMeetingAgendaSection.value ;
 };
@@ -77,6 +97,7 @@ const showAgendaSection = () => {
 const showParticipantSection = () => {
      showMeetingOrganizerSection.value = false;
      showMeetingAgendaContributorSection.value = false;
+     showMeetingActionSection.value = false;
      showMeetingAgendaSection.value = false;
      preserveScroll: true;
     return showMeetingParticipantSection.value = !showMeetingParticipantSection.value;
@@ -88,7 +109,7 @@ const showParticipantSection = () => {
     <AppLayout title="Profile">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Profile
+                Meeting
             </h2>
         </template>
 
@@ -116,6 +137,10 @@ const showParticipantSection = () => {
 
                 <TabButton @click="showParticipantSection" >
                     Participant
+                </TabButton>
+
+                <TabButton @click="showActionSection" >
+                    Actions
                 </TabButton>
 
 
@@ -154,6 +179,7 @@ const showParticipantSection = () => {
                     <MeetingAgendaForm
                        :users="users"
                        :agendas="agendas"
+                       :documents="documents"
                        :purposes = "purposes"
                        :meeting="meeting"
                        :user="$page.props.auth.user"
@@ -167,6 +193,16 @@ const showParticipantSection = () => {
                       :meeting="meeting"
                       :user="$page.props.auth.user"
                       v-show="showMeetingParticipantSection"
+                      />
+
+                      <ActionForm
+                      :users="users"
+                      :agendas="agendas"
+                      :statuses="statuses"
+                      :actions="actions"
+                      :meeting="meeting"
+                      :user="$page.props.auth.user"
+                      v-show="showMeetingActionSection"
                       />
 
 

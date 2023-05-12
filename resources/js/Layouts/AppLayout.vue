@@ -130,8 +130,16 @@ const logout = () => {
                                             Meeting Types
                                         </DropdownLink>
 
+                                        <DropdownLink :href="route('action-statuses.index')">
+                                            Action Status
+                                        </DropdownLink>
+
                                         <DropdownLink :href="route('purposes.index')">
                                             Purposes
+                                        </DropdownLink>
+
+                                        <DropdownLink :href="route('settings.index')">
+                                            Settings
                                         </DropdownLink>
 
                                     </template>

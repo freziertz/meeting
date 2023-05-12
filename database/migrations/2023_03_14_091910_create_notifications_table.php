@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('meeting_id');
+            $table->unsignedBigInteger('notifiable_id'); //meeting id, action id
+            $table->string('notifiable_type');
             $table->integer('reminder');
             $table->date('notification_date');
             $table->foreignId('notification_type_id');

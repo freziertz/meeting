@@ -76,7 +76,7 @@ class AdminController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("actions")->where('id', $id)->delete();
+        Admin::where('id', $id)->delete();
 
         return redirect()->route('admins.index')
                         ->with('success','Admin deleted successfully');

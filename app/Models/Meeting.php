@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Meeting extends Model
 {
@@ -23,7 +24,7 @@ class Meeting extends Model
         'description',
         'participants_notes',
         'organizer_notes',
-        'reminder',
+        // 'reminder',
         'status',
         'uuid',
         'visible',
@@ -36,6 +37,7 @@ class Meeting extends Model
 
     protected $attributes = [
         'visible' => false,
+        'status' => 1,
     ];
 
 
@@ -67,6 +69,11 @@ class Meeting extends Model
     //     return $this->hasMany(Contributor::class);
     // }
 
+    public function notifications(): MorphMany
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
+    }
+
     public function participants(): MorphMany
     {
         return $this->morphMany(Participant::class, 'participantable');
@@ -94,13 +101,16 @@ class Meeting extends Model
         return $this->hasMany(Action::class);
     }
 
-    public function notifications(): HasMany
-    {
-        return $this->hasMany(Notification::class);
-    }
-
     public function schedules(): HasMany
     {
         return $this->hasMany(Schedule::class);
     }
+
+    // Meeting has document through agenda
+
+
+    // public function documents(): HasManyThrough
+    // {
+    //     return $this->hasManyThrough(Document::class, Agenda::class,'agendable_id','documentable_id','id','id' );
+    // }
 }

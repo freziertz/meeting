@@ -37,11 +37,13 @@ const passwordInput = ref(null);
 
 
 const form = useForm({
+    id: null,
     title: null,
     primary: false,
     participant_id: null,
     meeting_role_id: null,
     group_id: null,
+    participantable_type: 'Meeting',
     meeting_id: props.meeting.id,
 });
 
@@ -79,9 +81,6 @@ const showParticipantForm = () => {
 const deleteParticipant = (id) => {
     form.delete(route('participants.destroy', id), {
         preserveScroll: true,
-        onSuccess: () => closeModal(),
-        onError: () => passwordInput.value.focus(),
-        onFinish: () => form.reset(),
     });
 };
 
@@ -169,7 +168,7 @@ const deleteParticipant = (id) => {
 
                                     <td class="border-t">
 
-                                    <delete-button @delete="deleteParticipant(`${participant.participant_id}`)">Delete</delete-button>
+                                    <delete-button @delete="deleteParticipant(`${participant.id}`)">Delete</delete-button>
 
                                     </td>
 
@@ -211,7 +210,9 @@ const deleteParticipant = (id) => {
                 <select
                    v-model="form.participant_id"
                    :error="form.errors.participant_id"
-                   class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User">
+                   class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User"
+                   required
+                   >
 
                         <option v-for="user in users" :key="user.id" :value="user.id">{{ user.first_name + " " + user.last_name}}</option>
                 </select>
@@ -268,6 +269,8 @@ const deleteParticipant = (id) => {
                     v-model="form.meeting_id"
                     type="hidden"
                      />
+
+             <TextInput  id="participantable_type" v-model="form.participantable_type" type="hidden"  />
 
 
 

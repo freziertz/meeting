@@ -84,7 +84,7 @@ class MeetingRoleController extends Controller
      */
     public function destroy($id)
     {
-        DB::table("meeting_roles")->where('id', $id)->delete();
+        MeetingRole::where('id', $id)->delete();
         return redirect()->route('meeting-roles.index')
                         ->with('success','MeetingType deleted successfully');
     }

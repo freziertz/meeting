@@ -92,7 +92,7 @@ class VoteController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("votes")->where('id', $id)->delete();
+        Vote::where('id', $id)->delete();
         return redirect()->route('votes.index')
                         ->with('success','Vote deleted successfully');
     }

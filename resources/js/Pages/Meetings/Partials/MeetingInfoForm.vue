@@ -100,7 +100,7 @@ const resetMeeting = () => {
 };
 
 const scheduleNextMeeting = () => {
-    formEdit.get(route('meetings.edit', props.meeting.id), {
+    formEdit.get(route('meetings.next', props.meeting.id), {
         preserveScroll: true,
     });
 };

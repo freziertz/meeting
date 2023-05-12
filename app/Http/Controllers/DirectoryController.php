@@ -76,7 +76,7 @@ class DirectoryController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("directories")->where('id', $id)->delete();
+        Directory::where('id', $id)->delete();
 
         return redirect()->route('directories.index')
                         ->with('success','Directory deleted successfully');

@@ -18,12 +18,17 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "@popperjs/core": "^2.11.7",
         "datatables.net-responsive": "^2.4.1",
         "datatables.net-select": "^1.6.2",
         "datatables.net-vue3": "^2.1.0",
         "filepond": "^4.30.4",
         "filepond-plugin-file-validate-type": "^1.2.8",
         "filepond-plugin-image-preview": "^4.6.11",
+        "lodash": "^4.17.21",
+        "lodash.mapvalues": "^4.6.0",
+        "lodash.pickby": "^4.6.0",
+        "lodash.throttle": "^4.1.1",
         "moment": "^2.29.4",
         "pspdfkit": "^2023.2.0",
         "vue-confirmation-button": "^1.0.1",

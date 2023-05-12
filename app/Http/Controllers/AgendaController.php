@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Document;
 use App\Models\Agenda;
 use App\Models\Meeting;
+use App\Models\Resolution;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreAgendaRequest;
@@ -60,24 +61,46 @@ class AgendaController extends Controller
 
         $request['account_id'] = $account->id;
 
+        if ($request['agendable_type'] == 'Meeting'){
 
-        $meeting = Meeting::find($request->input('meeting_id'));
+            $meeting = Meeting::find($request->input('meeting_id'));
+
+            $agenda = new Agenda;
+
+            $agenda->presenter_id = $request->input('presenter_id');
+            $agenda->created_by = $created_by;
+            $agenda->account_id = $account->id;
+            $agenda->title = $request->input('title');
+            $agenda->contributor_id = $request->input('contributor_id')? $request->input('contributor_id'): $created_by;
+            $agenda->minutes = $request->input('minutes');
+            $agenda->purpose_id = $request->input('purpose_id');
+            $agenda->external_url = $request->input('external_url');
+            $agenda->recurring = $request->input('recurring');
+
+            $meeting->agendas()->save($agenda);
+        }
+
+
+        if ($request['agendable_type'] == 'Resolution'){
 
 
 
-        $agenda = new Agenda;
+            $resolution = Resolution::find($request->input('resolution_id'));
 
-        $agenda->presenter_id = $request->input('presenter_id');
-        $agenda->created_by = $created_by;
-        $agenda->account_id = $account->id;
-        $agenda->title = $request->input('title');
-        $agenda->contributor_id = $request->input('contributor_id');
-        $agenda->minutes = $request->input('minutes');
-        $agenda->purpose_id = $request->input('purpose_id');
-        $agenda->external_url = $request->input('external_url');
-        $agenda->recurring = $request->input('recurring');
+            $agenda = new Agenda;
 
-        $meeting->agendas()->save($agenda);
+            $agenda->presenter_id = $request->input('presenter_id');
+            $agenda->created_by = $created_by;
+            $agenda->account_id = $account->id;
+            $agenda->title = $request->input('title');
+            $agenda->contributor_id = $request->input('contributor_id')? $request->input('contributor_id'): $created_by;
+            $agenda->minutes = $request->input('minutes');
+            $agenda->purpose_id = $request->input('purpose_id');
+            $agenda->external_url = $request->input('external_url');
+            $agenda->recurring = $request->input('recurring');
+
+            $resolution->agendas()->save($agenda);
+        }
 
 
 
@@ -148,8 +171,8 @@ class AgendaController extends Controller
         }
 
 
-        return redirect()->route('meetings.show',compact('meeting'))
-                        ->with('success','Agenda created successfully.');
+        // return redirect()->route('meetings.show',compact('meeting'))
+        //                 ->with('success','Agenda created successfully.');
     }
 
     /**
@@ -195,7 +218,7 @@ class AgendaController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("agendas")->where('id', $id)->delete();
+        Agenda::where('id', $id)->delete();
         // return redirect()->route('agendas.index')
         //                 ->with('success','Agenda deleted successfully');
     }

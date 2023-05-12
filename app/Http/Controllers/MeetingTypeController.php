@@ -85,7 +85,7 @@ class MeetingTypeController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("meeting_types")->where('id', $id)->delete();
+        MeetingType::where('id', $id)->delete();
         return redirect()->route('meeting-types.index')
                         ->with('success','MeetingType deleted successfully');
     }

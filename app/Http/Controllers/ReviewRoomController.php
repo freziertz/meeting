@@ -76,7 +76,7 @@ class ReviewRoomController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("review_rooms")->where('id', $id)->delete();
+        ReviewRoom::where('id', $id)->delete();
 
         return redirect()->route('review_rooms.index')
                         ->with('success','Review Room deleted successfully');

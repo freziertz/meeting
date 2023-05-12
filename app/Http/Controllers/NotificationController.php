@@ -40,6 +40,7 @@ class NotificationController extends Controller
 
         $request['account_id'] = $account->id;
 
+
         Notification::create($request->all());
 
         return redirect()->route('notifications.index')
@@ -92,7 +93,7 @@ class NotificationController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("notifications")->where('id', $id)->delete();
+        Notification::where('id', $id)->delete();
         return redirect()->route('notifications.index')
                         ->with('success','Notification deleted successfully');
     }

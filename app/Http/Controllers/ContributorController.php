@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Contributor;
 use App\Models\User;
 use App\Models\Meeting;
+use App\Models\Resolution;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -38,23 +39,49 @@ class ContributorController extends Controller
 
          $account = User::find($created_by)->account;
 
-         $meeting = Meeting::find($request->input('meeting_id'));
+         if ($request['contributable_type'] == 'Meeting'){
 
-         $contributor_exist = Contributor::where('contributable_id', $request->input('meeting_id'))
-                               ->where('contributor_id', $request->input('contributor_id'))
-                            ->first();
+            $meeting = Meeting::find($request->input('meeting_id'));
 
-        if (is_null($contributor_exist)) {
+            $contributor_exist = Contributor::where('contributable_id', $request->input('meeting_id'))
+                                ->where('contributor_id', $request->input('contributor_id'))
+                                ->where('contributable_type', 'App\Models\Meeting')
+                                ->first();
 
-                $contributor = new Contributor;
+            if (is_null($contributor_exist)) {
 
-                $contributor->contributor_id = $request->input('contributor_id');
-                $contributor->created_by = $created_by;
-                $contributor->account_id = $account->id;
-                $contributor->title = $request->input('title');
+                    $contributor = new Contributor;
 
-                $meeting->contributors()->save($contributor);
-         }
+                    $contributor->contributor_id = $request->input('contributor_id');
+                    $contributor->created_by = $created_by;
+                    $contributor->account_id = $account->id;
+                    $contributor->title = $request->input('title');
+
+                    $meeting->contributors()->save($contributor);
+            }
+        }
+
+        if ($request['contributable_type'] == 'Resolution'){
+
+            $resolution = Resolution::find($request->input('resolution_id'));
+
+            $contributor_exist = Contributor::where('contributable_id', $request->input('resolution_id'))
+                                ->where('contributor_id', $request->input('contributor_id'))
+                                ->where('contributable_type', 'App\Models\Resolution')
+                                ->first();
+
+            if (is_null($contributor_exist)) {
+
+                    $contributor = new Contributor;
+
+                    $contributor->contributor_id = $request->input('contributor_id');
+                    $contributor->created_by = $created_by;
+                    $contributor->account_id = $account->id;
+                    $contributor->title = $request->input('title');
+
+                    $resolution->contributors()->save($contributor);
+            }
+        }
     }
 
     /**
@@ -87,7 +114,7 @@ class ContributorController extends Controller
     public function destroy($id)
     {
 
-        DB::table("contributors")->where('id', $id)->delete();
+        Contributor::where('id', $id)->delete();
 
     }
 }

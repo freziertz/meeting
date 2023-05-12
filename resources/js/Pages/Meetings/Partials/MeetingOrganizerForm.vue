@@ -33,9 +33,11 @@ const passwordInput = ref(null);
 
 
 const form = useForm({
+    id:null,
     title: null,
     primary: false,
     organizer_id: null,
+    organizable_type: 'Meeting',
     meeting_id: props.meeting.id,
 });
 
@@ -58,8 +60,8 @@ const showOrganizerForm = () => {
 };
 
 
-const deleteOrganizer = ( organizer_id) => {
-    form.delete(route('organizers.destroy', organizer_id), {
+const deleteOrganizer = (id) => {
+    form.delete(route('organizers.destroy', id), {
         preserveScroll: true,
         // onSuccess: () => closeModal(),
 
@@ -164,7 +166,7 @@ const closeModal = () => {
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/organizers/${organizer.id}`">
                                             {{ organizer.primary ? 'Yes' : 'No' }}
 
-                                            {{ organizer.id }}
+
 
 
 
@@ -173,7 +175,7 @@ const closeModal = () => {
 
                                    <td class="border-t">
 
-                                    <delete-button @delete="deleteOrganizer(`${organizer.organizer_id}`)">Delete</delete-button>
+                                    <delete-button @delete="deleteOrganizer(`${organizer.id}`)">Delete</delete-button>
 
                                     </td>
 
@@ -216,7 +218,10 @@ const closeModal = () => {
                 <select
                    v-model="form.organizer_id"
                    :error="form.errors.organizer_id"
-                   class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User">
+                   class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User"
+                   required
+                   >
+
 
                         <option v-for="user in users" :key="user.id" :value="user.id">{{ user.first_name + " " + user.last_name}}</option>
                 </select>
@@ -250,6 +255,12 @@ const closeModal = () => {
                     v-model="form.meeting_id"
                     type="hidden"
                      />
+
+                <TextInput
+                id="organizable_type"
+                v-model="form.organizable_type"
+                type="hidden"
+                    />
 
 
 

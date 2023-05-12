@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Participant;
 use App\Models\User;
 use App\Models\Meeting;
+use App\Models\Resolution;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -35,17 +36,23 @@ class ParticipantController extends Controller
     public function store(Request $request)
     {
 
+
+
         $created_by=  Auth::user()->id;
 
         $account = User::find($created_by)->account;
+
+        if ($request['participantable_type'] == 'Meeting'){
 
         $meeting = Meeting::find($request->input('meeting_id'));
 
 
 
-        $participant_exist = Participant::where(
-                              'participantable_id', $request->input('meeting_id'))
+
+
+        $participant_exist = Participant::where('participantable_id', $request->input('meeting_id'))
                                ->where('participant_id', $request->input('participant_id'))
+                               ->where('participantable_type', 'App\Models\Meeting')
                             ->first();
 
         if (is_null($participant_exist)) {
@@ -56,12 +63,42 @@ class ParticipantController extends Controller
                  $participant->created_by = $created_by;
                  $participant->account_id = $account->id;
                  $participant->title = $request->input('title');
-                 $participant->meeting_role_id = $request->input('meeting_role_id');
-                 $participant->group_id = $request->input('group_id');
+                 $participant->meeting_role_id = $request->input('meeting_role_id')?$request->input('meeting_role_id'):1;
+                 $participant->group_id = $request->input('group_id')?$request->input('group_id'): 1;
 
 
                  $meeting->participants()->save($participant);
          }
+        }
+
+        if ($request['participantable_type'] == 'Resolution'){
+
+            $resolution = Resolution::find($request->input('resolution_id'));
+
+
+
+            $participant_exist = Participant::where('participantable_id', $request->input('resolution_id'))
+                                   ->where('participant_id', $request->input('voter_id'))
+                                   ->where('participantable_type', 'App\Models\Resolution')
+                                ->first();
+
+            if (is_null($participant_exist)) {
+
+                     $participant = new Participant;
+
+                     $participant->participant_id = $request->input('voter_id');
+                     $participant->created_by = $created_by;
+                     $participant->account_id = $account->id;
+                     $participant->title = $request->input('title');
+                    //  $participant->resolution_role_id = $request->input('resolution_role_id');
+                     $participant->group_id = $request->input('group_id');
+
+
+                     $resolution->participants()->save($participant);
+             }
+            }
+
+
     }
 
     /**
@@ -93,6 +130,7 @@ class ParticipantController extends Controller
      */
     public function destroy($id)
     {
-        DB::table("participants")->where('id', $id)->delete();
+
+        Participant::where('id', $id)->delete();
     }
 }

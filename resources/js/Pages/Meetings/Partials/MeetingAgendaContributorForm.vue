@@ -37,6 +37,7 @@ const form = useForm({
     title: null,
     primary: false,
     contributor_id: null,
+    contributable_type: 'Meeting',
     meeting_id: props.meeting.id,
 });
 
@@ -74,7 +75,7 @@ const confirmContributorDeletion = (contributor_id) => {
 const deleteContributor = (id) => {
     form.delete(route('contributors.destroy', id), {
         preserveScroll: true,
-        onSuccess: () => closeModal(),
+        // onSuccess: () => closeModal(),
         // onError: () => passwordInput.value.focus(),
         // onFinish: () => form.reset(),
     });
@@ -145,7 +146,7 @@ const closeModal = () => {
                                     </td>
 
                                     <td class="border-t">
-                                        <delete-button @delete="deleteContributor(`${contributor.contributor_id}`)">Delete</delete-button>
+                                        <delete-button @delete="deleteContributor(`${contributor.id}`)">Delete</delete-button>
                                     </td>
 
 
@@ -190,7 +191,9 @@ const closeModal = () => {
                 <select
                    v-model="form.contributor_id"
                    :error="form.errors.contributor_id"
-                   class="mt-1 w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User">
+                   class="mt-1 w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User"
+                   required
+                   >
 
                         <option v-for="user in users" :key="user.id" :value="user.id">{{ user.first_name + " " + user.last_name}}</option>
                 </select>
@@ -231,11 +234,19 @@ const closeModal = () => {
 
 
 
-                          <TextInput
+                    <TextInput
                     id="meeting_id"
                     v-model="form.meeting_id"
                     type="hidden"
                      />
+
+                     <TextInput
+                    id="contributable_type"
+                    v-model="form.contributable_type"
+                    type="hidden"
+                     />
+
+
             </template>
 
         <template #actions>

@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreignId('participant_id'); // user id who is responsible to attend meeting
             // $table->foreignId('meeting_id');
             $table->string('title')->nullable();
-            $table->foreignId('group_id'); // check if team can be used
-            $table->foreignId('meeting_role_id');
+            $table->foreignId('group_id')->nullable(); // check if team can be used
+            $table->foreignId('meeting_role_id')->nullable();
             $table->foreignId('account_id');
             $table->foreignId('created_by'); // login user who create the meeting
             $table->unsignedBigInteger('participantable_id')->comment('meeting_id'); //meeting_id

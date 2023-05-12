@@ -14,13 +14,9 @@ return new class extends Migration
         Schema::create('actions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('agenda_id');
-            $table->string('name');
-            $table->foreignId('actioner_id'); // user id who responsible in this action
+            $table->text('name');
             $table->foreignId('meeting_id');
             $table->date('due_date');
-            $table->integer('reminder_days');// Remind assignee 3 days before due date
-            $table->string('status');
-            $table->date('as_of_date'); // status as off
             $table->foreignId('account_id');
             $table->foreignId('created_by'); // login user who create the meeting
             $table->softDeletes();

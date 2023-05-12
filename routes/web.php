@@ -7,6 +7,11 @@ use Inertia\Inertia;
 use App\Http\Controllers\AccountController;
 
 use App\Http\Controllers\ActionController;
+
+use App\Http\Controllers\ActionStatusController;
+
+use App\Http\Controllers\AgendaOptionController;
+
 use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\ContributorController;
 use App\Http\Controllers\DocumentController;
@@ -27,6 +32,7 @@ use App\Http\Controllers\MeetingRoleController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,12 +65,16 @@ Route::middleware([
 
     Route::put('/status/{id}', [MeetingController::class, 'status'])->name('meeting.status');
 
+    Route::get('/next/{id}', [MeetingController::class, 'next'])->name('meetings.next');
+
 
 
 
     Route::resources([
         'accounts' => AccountController::class,
         'actions' => ActionController::class,
+        'action-statuses' => ActionStatusController::class,
+        'agenda-options' => AgendaOptionController::class,
         'announcements' => AnnouncementController::class,
         'contributors' => ContributorController::class,
         'agendas' => AgendaController::class,
@@ -85,6 +95,7 @@ Route::middleware([
         'reviews' => ReviewRoomController::class,
         'directories' => DirectoryController::class,
         'admins' => AdminController::class,
+        'settings' => SettingController::class,
     ]);
 
 

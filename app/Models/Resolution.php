@@ -16,9 +16,12 @@ class Resolution extends Model
 
     protected $fillable = [
         'subject',
-        'meeting_id',
-        'note_to_voters',
+        'notes_to_voters',
         'voting_deadline',
+        'uuid',
+        'visible',
+        'status',
+        'slug',
         'created_by',
         'account_id'
     ];
@@ -27,6 +30,10 @@ class Resolution extends Model
     // {
     //     return $this->belongsTo(Meeting::class);
     // }
+    protected $attributes = [
+        'visible' => false,
+        'status' => 1,
+    ];
 
     public function documents(): MorphToMany
     {
@@ -40,7 +47,7 @@ class Resolution extends Model
 
     public function organizers(): MorphMany
     {
-        return $this->morphMany(Organizer::class, 'orgnizable');
+        return $this->morphMany(Organizer::class, 'organizable');
     }
 
     public function contributors(): MorphMany
@@ -51,5 +58,10 @@ class Resolution extends Model
     public function agendas(): MorphMany
     {
         return $this->morphMany(Agenda::class, 'agendable');
+    }
+
+    public function notifications(): MorphMany
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 }

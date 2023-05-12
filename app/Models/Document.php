@@ -29,6 +29,8 @@ class Document extends Model
             'account_id'
     ];
 
+    // protected $appends = array('agenda_id');
+
 
     public function agendas(): MorphToMany
     {

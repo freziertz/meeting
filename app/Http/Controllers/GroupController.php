@@ -84,7 +84,7 @@ class GroupController extends Controller
      */
     public function destroy($id)
     {
-        DB::table("groups")->where('id', $id)->delete();
+        Group::where('id', $id)->delete();
         return redirect()->route('groups.index')
                         ->with('success','Group deleted successfully');
     }

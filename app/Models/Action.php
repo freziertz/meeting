@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Action extends Model
@@ -15,12 +16,11 @@ class Action extends Model
     protected $fillable = [
         'agenda_id',
         'name',
-        'actioner_id', // responsible user id
         'meeting_id',
         'due_date',
-        'days',
-        'status',
-        'as_off_date',
+        // 'as_of_date',
+        // 'status_id',
+        // 'notes',
         'created_by',
         'account_id'
     ];
@@ -29,4 +29,16 @@ class Action extends Model
     {
         return $this->belongsTo(Meeting::class);
     }
+
+    public function notifications(): MorphMany
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
+    }
+
+    public function participants(): MorphMany
+    {
+        return $this->morphMany(Participant::class, 'participantable');
+    }
+
+
 }

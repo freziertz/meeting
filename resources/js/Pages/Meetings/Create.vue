@@ -53,7 +53,7 @@ const form = useForm({
   organizer_notes: 'Prepare agenda for meeting management system development and propose source of fund',
   organizer_title: 'Administrator',
   reminders: [{
-    reminder: 2,
+    reminder: 1,
   }],
   status: 1
 });

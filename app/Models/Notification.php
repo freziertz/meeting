@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Notification extends Model
@@ -13,7 +14,7 @@ class Notification extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'meeting_id',
+        'notifiable_id',
         'notification_date',
         'notification_type_id',
         'reminder',
@@ -21,8 +22,9 @@ class Notification extends Model
         'account_id'
     ];
 
-    public function meeting(): BelongsTo
+
+    public function notifiable(): MorphTo
     {
-        return $this->belongsTo(Meeting::class);
+        return $this->morphTo();
     }
 }

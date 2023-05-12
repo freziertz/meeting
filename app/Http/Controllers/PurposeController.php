@@ -9,16 +9,48 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StorePurposeRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request as Req;
+
 
 class PurposeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $purposes = Purpose::all();
-        return Inertia::render('Purposes/Index',compact('purposes'));
+        // $purposes = Purpose::all();
+        // return Inertia::render('Purposes/Index',compact('purposes'));
+
+
+
+
+        // $purposes = Purpose::query();
+        // dd($purposes);
+
+
+
+        return Inertia::render('Purposes/Index', [
+            'filters' => $request->all('search', 'trashed'),
+            'purposes' => Purpose::query()
+                ->orderBy('name')
+                ->filter($request->only('search', 'trashed'))
+                ->paginate(10)
+                ->withQueryString()
+                ->through(fn ($purpose) => [
+                    'id' => $purpose->id,
+                    'name' => $purpose->name,
+                    'description' => $purpose->description,
+                    'deleted_at' => $purpose->deleted_at,
+                ]),
+        ]);
+
+        //  dd($purposes);
+
+
+
+
+
     }
 
     /**
@@ -87,7 +119,7 @@ class PurposeController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("purposes")->where('id', $id)->delete();
+        Purpose::where('id', $id)->delete();
         return redirect()->route('purposes.index')
                         ->with('success','Purpose deleted successfully');
     }

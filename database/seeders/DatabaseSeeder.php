@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             MeetingRoleSeeder::class,
             PurposeSeeder::class,
             MeetingSeeder::class,
+            ActionStatusSeeder::class,
        ]);
     }
 }

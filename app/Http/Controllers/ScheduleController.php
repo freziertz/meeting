@@ -91,7 +91,7 @@ class ScheduleController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("schedules")->where('id', $id)->delete();
+        Schedule::where('id', $id)->delete();
         return redirect()->route('schedules.index')
                         ->with('success','Schedule deleted successfully');
     }

@@ -92,7 +92,7 @@ class TimezoneController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("timezones")->where('id', $id)->delete();
+        Timezone::where('id', $id)->delete();
         return redirect()->route('timezones.index')
                         ->with('success','Timezone deleted successfully');
     }

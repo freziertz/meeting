@@ -114,7 +114,7 @@ class AccountController extends Controller
      */
     public function destroy(string $id)
     {
-        DB::table("accounts")->where('id', $id)->delete();
+        Account::where('id', $id)->delete();
 
         return redirect()->route('accounts.index')
                         ->with('success','Account deleted successfully');

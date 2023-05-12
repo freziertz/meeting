@@ -7,8 +7,10 @@ use App\Models\Meeting;
 use App\Models\User;
 use App\Models\Agenda;
 use App\Models\Organizer;
+use App\Models\Document;
 use App\Models\Participant;
 use App\Models\Group;
+use App\Models\ActionStatus;
 use App\Models\MeetingRole;
 use App\Models\Purpose;
 use App\Models\MeetingType;
@@ -39,6 +41,7 @@ use App\Jobs\SendMeetingStartedEmailsJob;
 use App\Jobs\SendMeetingClosedEmailsJob;
 
 use App\Jobs\SendMeetingPublishedEmailsJob;
+use App\Models\Contributor;
 
 use function PHPUnit\Framework\isNull;
 
@@ -60,6 +63,7 @@ class MeetingController extends Controller
                 'schedules.meeting_start_time',
                 'schedules.meeting_end_time',
             )->where('schedules.primary', 1)
+            ->where('meetings.deleted_at', NULL)
             ->get();
 
             return Inertia::render('Meetings/Index',compact('meetings'));
@@ -109,7 +113,7 @@ class MeetingController extends Controller
                 'description' => $request->input('description'),
                 'participants_notes' => $request->input('participants_notes'),
                 'organizer_notes' => $request->input('organizer_notes'),
-                'reminder' => $request->input('reminder'),
+                // 'reminder' => $request->input('reminder'),
                 'status' => $request->input('status'),
                 'slug' => $request->input('slug'),
                 'visible' => $request->input('visible'),  // Once published is visible to participant
@@ -168,17 +172,25 @@ class MeetingController extends Controller
             // $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
             // $objWriter->save('MeetingInfo.html');
 
+            $notifications = array();
+
 
 
             foreach ($request->input('reminders') as $day ) {
-                 $notification = Notification::create([
-                'meeting_id' => $meeting->id,
-                'notification_type_id' => 1,
-                'created_by' => $created_by,
-                'account_id' => 1, // To do take it from Account
-                'reminder' => $day['reminder'],
-                'notification_date'=> (new Carbon($meeting_start_date))->subDays($day['reminder']),
-             ]);
+
+             $notification = new Notification;
+
+             $notification->notification_type_id = 1;
+             $notification->created_by = $created_by;
+             $notification->account_id = $account->id;
+
+             $notification->reminder = $day['reminder'];
+             $notification->notification_date =  (new Carbon($meeting_start_date))->subDays($day['reminder']);
+
+             $meeting->notifications()->save($notification);
+
+             array_push($notifications, $notification);
+
             }
 
 
@@ -194,20 +206,117 @@ class MeetingController extends Controller
 
             $meeting->organizers()->save($organizer);
 
+            // For creation from existing one
 
-            // $organizer = Organizer::create([
-            //     'organizable_id' => $meeting->id,
-            //     'organizer_id' => $created_by,
-            //     'created_by' => $created_by,
-            //     'account_id' => 1, // To do take it from Account
-            //     'title' => $request->input('organizer_title'), // TO DO add meeting organizer title in meeting create form
-            //     'primary' => true,
-            //  ]);
+            $include_organizers = $request['organizers'];
+            $include_contributors = $request['contributors'];
+            $include_agendas = $request['agendas'];
+            $include_participants = $request['participants'];
+            $old_meeting_id = $request['old_meeting_id'];
 
 
+            if($include_organizers){
+
+                $old_organizers = Organizer::where('organizable_id', $old_meeting_id)
+                ->where('organizable_type', 'App\Models\Meeting')
+                ->where('deleted_at', NULL)
+                ->get();
+
+                foreach($old_organizers as $old_organizer){
+
+                $organizer_exist = Organizer::where('organizable_id', $meeting->id )
+                    ->where('organizer_id', $old_organizer->organizer_id)
+                    ->where('organizable_type', 'App\Models\Meeting')
+                    ->where('deleted_at', NULL)
+                   ->first();
 
 
-            if (!$meeting and !$schedule and !$notification and !$organizer)
+                 if (is_null($organizer_exist)) {
+
+                    $organizer = $old_organizer->replicate();
+                    $organizer->created_by = $created_by;
+                    $organizer->account_id = $account->id;
+
+                    $meeting->organizers()->save($organizer);
+                  }
+                }
+            }
+
+            if($include_contributors){
+
+                $old_contributors = Contributor::where('contributable_id', $old_meeting_id)
+                ->where('contributable_type', 'App\Models\Meeting')
+                ->where('deleted_at', NULL)
+                ->get();
+
+                foreach($old_contributors as $old_contributor){
+
+                $contributor_exist = Contributor::where('contributable_id', $meeting->id )
+                    ->where('contributor_id', $old_contributor->contributor_id)
+                    ->where('contributable_type', 'App\Models\Meeting')
+                    ->where('deleted_at', NULL)
+                   ->first();
+
+
+                 if (is_null($contributor_exist)) {
+
+                    $contributor = $old_contributor->replicate();
+                    $contributor->created_by = $created_by;
+                    $contributor->account_id = $account->id;
+
+                    $meeting->contributors()->save($contributor);
+                  }
+                }
+            }
+
+            if($include_participants){
+
+                $old_participants = Participant::where('participantable_id', $old_meeting_id)
+                ->where('participantable_type', 'App\Models\Meeting')
+                ->where('deleted_at', NULL)
+                ->get();
+
+                foreach($old_participants as $old_participant){
+
+                $participant_exist = Participant::where('participantable_id', $meeting->id )
+                    ->where('participant_id', $old_participant->participant_id)
+                    ->where('participantable_type', 'App\Models\Meeting')
+                    ->where('deleted_at', NULL)
+                   ->first();
+
+
+                 if (is_null($participant_exist)) {
+
+                    $participant = $old_participant->replicate();
+                    $participant->created_by = $created_by;
+                    $participant->account_id = $account->id;
+
+                    $meeting->participants()->save($participant);
+                  }
+                }
+            }
+
+            if($include_agendas){
+
+                $old_agendas = Agenda::where('agendable_id', $old_meeting_id)
+                ->where('agendable_type', 'App\Models\Meeting')
+                ->where('deleted_at', NULL)
+                ->get();
+
+                foreach($old_agendas as $old_agenda){
+
+                    $agenda = $old_agenda->replicate();
+                    $agenda->created_by = $created_by;
+                    $agenda->account_id = $account->id;
+
+                    $meeting->agendas()->save($agenda);
+                }
+            }
+
+
+
+
+            if (!$meeting and !$schedule and !$notifications and !$organizer)
             {
                 DB::rollBack();
             }else{
@@ -252,6 +361,8 @@ class MeetingController extends Controller
 
         $purposes = Purpose::all();
 
+        $statuses = ActionStatus::all();
+
         $meeting = DB::table('meetings')
             ->join('meeting_types', 'meeting_types.id', '=', 'meetings.meeting_type_id')
             ->join('schedules', 'schedules.meeting_id', '=', 'meetings.id')
@@ -263,11 +374,8 @@ class MeetingController extends Controller
                 'schedules.meeting_end_time'
             )->distinct()
             ->where('meetings.id', '=', $id)
+            ->where('meetings.deleted_at', NULL)
             ->first();
-
-
-
-
 
 
 
@@ -276,16 +384,20 @@ class MeetingController extends Controller
                        ->join('meetings', 'meetings.id', '=', 'organizers.organizable_id')
                        ->join('users', 'users.id', '=', 'organizers.organizer_id')
                        ->select(
+                             'organizers.id',
                              'organizers.primary',
                              'organizers.title as designation',
-                             'organizers.id as organizer_id',
                               'users.first_name',
                               'users.middle_name',
                               'users.last_name',
                               'users.title as Title',
 
                           )->where('meetings.id', '=', $id)
+                          ->where('organizers.organizable_type', '=', 'App\Models\Meeting')
+                          ->where('organizers.deleted_at', NULL)
                        ->get();
+
+
 
         $participants = DB::table('participants')
                        ->join('meetings', 'meetings.id', '=', 'participants.participantable_id')
@@ -293,8 +405,8 @@ class MeetingController extends Controller
                        ->join('meeting_roles', 'meeting_roles.id', '=', 'participants.meeting_role_id')
                        ->join('groups', 'groups.id', '=', 'participants.group_id')
                        ->select(
+                             'participants.id',
                              'participants.meeting_role_id',
-                             'participants.id as participant_id',
                              'participants.group_id',
                              'participants.title as designation',
                              'groups.name as group_name',
@@ -303,24 +415,29 @@ class MeetingController extends Controller
                               'users.middle_name',
                               'users.last_name',
                               'users.title as Title',
-
                           )->where('meetings.id', '=', $id)
+                          ->where('participants.participantable_type', '=', 'App\Models\Meeting')
+                          ->where('participants.deleted_at', NULL)
                        ->get();
+
+
 
         $contributors = DB::table('contributors')
                    ->join('meetings', 'meetings.id', '=', 'contributors.contributable_id')
                    ->join('users', 'users.id', '=', 'contributors.contributor_id')
                    ->select(
-
-                         'contributors.id as contributor_id',
+                         'contributors.id',
                          'contributors.title as designation',
                           'users.first_name',
                           'users.middle_name',
                           'users.last_name',
                           'users.title as Title',
-
                       )->where('meetings.id', '=', $id)
+                      ->where('contributors.contributable_type', '=', 'App\Models\Meeting')
+                      ->where('contributors.deleted_at', NULL)
                    ->get();
+
+
 
 
                    // DB::table('item')->select('item_name')->distinct()->get();
@@ -345,20 +462,26 @@ class MeetingController extends Controller
                   'users.title as Title',
                   'purposes.name as purpose_name'
               )->distinct()->where('meetings.id', '=', $id)
+              ->where('agendas.agendable_type', '=', 'App\Models\Meeting')
+              ->where('agendas.deleted_at', NULL)
            ->get();
 
-        //    foreach ($agendas as $agenda){
-        //        foreach ($agenda->documents as $document){
-        //         if ($document){
-        //             dd($document);
-        //         }
-        //       }
-        //     }
 
 
 
 
-
+        $documents = DB::table('documents')
+           ->join('documentables', 'documentables.document_id', '=', 'documents.id')
+           ->join('agendas', 'agendas.id', '=', 'documentables.documentable_id')
+           ->join('meetings', 'meetings.id', '=', 'agendas.agendable_id')
+           ->select(
+            'documents.*',
+            'agendas.id as agenda_id',
+            'meetings.id as meeting_id'
+        )->where('meetings.id', '=', $id)
+        ->where('documentables.documentable_type', '=', 'App\Models\Agenda')
+        ->where('documents.deleted_at', NULL)
+     ->get();
 
 
 
@@ -372,26 +495,31 @@ class MeetingController extends Controller
                  'schedules.meeting_end_time',
                  'meetings.id',
               )->where('meetings.id', '=', $id)
+              ->where('schedules.deleted_at', NULL)
+
            ->get();
 
        $notifications = DB::table('notifications')
-       ->join('meetings', 'meetings.id', '=', 'notifications.meeting_id')
-       ->select(
-             'notifications.notification_date',
-             'meetings.id',
-          )->where('meetings.id', '=', $id)
-       ->get();
+            ->join('meetings', 'meetings.id', '=', 'notifications.notifiable_id')
+            ->select(
+                    'notifications.notification_date',
+                    'meetings.id',
+                )->where('meetings.id', '=', $id)
+                ->where('notifications.notifiable_type', '=', 'App\Models\Meeting')
+                ->where('notifications.deleted_at', NULL)
+            ->get();
 
-         // dd($meeting);
+        $actions = DB::table('actions')
+            ->join('meetings', 'meetings.id', '=', 'actions.meeting_id')
+            // ->join('users', 'users.id', '=', 'actions.actioner_id')
+            ->select(
+                    'actions.*',
+                )->where('meetings.id', '=', $id)
+                ->where('actions.deleted_at', NULL)
+            ->get();
 
-        // $organizer = Meeting::find($meeting->id)->organizers;
-         // $actions = Post::find($meeting->id)->actions;
 
-
-
-
-
-        return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','notifications','schedules','groups','meeting_roles','purposes','participants','contributors', 'users'));
+        return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','notifications','schedules','groups','meeting_roles','purposes','participants','contributors', 'users', 'documents', 'statuses', 'actions'));
     }
 
     /**
@@ -400,15 +528,12 @@ class MeetingController extends Controller
     public function edit(string $id)
     {
        $meeting = Meeting::findOrFail($id);
+
        $events = Schedule::where('meeting_id',$id)->get();
-       $reminders = Notification::where('meeting_id',$id)->get();
+
+       $reminders = Notification::where('notifiable_id',$id)->get();
+
        $meeting_types = MeetingType::get();
-
-
-
-    //    dd($meeting);
-    //    dd($events);
-    //    dd($reminders);
 
        return Inertia::render('Meetings/Edit',compact('meeting', 'events','reminders','meeting_types'));
     }
@@ -502,7 +627,7 @@ class MeetingController extends Controller
             if(isset($day['id'])){
                 $notification = Notification::find($day['id']);
 
-                $notification->meeting_id = $meeting->id;
+                $notification->notifiable_id = $meeting->id;
                 $notification->notification_type_id = $day['notification_type_id'];
                 $notification->reminder = $day['reminder'];
                 $notification->created_by = $created_by;
@@ -512,7 +637,7 @@ class MeetingController extends Controller
 
             }else{
                 $notification = Notification::create([
-                    'meeting_id' => $meeting->id,
+                    'notifiable_id' => $meeting->id,
                     'notification_type_id' => 1,
                     'reminder' => $day['reminder'],
                     'created_by' => $created_by,
@@ -549,10 +674,45 @@ class MeetingController extends Controller
     public function destroy(string $id)
     {
         // TO DO delete everything see store
-        DB::table("meetings")->where('id', $id)->delete();
+        DB::beginTransaction();
+           $meeting = Meeting::find($id)->delete();
+
+
+           $organizers = Organizer::where('organizable_id', $id)->delete();
+           $contributors = Contributor::where('contributable_id', $id)->delete();
+           $participants = Participant::where('participantable_id', $id)->delete();
+           $agendas = Agenda::where('agendable_id', $id)->delete();
+            //$actions = Action::where('actionable_id', $id)->delete(); // through agenda
+           $notifications = Notification::where('notifiable_id', $id)->delete();
+           $schedules = Schedule::where('meeting_id', $id)->delete();
+
+        if (!$meeting and !$schedules and !$notifications and !$organizers and !$contributors and !$participants and !$agendas )
+        {
+            DB::rollBack();
+        }else{
+            DB::commit();
+
+            return redirect()->route('meetings.index')
+                    ->with('success','Meeting created successfully.');
+        }
+
         return redirect()->route('meetings.index')
                         ->with('success','Meeting deleted successfully');
     }
+
+    public function next(string $id)
+    {
+       $meeting = Meeting::findOrFail($id);
+
+       $events = Schedule::where('meeting_id',$id)->get();
+
+       $reminders = Notification::where('notifiable_id',$id)->get();
+
+       $meeting_types = MeetingType::get();
+
+       return Inertia::render('Meetings/Next',compact('meeting', 'events','reminders','meeting_types'));
+    }
+
 
 
 
@@ -563,6 +723,8 @@ class MeetingController extends Controller
         $meeting = Meeting::find($id);
 
 
+
+
         $participants = DB::table('participants')
         ->join('users', 'users.id', '=', 'participants.participant_id')
         ->select(
@@ -571,7 +733,10 @@ class MeetingController extends Controller
               'users.first_name',
               'users.last_name',
            )->where('participants.participantable_id', '=', $id)
+           ->where('participants.participantable_type', '=', 'App\Models\Meeting')
         ->get();
+
+
 
         if ($request->input('status')== 2){
 
@@ -604,6 +769,7 @@ class MeetingController extends Controller
 
 
         }else if ($request->input('status')== 1){
+
 
             $meeting->status = $request->input('status'); // start meeting
             $meeting->save();

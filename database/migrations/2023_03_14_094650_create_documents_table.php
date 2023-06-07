@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('signature');
             $table->foreignId('account_id');
             $table->foreignId('created_by'); // login user who create the meeting
+            $table->boolean('status')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

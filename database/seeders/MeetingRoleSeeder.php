@@ -29,12 +29,11 @@ class MeetingRoleSeeder extends Seeder
         ]);
 
         DB::table('meeting_roles')->insert([
-            'name' => 'Participant',
-            'description' =>'Meeting Participant',
+            'name' => 'Organizer',
+            'description' =>'Meeting Organizer',
             'account_id'  => 1,
             'created_by'  => 1,
         ]);
-
 
         DB::table('meeting_roles')->insert([
             'name' => 'Contributor',
@@ -43,9 +42,10 @@ class MeetingRoleSeeder extends Seeder
             'created_by'  => 1,
         ]);
 
+
         DB::table('meeting_roles')->insert([
-            'name' => 'Organizer',
-            'description' =>'Meeting Organizer',
+            'name' => 'Participant',
+            'description' =>'Meeting Participant',
             'account_id'  => 1,
             'created_by'  => 1,
         ]);

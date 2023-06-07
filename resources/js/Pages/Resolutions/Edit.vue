@@ -17,26 +17,19 @@ import DialogModal from "@/Components/DialogModal.vue";
 
 const props = defineProps({
   resolution: Object,
-  resolution_types: Array,
-  events: Array,
   reminders: Array,
-
 });
 
 const reminders = reactive([{
     reminder:'',
-
 }]);
 
 const addField = (value, fieldType) => {
-
     fieldType.push({ })
-
 };
 
 const removeField = (index, fieldType) => {
       fieldType.splice(index, 1)
-
 }
 
 
@@ -86,53 +79,49 @@ const deleteResolution = () => {
 
                     <template #form>
 
-                      <!-- Resolution Subject -->
 
-                      <div class="col-span-6 sm:col-span-4">
-                            <InputLabel for="subject" value="Subject" />
-                            <TextArea
-                                id="subject"
-                                v-model="form.subject"
-                                type="textarea"
-                                class="mt-1 block w-full"
-                                autocomplete="subject"
-                            />
-                            <InputError :message="form.errors.subject" class="mt-2" />
-                        </div>
+                    <!-- Resolution Subject -->
+                    <div class="col-span-6 sm:col-span-4">
+                        <InputLabel for="subject" value="Subject" />
+                        <textarea
+                        id="subject"
+                        v-model="form.subject"
+                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                        autocomplete="subject"
+                        >
+                        </textarea>
+                        <InputError :message="form.errors.subject" class="mt-2" />
+                    </div>
 
-                        <!-- Notes to Notes to Voters -->
-                        <div class="col-span-6 sm:col-span-4">
-                            <InputLabel for="notes_to_voters" value="Notes to Voters" />
-                            <TextArea
-                                id="notes_to_voters"
-                                v-model="form.notes_to_voters"
-                                type="textarea"
-                                class="mt-1 block w-full"
-                                autocomplete="notes_to_voters"
-                            />
-                            <InputError :message="form.errors.notes_to_voters" class="mt-2" />
-                        </div>
-
-
-                        <!-- Voting Deadline -->
-                        <div class="col-span-4 sm:col-span-2">
-
-                            <InputLabel for="voting_deadline" value="Voting Deadline" />
-                            <TextInput
-                                id="voting_deadline"
-                                v-model="form.voting_deadline"
-                                type="date"
-                                class="mt-1 block w-full"
-                                autocomplete="voting_deadline"
-                            />
-
-                            <InputError :message="form.errors.voting_deadline" class="mt-2" />
-
-                        </div>
+                    <!-- Notes to Notes to Voters -->
+                    <div class="col-span-6 sm:col-span-4">
+                        <InputLabel for="notes_to_voters" value="Notes to Voters" />
+                        <textarea
+                        id="notes_to_voters"
+                        v-model="form.notes_to_voters"
+                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                        autocomplete="notes_to_voters"
+                        >
+                        </textarea>
+                        <InputError :message="form.errors.notes_to_voters" class="mt-2" />
+                    </div>
 
 
+                    <!-- Voting Deadline -->
+                    <div class="col-span-6 sm:col-span-4">
 
+                        <InputLabel for="voting_deadline" value="Voting Deadline" />
+                        <TextInput
+                            id="voting_deadline"
+                            v-model="form.voting_deadline"
+                            type="date"
+                            class="mt-1 block w-full"
+                            autocomplete="voting_deadline"
+                        />
 
+                        <InputError :message="form.errors.voting_deadline" class="mt-2" />
+
+                    </div>
 
                     <!-- Reminder -->
 
@@ -140,22 +129,23 @@ const deleteResolution = () => {
                     <div v-for="( input , index) in form.reminders" :key="`Reminder-${index}`" class="col-span-6 sm:col-span-4 flex" >
 
                     <!-- Resolution Reminder -->
-                    <div class="col-span-4 sm:col-span-2">
+                    <div class="col-span-6 sm:col-span-4">
 
-                    <InputLabel for="reminder" :value="`Remainder in days`" />
-                    <TextInput
-                        id="reminder"
-                        v-model="input.reminder"
-                        type="number"
-                        min="1"
-                        class="mt-1 block w-full"
-                        autocomplete="reminder"
-                        required
-                    />
+                            <InputLabel for="reminder" :value="`Remainder in days`" />
+                            <TextInput
+                                id="reminder"
+                                v-model="input.reminder"
+                                type="number"
+                                min="1"
+                                class="mt-1 block w-full"
+                                autocomplete="reminder"
+                                required
+                            />
 
-                    <InputError :message="form.errors.reminder" class="mt-2" />
+                        <InputError :message="form.errors.reminder" class="mt-2" />
 
                     </div>
+
                         <div class="col-span-1 sm:col-span-1 ml-2 mt-8">
                             <button type="button" @click="addField(input, form.reminders)"  class="text-xl">+</button>
                         </div>
@@ -165,6 +155,7 @@ const deleteResolution = () => {
                         </div>
 
                     </div>
+
 
                     </template>
 

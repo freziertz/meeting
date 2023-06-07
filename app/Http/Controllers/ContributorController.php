@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreContributorRequest;
+use App\Jobs\NotifyContributorsJob;
 use Illuminate\Support\Facades\Auth;
 
 class ContributorController extends Controller
@@ -55,6 +56,7 @@ class ContributorController extends Controller
                     $contributor->contributor_id = $request->input('contributor_id');
                     $contributor->created_by = $created_by;
                     $contributor->account_id = $account->id;
+
                     $contributor->title = $request->input('title');
 
                     $meeting->contributors()->save($contributor);
@@ -115,6 +117,32 @@ class ContributorController extends Controller
     {
 
         Contributor::where('id', $id)->delete();
+
+    }
+
+    public function notify_contributors(Request $request, $id)
+    {
+        $meeting = Meeting::find($id);
+
+        $contributors = DB::table('contributors')
+        ->join('meetings', 'meetings.id', '=', 'contributors.contributable_id')
+        ->join('users', 'users.id', '=', 'contributors.contributor_id')
+        ->select(
+              'contributors.id',
+              'contributors.title as designation',
+               'users.first_name',
+               'users.middle_name',
+               'users.last_name',
+               'users.title as Title',
+           )->where('meetings.id', '=', $id)
+           ->where('contributors.contributable_type', '=', 'App\Models\Meeting')
+           ->where('contributors.deleted_at', NULL)
+        ->get();
+
+        foreach ($contributors as $contributor){
+            dispatch(new NotifyContributorsJob($meeting, $contributor));
+        }
+
 
     }
 }

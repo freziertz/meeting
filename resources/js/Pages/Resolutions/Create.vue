@@ -91,7 +91,7 @@ const createResolution = () => {
 
 
                         <!-- Voting Deadline -->
-                        <div class="col-span-4 sm:col-span-2">
+                        <div class="col-span-6 sm:col-span-4">
 
                             <InputLabel for="voting_deadline" value="Voting Deadline" />
                             <TextInput
@@ -112,7 +112,7 @@ const createResolution = () => {
                      <div v-for="( input , index) in form.reminders" :key="`Reminder-${index}`" class="col-span-6 sm:col-span-4 flex" >
 
                         <!-- Resolution Reminder -->
-                        <div class="col-span-4 sm:col-span-2">
+                        <div class="col-span-6 sm:col-span-4">
 
                                 <InputLabel for="reminder" :value="`Remainder in days`" />
                                 <TextInput

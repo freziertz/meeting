@@ -28,6 +28,7 @@ const props = defineProps({
     actions: Array,
     statuses: Array,
     meeting: Object,
+    can: Object,
 });
 
 

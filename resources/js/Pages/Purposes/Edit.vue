@@ -17,6 +17,7 @@ import DialogModal from "@/Components/DialogModal.vue";
 
 const props = defineProps({
   purpose: Object,
+  can: Object,
 });
 
 const form = useForm({
@@ -92,7 +93,7 @@ const deletePurpose = () => {
                     <template #actions>
 
 
-                    <DangerButton
+                    <DangerButton v-if="can.delete"
                         class="mx-3"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
@@ -113,7 +114,7 @@ const deletePurpose = () => {
                             Saved.
                         </ActionMessage>
 
-                        <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+                        <PrimaryButton v-if="can.edit" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                             Save
                         </PrimaryButton>
                     </template>

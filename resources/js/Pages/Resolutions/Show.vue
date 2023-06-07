@@ -87,7 +87,7 @@ const showVoterSection = () => {
                 </TabButton>
 
                 <TabButton @click="showAgendaSection" >
-                    Agenda
+                    Documents
                 </TabButton>
 
                 <TabButton @click="showVoterSection" >

@@ -22,6 +22,7 @@
         "datatables.net-responsive": "^2.4.1",
         "datatables.net-select": "^1.6.2",
         "datatables.net-vue3": "^2.1.0",
+        "eslint": "^8.41.0",
         "filepond": "^4.30.4",
         "filepond-plugin-file-validate-type": "^1.2.8",
         "filepond-plugin-image-preview": "^4.6.11",
@@ -33,6 +34,7 @@
         "pspdfkit": "^2023.2.0",
         "vue-confirmation-button": "^1.0.1",
         "vue-doc-preview": "^0.3.2",
-        "vue-filepond": "^7.0.3"
+        "vue-filepond": "^7.0.3",
+        "vue-html-editor": "^0.2.1"
     }
 }

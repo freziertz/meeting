@@ -18,11 +18,15 @@ use App\Models\Schedule;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Http\Requests\StoreMeetingRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
+
+use App\Traits\InteractsWithBanner;
+use App\Enums\MeetingStatusEnum;
 
 
 
@@ -47,26 +51,82 @@ use function PHPUnit\Framework\isNull;
 
 class MeetingController extends Controller
 {
+    use InteractsWithBanner;
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function __construct()
     {
-           $meetings = DB::table('meetings')
+        // $this->middleware(['role:Users','permission:create meetings|list meetings|edit meetings']);
+        // $this->middleware(['role:users','permission:create meetings|list meetings|edit meetings']);
+
+        // $this->middleware('permission:meeting-list|meeting-create|meeting-edit|meeting-delete', ['only' => ['index','show']]);
+        // $this->middleware('permission:meeting-create', ['only' => ['create','store']]);
+        // $this->middleware('permission:meeting-edit', ['only' => ['edit','update']]);
+        // $this->middleware('permission:meeting-delete', ['only' => ['destroy']]);
+    }
+
+    public function index(Request $request)
+    {
+
+           $all_meetings = DB::table('meetings')
             ->join('schedules',  'meetings.id', 'schedules.meeting_id')
             ->select(
                 'meetings.id',
                 'meetings.title',
                 'meetings.venue',
+                'meetings.visible',
                 'meetings.status',
                 'schedules.meeting_date',
                 'schedules.meeting_start_time',
                 'schedules.meeting_end_time',
+                'meetings.created_by',
             )->where('schedules.primary', 1)
             ->where('meetings.deleted_at', NULL)
             ->get();
 
-            return Inertia::render('Meetings/Index',compact('meetings'));
+            $meetings = [];
+
+
+
+
+            foreach ($all_meetings as $particular_meeting){
+                // dd($meeting);
+                // dd($request->user()->can('viewAny', [Meeting::class]));
+
+                $meeting = Meeting::findOrFail($particular_meeting->id);
+
+
+                // dd($request->user()->can('participate', $meeting));
+
+                if (($request->user()->can('viewAny', Meeting::class))
+                &&
+
+                    (
+                        ($request->user()->can('own', $meeting)) ||
+
+                    ($request->user()->can('organize', $meeting))
+                        ||
+
+                        ($request->user()->can('participate', $meeting)
+
+                    && $meeting->visible == true)))
+
+                    {
+                        array_push($meetings, $particular_meeting);
+                    }
+            }
+
+            // dd($meetings);
+
+            $can =[
+
+
+                'create_meeting' => $request->user()->can('create', Meeting::class),
+
+            ];
+
+            return Inertia::render('Meetings/Index',compact('meetings', 'can'));
     }
 
     /**
@@ -84,6 +144,10 @@ class MeetingController extends Controller
      */
     public function store(StoreMeetingRequest $request) : RedirectResponse
     {
+
+        if ($request->user()->cannot('create', Meeting::class)) {
+            abort(403);
+        }
 
          $created_by =  Auth::user()->id;
 
@@ -126,8 +190,6 @@ class MeetingController extends Controller
                     $meeting_start_date = $event['meeting_date'];
                     $primary = true;
                 }
-
-
 
             $schedule = $schedule = Schedule::create([
                 'meeting_id' => $meeting->id,
@@ -174,8 +236,6 @@ class MeetingController extends Controller
 
             $notifications = array();
 
-
-
             foreach ($request->input('reminders') as $day ) {
 
              $notification = new Notification;
@@ -202,6 +262,7 @@ class MeetingController extends Controller
             $organizer->account_id = $account->id;
             $organizer->title = $request->input('organizer_title');
             $organizer->primary = true;
+            $organizer->visible = true;
 
 
             $meeting->organizers()->save($organizer);
@@ -322,8 +383,13 @@ class MeetingController extends Controller
             }else{
                 DB::commit();
 
-                return redirect()->route('meetings.index')
-                        ->with('success','Meeting created successfully.');
+                // session()->flash('flash.banner', 'Meeting created successfully!');
+                // session()->flash('flash.bannerStyle', 'success');
+
+                $this->banner('Meeting created successfully!');
+
+                return redirect()->route('meetings.index');
+
             }
 
 
@@ -350,10 +416,15 @@ class MeetingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
 
         $users = User::all();
+
+
+        $user = User::find(Auth::user()->id);
+
+
 
         $groups = Group::all();
 
@@ -379,6 +450,21 @@ class MeetingController extends Controller
 
 
 
+            // if (
+            //     // ($request->user()->cannot('view', $meeting_accessed) ||
+            //     // (($request->user()->cannot('own', $meeting_accessed)) ||
+            //     // ($request->user()->cannot('organize', $meeting_accessed)) ||
+            //     ($request->user()->cannot('participate', $meeting_accessed))
+            //     )
+            //     // ))
+            //     // ||
+            //     // ($request->user()->cannot('participate', $meeting_accessed) || $meeting_accessed->status =! 2))))
+            //     {
+            //         abort(403);
+            //     }
+
+
+
 
         $organizers = DB::table('organizers')
                        ->join('meetings', 'meetings.id', '=', 'organizers.organizable_id')
@@ -395,6 +481,7 @@ class MeetingController extends Controller
                           )->where('meetings.id', '=', $id)
                           ->where('organizers.organizable_type', '=', 'App\Models\Meeting')
                           ->where('organizers.deleted_at', NULL)
+                          ->where('organizers.visible', true)
                        ->get();
 
 
@@ -446,16 +533,18 @@ class MeetingController extends Controller
 
         $agendas = DB::table('agendas')
            ->join('meetings', 'meetings.id', '=', 'agendas.agendable_id')
-           ->join('presenters', 'presenters.id', '=', 'agendas.presenter_id')
+        //    ->join('presenters', 'presenter_id', '=', 'agendas.presenter_id')
+        //    ->join('contributor', 'contributor_id', '=', 'agenda.contributor_id')
+           ->join('users as presenters', 'presenters.id', '=', 'agendas.presenter_id')
            ->join('users', 'users.id', '=', 'agendas.contributor_id')
            ->join('purposes', 'purposes.id', '=', 'agendas.purpose_id')
 
            ->select(
                   'agendas.*',
-                  'presenters.presenter_id',
-                  'presenters.pfirst_name',
-                  'presenters.pmiddle_name',
-                  'presenters.plast_name',
+                  'presenters.id as presenter_id',
+                  'presenters.first_name as pfirst_name',
+                  'presenters.middle_name as pmiddle_name',
+                  'presenters.last_name as plast_name',
                   'users.first_name',
                   'users.middle_name',
                   'users.last_name',
@@ -495,7 +584,6 @@ class MeetingController extends Controller
                  'schedules.meeting_end_time',
                  'meetings.id',
               )->where('meetings.id', '=', $id)
-              ->where('schedules.deleted_at', NULL)
 
            ->get();
 
@@ -506,7 +594,7 @@ class MeetingController extends Controller
                     'meetings.id',
                 )->where('meetings.id', '=', $id)
                 ->where('notifications.notifiable_type', '=', 'App\Models\Meeting')
-                ->where('notifications.deleted_at', NULL)
+
             ->get();
 
         $actions = DB::table('actions')
@@ -519,23 +607,129 @@ class MeetingController extends Controller
             ->get();
 
 
-        return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','notifications','schedules','groups','meeting_roles','purposes','participants','contributors', 'users', 'documents', 'statuses', 'actions'));
+            $mt = Meeting::find($meeting->id);
+
+            $can = [
+                'create_organizer' => $request->user()->can('create', Organizer::class),
+                'edit_organizer' => $request->user()->can('edit', Organizer::class),
+                'list_organizer' => $request->user()->can('list', Organizer::class),
+                'delete_organizer' => $request->user()->can('delete', $organizers),
+
+                'create_agenda' => $request->user()->can('create', Agenda::class),
+                'edit_agenda' => $request->user()->can('edit', Agenda::class),
+                'list_agenda' => $request->user()->can('list', Agenda::class),
+                'delete_agenda' => $request->user()->can('delete', $agendas),
+
+
+                'create_participant' => $request->user()->can('create', Participant::class),
+                'edit_participant' => $request->user()->can('edit', Participant::class),
+                'list_participant' => $request->user()->can('list', Participant::class),
+                'delete_participant' => $request->user()->can('delete', $participants),
+
+                'create_action' => $request->user()->can('create', Action::class),
+                'edit_action' => $request->user()->can('edit', Action::class),
+                'list_action' => $request->user()->can('list', Action::class),
+                'delete_action' => $request->user()->can('delete', $actions),
+
+                'create_meeting' => $request->user()->can('create', Meeting::class),
+                'edit_meeting' => $request->user()->can('update', $mt),
+                'list_meeting' => $request->user()->can('viewAny', Meeting::class),
+                'delete_meeting' => $request->user()->can('delete', $mt),
+
+                'publish_meeting' => $request->user()->can('publish', $mt),
+                'start_meeting' => $request->user()->can('start', $mt),
+                'close_meeting' => $request->user()->can('close', $mt),
+                'pause_meeting' => $request->user()->can('pause', $mt),
+                'reset_meeting' => $request->user()->can('reset', $mt),
+
+                'download_files' => $request->user()->can('participate', $mt),
+                'send_meeting_pack' => $request->user()->can('organize', $mt),
+                'export_meeting_pack' => $request->user()->can('organize', $mt),
+                'send_meeting_minutes' => $request->user()->can('organize', $mt),
+                'export_meeting_minutes' => $request->user()->can('organize', $mt),
+
+                'organize_meeting' => $request->user()->can('organize', $mt),
+
+                'contribute_meeting' => $request->user()->can('contribute', $mt),
+
+                'send_notification' => $request->user()->can('organize', $mt),
+                'view_delivery_status' => $request->user()->can('organize', $mt),
+                'add_vote' => $request->user()->can('organizeMeeting', $mt),
+                'manage_action' => $request->user()->can('organizeMeeting', $mt),
+            ];
+
+            // dd($can['publish_meeting']);
+
+            // dd($user->hasPermissionTo('edit meetings'));
+
+            // $user->assignRole('Chairperson', );
+
+
+
+
+            $meeting_accessed = Meeting::find($id);
+
+
+            if (($request->user()->can('viewAny', $meeting_accessed)) &&
+
+            (($request->user()->can('own', $meeting_accessed)) ||
+
+            ($request->user()->can('organize', $meeting_accessed)) ||
+
+            ($request->user()->can('participate', $meeting_accessed) && $meeting_accessed->visible == true)) )
+            {
+                // array_push($meetings, $meeting);
+                return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','notifications','schedules','groups','meeting_roles','purposes','participants','contributors', 'users', 'documents', 'statuses', 'actions', 'can'));
+
+            }else{
+                abort(403);
+
+            }
+
+
+
+        // return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','notifications','schedules','groups','meeting_roles','purposes','participants','contributors', 'users', 'documents', 'statuses', 'actions'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Request $request, string $id)
     {
+
+
+
+
        $meeting = Meeting::findOrFail($id);
+
+    //    if ($request->user()->cannot('organized', $meeting) )
+    //    {
+    //        abort(403);
+    //    }
 
        $events = Schedule::where('meeting_id',$id)->get();
 
-       $reminders = Notification::where('notifiable_id',$id)->get();
+       $reminders = Notification::where('notifiable_id',$id)
+       ->where('notifiable_type','App\Models\Meeting')
+
+       ->get();
 
        $meeting_types = MeetingType::get();
 
-       return Inertia::render('Meetings/Edit',compact('meeting', 'events','reminders','meeting_types'));
+       if (($request->user()->can('update', $meeting)) &&
+
+            (($request->user()->can('own', $meeting)) ||
+
+            ($request->user()->can('organize', $meeting))))
+            {
+                return Inertia::render('Meetings/Edit',compact('meeting', 'events','reminders','meeting_types'));
+
+            }else{
+                abort(403);
+
+            }
+
+
     }
 
     /**
@@ -545,6 +739,11 @@ class MeetingController extends Controller
     {
 
         // $request['user_id'] =  Auth::user()->id;
+        $meeting = Meeting::find($id);
+
+        if ($request->user()->cannot('update', $meeting)) {
+            abort(403);
+        }
 
         $created_by =  Auth::user()->id;
 
@@ -562,7 +761,7 @@ class MeetingController extends Controller
 
 
 
-        $meeting = Meeting::find($id);
+
 
         $meeting->title = $request->input('title');
         $meeting->meeting_type_id = $request->input('meeting_type_id');
@@ -577,85 +776,71 @@ class MeetingController extends Controller
 
         $meeting->save();
 
-        // dd($request->input('events'));
+
 
         foreach ($request->input('events') as $index => $event ) {
 
+            if(isset($event['id'])){
+                Schedule::where('meeting_id', $id)->delete();
+            }
+        }
 
 
+
+        foreach ($request->input('events') as $index => $event ) {
 
             if( $index == 0) {
                 $meeting_start_date = $event['meeting_date'];
                 $primary = true;
             }
 
-            if(isset($event['id'])){
-
-                $schedule = Schedule::find($event['id']);
-
-                $schedule->meeting_id = $meeting->id;
-                $schedule->meeting_start_time = $event['meeting_start_time'];
-                $schedule->meeting_end_time = $event['meeting_end_time'];
-                $schedule->primary = $primary;
-                $schedule->created_by = $created_by;
-                $schedule->account_id = $account->id;
-                $schedule->save();
-            }else{
-                $schedule = $schedule = Schedule::create([
-                    'meeting_id' => $meeting->id,
-                    'meeting_date' => $event['meeting_date'],
-                    'meeting_start_time' => $event['meeting_start_time'],
-                    'meeting_end_time' => $event['meeting_end_time'],
-                    'primary' => $primary,
-                    'created_by' => $created_by,
-                    'account_id' => $account->id,
-
-                 ]);
-            }
+        $schedule = $schedule = Schedule::create([
+            'meeting_id' => $meeting->id,
+            'meeting_date' => $event['meeting_date'],
+            'meeting_start_time' => $event['meeting_start_time'],
+            'meeting_end_time' => $event['meeting_end_time'],
+            'primary' => $primary,
+            'created_by' => $created_by,
+            'account_id' => $account->id,
+         ]);
 
             $primary = false;
         }
 
 
+        foreach ($request->input('reminders') as $day ) {
+            if(isset($day['id'])){
+                Notification::where('notifiable_id', $id)
+                ->where('notifiable_type','App\Models\Meeting')->delete();
+            }
+        }
 
 
-
-
+        $notifications = array();
 
         foreach ($request->input('reminders') as $day ) {
 
-            if(isset($day['id'])){
-                $notification = Notification::find($day['id']);
+         $notification = new Notification;
 
-                $notification->notifiable_id = $meeting->id;
-                $notification->notification_type_id = $day['notification_type_id'];
-                $notification->reminder = $day['reminder'];
-                $notification->created_by = $created_by;
-                $notification->account_id = $account->id;
-                $notification->notification_date = (new Carbon($meeting_start_date))->subDays($day['reminder']);
-                $notification->save();
+         $notification->notification_type_id = 1;
+         $notification->created_by = $created_by;
+         $notification->account_id = $account->id;
 
-            }else{
-                $notification = Notification::create([
-                    'notifiable_id' => $meeting->id,
-                    'notification_type_id' => 1,
-                    'reminder' => $day['reminder'],
-                    'created_by' => $created_by,
-                    'account_id' => $account->id,
-                    'notification_date'=> (new Carbon($meeting_start_date))->subDays($day['reminder']),
-                ]);
+         $notification->reminder = $day['reminder'];
+         $notification->notification_date =  (new Carbon($meeting_start_date))->subDays($day['reminder']);
 
-            }
+         $meeting->notifications()->save($notification);
 
-
-
+         array_push($notifications, $notification);
 
         }
 
 
-        if (!$meeting and !$schedule and !$notification )
+        if (!$meeting and !$schedule and !$notifications)
         {
             DB::rollBack();
+            return redirect()->route('meetings.index')
+                        ->with('error','Something went wrong');
         }else{
             DB::commit();
 
@@ -664,8 +849,7 @@ class MeetingController extends Controller
         }
 
 
-        return redirect()->route('meetings.index')
-                        ->with('success','Meeting updated successfully');
+
     }
 
     /**
@@ -706,24 +890,19 @@ class MeetingController extends Controller
 
        $events = Schedule::where('meeting_id',$id)->get();
 
-       $reminders = Notification::where('notifiable_id',$id)->get();
+       $reminders = Notification::where('notifiable_id',$id)
+          ->where('notifiable_type','App\Models\Meeting')
+       ->get();
+
 
        $meeting_types = MeetingType::get();
 
        return Inertia::render('Meetings/Next',compact('meeting', 'events','reminders','meeting_types'));
     }
 
-
-
-
-    public function status(Request $request, $id)
+    public function publish(Request $request, $id)
     {
-
-
         $meeting = Meeting::find($id);
-
-
-
 
         $participants = DB::table('participants')
         ->join('users', 'users.id', '=', 'participants.participant_id')
@@ -736,45 +915,161 @@ class MeetingController extends Controller
            ->where('participants.participantable_type', '=', 'App\Models\Meeting')
         ->get();
 
+        $meeting->status = MeetingStatusEnum::Published;
+        $meeting->visible = true;
+        $meeting->save();
 
-
-        if ($request->input('status')== 2){
-
-            $meeting->status = $request->input('status'); // published
-            $meeting->save();
-
-            foreach ($participants as $recipient){
-                // Mail::to($recipient)->send(new MeetingStarted($meeting));
-                dispatch(new SendMeetingPublishedEmailsJob($meeting, $recipient));
-            }
-
-        }else if ($request->input('status')== 3){
-
-            $meeting->status = $request->input('status'); // start meeting
-            $meeting->save();
-
-            foreach ($participants as $recipient){
-                // Mail::to($recipient)->send(new MeetingClosed($meeting));
-                dispatch(new SendMeetingStartedEmailsJob($meeting, $recipient));
-            }
-        }else if ($request->input('status')== 4){
-
-            $meeting->status = $request->input('status'); // start meeting
-            $meeting->save();
-
-            foreach ($participants as $recipient){
-                // Mail::to($recipient)->send(new MeetingClosed($meeting));
-                dispatch(new SendMeetingClosedEmailsJob($meeting, $recipient));
-            }
-
-
-        }else if ($request->input('status')== 1){
-
-
-            $meeting->status = $request->input('status'); // start meeting
-            $meeting->save();
+        foreach ($participants as $recipient){
+            dispatch(new SendMeetingPublishedEmailsJob($meeting, $recipient));
         }
     }
+
+    public function start(Request $request, $id)
+    {
+        $meeting = Meeting::find($id);
+
+        $participants = DB::table('participants')
+        ->join('users', 'users.id', '=', 'participants.participant_id')
+        ->select(
+              'users.email',
+              'users.title',
+              'users.first_name',
+              'users.last_name',
+           )->where('participants.participantable_id', '=', $id)
+           ->where('participants.participantable_type', '=', 'App\Models\Meeting')
+        ->get();
+
+        $meeting->status = MeetingStatusEnum::Started;
+        $meeting->save();
+
+        foreach ($participants as $recipient){
+            dispatch(new SendMeetingStartedEmailsJob($meeting, $recipient));
+        }
+    }
+
+    public function close(Request $request, $id)
+    {
+        $meeting = Meeting::find($id);
+
+        $participants = DB::table('participants')
+        ->join('users', 'users.id', '=', 'participants.participant_id')
+        ->select(
+              'users.email',
+              'users.title',
+              'users.first_name',
+              'users.last_name',
+           )->where('participants.participantable_id', '=', $id)
+           ->where('participants.participantable_type', '=', 'App\Models\Meeting')
+        ->get();
+
+        $meeting->status = MeetingStatusEnum::Closed;
+        $meeting->save();
+
+        foreach ($participants as $recipient){
+            dispatch(new SendMeetingClosedEmailsJob($meeting, $recipient));
+        }
+    }
+
+    public function reset(Request $request, $id)
+    {
+        $meeting = Meeting::find($id);
+
+        $meeting->status = MeetingStatusEnum::Draft; // Reset
+        $meeting->visible = false;
+        $meeting->save();
+
+    }
+
+    public function exportMeetingPack(Request $request, $id)
+    {
+        $meeting = Meeting::find($id);
+
+        // dispatch(new exportMeetingPackJob($meeting));
+    }
+
+    public function sendMeetingPack(Request $request, $id)
+    {
+        $meeting = Meeting::find($id);
+
+        // dispatch(new sendMeetingPackJob($meeting));
+    }
+
+    public function exportMeetingMinutes(Request $request, $id)
+    {
+        $meeting = Meeting::find($id);
+
+        // dispatch(new exportMeetingMinutesJob($meeting));
+    }
+
+    public function sendMeetingMinutes(Request $request, $id)
+    {
+        $meeting = Meeting::find($id);
+
+        // dispatch(new sendMeetingPackJob($meeting));
+    }
+
+
+
+
+    // public function status(Request $request, $id)
+    // {
+
+
+    //     $meeting = Meeting::find($id);
+
+
+
+
+    //     $participants = DB::table('participants')
+    //     ->join('users', 'users.id', '=', 'participants.participant_id')
+    //     ->select(
+    //           'users.email',
+    //           'users.title',
+    //           'users.first_name',
+    //           'users.last_name',
+    //        )->where('participants.participantable_id', '=', $id)
+    //        ->where('participants.participantable_type', '=', 'App\Models\Meeting')
+    //     ->get();
+
+
+
+    //     if ($request->input('status')== 2){
+
+    //         $meeting->status = $request->input('status'); // published
+    //         $meeting->save();
+
+    //         foreach ($participants as $recipient){
+    //             // Mail::to($recipient)->send(new MeetingStarted($meeting));
+    //             dispatch(new SendMeetingPublishedEmailsJob($meeting, $recipient));
+    //         }
+
+    //     }else if ($request->input('status')== 3){
+
+    //         $meeting->status = $request->input('status'); // start meeting
+    //         $meeting->save();
+
+    //         foreach ($participants as $recipient){
+    //             // Mail::to($recipient)->send(new MeetingClosed($meeting));
+    //             dispatch(new SendMeetingStartedEmailsJob($meeting, $recipient));
+    //         }
+    //     }else if ($request->input('status')== 4){
+
+    //         $meeting->status = $request->input('status'); // start meeting
+    //         $meeting->save();
+
+    //         foreach ($participants as $recipient){
+    //             // Mail::to($recipient)->send(new MeetingClosed($meeting));
+    //             dispatch(new SendMeetingClosedEmailsJob($meeting, $recipient));
+    //         }
+
+
+    //     }else if ($request->input('status')== 1){
+
+
+    //         $meeting->status = $request->input('status'); // start meeting
+    //         $meeting->save();
+    //     }
+    // }
 
 
 }

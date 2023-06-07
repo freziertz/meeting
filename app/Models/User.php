@@ -13,10 +13,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Permission\Traits\HasRoles;
 
 
 class User extends Authenticatable
 {
+    use HasRoles;
     use HasApiTokens;
     use HasFactory;
     use HasProfilePhoto;
@@ -49,6 +51,8 @@ class User extends Authenticatable
         'created_by',
         'account_id'
     ];
+
+    protected $guard_name = 'sanctum';
 
 
     // $meetings = User::find(1)->meetings;
@@ -98,6 +102,8 @@ class User extends Authenticatable
         return $this->hasMany(Meeting::class,'created_by');
     }
 
+
+
     public function presenters(): HasMany
     {
         return $this->hasMany(Presenter::class, 'presenter_id');
@@ -110,7 +116,7 @@ class User extends Authenticatable
 
     public function participants(): HasMany
     {
-        return $this->hasMany(Participant::class,'participant_id');
+        return $this->hasMany(Participant::class);
     }
 
     public function contributors(): HasMany

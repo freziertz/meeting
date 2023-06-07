@@ -16,6 +16,10 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
+use App\Jobs\SendResolutionStartedEmailsJob;
+use App\Jobs\SendResolutionClosedEmailsJob;
+use App\Jobs\SendResolutionCirculatedEmailsJob;
+
 class ResolutionController extends Controller
 {
     /**
@@ -197,7 +201,7 @@ class ResolutionController extends Controller
                     'resolutions.id',
                 )->where('resolutions.id', '=', $id)
                 ->where('notifications.notifiable_type', '=', 'App\Models\Resolution')
-                ->where('notifications.deleted_at', NULL)
+
             ->get();
 
         return Inertia::render('Resolutions/Show',compact('resolution', 'organizers','agendas','notifications','groups','purposes','voters', 'users', 'documents', 'statuses'));
@@ -209,8 +213,11 @@ class ResolutionController extends Controller
      */
     public function edit(string $id)
     {
+        $reminders = Notification::where('notifiable_id',$id)
+        ->where('notifiable_type','App\Models\Resolution')
+        ->get();
         $resolution = Resolution::findOrFail($id);
-        return Inertia::render('Resolutions/Edit',compact('resolution'));
+        return Inertia::render('Resolutions/Edit',compact('resolution','reminders'));
     }
 
     /**
@@ -220,20 +227,83 @@ class ResolutionController extends Controller
     {
         $resolution = Resolution::find($id);
 
-        $resolution->title = $request->input('title');
-        $resolution->resolution_type_id = $request->input('resolution_type_id');
-        $resolution->venue = $request->input('venue');
-        $resolution->google_map_url = $request->input('google_map_url');
-        $resolution->timezone_id = $request->input('timezone_id');
-        $resolution->description = $request->input('description');
-        $resolution->participants_notes = $request->input('participants_notes');
-        $resolution->organizer_notes = $request->input('organizer_notes');
-        $resolution->status = $request->input('status');
+        $created_by =  Auth::user()->id;
 
+        $account = User::find($created_by)->account;
+
+        DB::beginTransaction();
+
+        $resolution->subject = $request->input('subject');
+        $resolution->notes_to_voters  = $request->input('notes_to_voters');
+        $resolution->voting_deadline = $request->input('voting_deadline');
         $resolution->save();
 
-        return redirect()->route('resolutions.index')
-                        ->with('success','Resolution updated successfully');
+
+        // foreach ($request->input('reminders') as $day ) {
+
+        //     if(isset($day['id'])){
+        //         $notification = Notification::find($day['id']);
+
+        //         $notification->notifiable_id = $resolution->id;
+        //         $notification->notification_type_id = $day['notification_type_id'];
+        //         $notification->reminder = $day['reminder'];
+        //         $notification->created_by = $created_by;
+        //         $notification->account_id = $account->id;
+        //         $notification->notification_date = (new Carbon($resolution->voting_deadline))->subDays($day['reminder']);
+        //         $notification->save();
+
+        //     }else{
+        //         $notification = Notification::create([
+        //             'notifiable_id' => $resolution->id,
+        //             'notifiable_type' => 'App\Models\Resolution',
+        //             'notification_type_id' => 1,
+        //             'reminder' => $day['reminder'],
+        //             'created_by' => $created_by,
+        //             'account_id' => $account->id,
+        //             'notification_date'=> (new Carbon($resolution->voting_deadline))->subDays($day['reminder']),
+        //         ]);
+        //     }
+        // }
+
+        foreach ($request->input('reminders') as $day ) {
+            if(isset($day['id'])){
+                Notification::where('notifiable_id', $id)
+                ->where('notifiable_type','App\Models\Resolution')->delete();
+            }
+        }
+
+
+        $notifications = array();
+
+        foreach ($request->input('reminders') as $day ) {
+
+         $notification = new Notification;
+
+         $notification->notification_type_id = 1;
+         $notification->created_by = $created_by;
+         $notification->account_id = $account->id;
+
+         $notification->reminder = $day['reminder'];
+         $notification->notification_date =  (new Carbon($resolution->voting_deadline))->subDays($day['reminder']);
+
+         $resolution->notifications()->save($notification);
+
+         array_push($notifications, $notification);
+
+        }
+
+
+        if (!$resolution  and !$notifications )
+        {
+            DB::rollBack();
+            return redirect()->route('resolutions.index')
+                        ->with('error','Something went wrong');
+        }else{
+            DB::commit();
+
+            return redirect()->route('resolutions.index')
+                    ->with('success','Resolution created successfully.');
+        }
     }
 
     /**
@@ -244,5 +314,82 @@ class ResolutionController extends Controller
         Resolution::where('id', $id)->delete();
         return redirect()->route('resolutions.index')
                         ->with('success','Resolution deleted successfully');
+    }
+
+
+    public function next(string $id)
+    {
+       $resolution = Resolution::findOrFail($id);
+
+       $reminders = Notification::where('notifiable_id',$id)
+          ->where('notifiable_type','App\Models\Resolution')
+       ->get();
+
+
+
+
+       return Inertia::render('Resolutions/Next',compact('resolution', 'reminders'));
+    }
+
+
+
+    public function status(Request $request, $id)
+    {
+
+
+        $resolution = Resolution::find($id);
+
+
+
+
+        $participants = DB::table('participants')
+        ->join('users', 'users.id', '=', 'participants.participant_id')
+        ->select(
+              'users.email',
+              'users.title',
+              'users.first_name',
+              'users.last_name',
+           )->where('participants.participantable_id', '=', $id)
+           ->where('participants.participantable_type', '=', 'App\Models\Resolution')
+        ->get();
+
+
+
+        if ($request->input('status')== 2){
+
+            $resolution->status = $request->input('status'); // published
+            $resolution->save();
+
+            foreach ($participants as $recipient){
+                // Mail::to($recipient)->send(new ResolutionStarted($resolution));
+                dispatch(new SendResolutionCirculatedEmailsJob($resolution, $recipient));
+            }
+
+        }else if ($request->input('status')== 3){
+
+            $resolution->status = $request->input('status'); // start resolution
+            $resolution->save();
+
+            foreach ($participants as $recipient){
+                // Mail::to($recipient)->send(new ResolutionClosed($resolution));
+                dispatch(new SendResolutionStartedEmailsJob($resolution, $recipient));
+            }
+        }else if ($request->input('status')== 4){
+
+            $resolution->status = $request->input('status'); // start resolution
+            $resolution->save();
+
+            foreach ($participants as $recipient){
+                // Mail::to($recipient)->send(new ResolutionClosed($resolution));
+                dispatch(new SendResolutionClosedEmailsJob($resolution, $recipient));
+            }
+
+
+        }else if ($request->input('status')== 1){
+
+
+            $resolution->status = $request->input('status'); // start resolution
+            $resolution->save();
+        }
     }
 }

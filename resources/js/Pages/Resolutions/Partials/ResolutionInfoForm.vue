@@ -69,7 +69,7 @@ const formEdit = useForm({
 
 });
 
-const publishResolution = () => {
+const circulateResolution = () => {
     form.status =  2;
     form.post(route('resolution.status', props.resolution.id), {
         preserveScroll: true,
@@ -94,13 +94,13 @@ const closeResolution = () => {
 
 const resetResolution = () => {
     form.status =  1;
-    form.post(route('resolutions.status', props.resolution.id), {
+    form.post(route('resolution.status', props.resolution.id), {
         preserveScroll: true,
     });
 };
 
 const scheduleNextResolution = () => {
-    formEdit.get(route('resolutions.next', props.resolution.id), {
+    formEdit.get(route('next-resolution', props.resolution.id), {
         preserveScroll: true,
     });
 };
@@ -164,10 +164,10 @@ const closeModal = () => {
                     Schedule Next Resolution
                </NotificationButton>
                <EditButtonLink @click="exportDraftMinutes" >
-                    Export Draft Minutes
+                    Export
                 </EditButtonLink>
                <NotificationButton @click="sendExportResolutionPack" >
-                    Export/ Send Resolution Pack
+                    Send
                </NotificationButton>
                <EditButtonLink @click="editResolution" >
                     Edit
@@ -237,7 +237,7 @@ const closeModal = () => {
 
 
             <div class="flex items-center mt-5" v-show="resolutionStatus ==='UnPublished'">
-                <PrimaryButton @click="publishResolution" >
+                <PrimaryButton @click="circulateResolution" >
                     Circulate
                 </PrimaryButton>
 

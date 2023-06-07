@@ -24,6 +24,9 @@ return new class extends Migration
             $table->foreignId('created_by'); // login user who create the meeting
             $table->unsignedBigInteger('participantable_id')->comment('meeting_id'); //meeting_id
             $table->string('participantable_type');
+            $table->boolean('status')->nullable();
+            $table->text('comment')->nullable();
+            $table->integer('casts')->nullable();  // null, 1 yes , 2 no , abscond
             $table->softDeletes();
             $table->timestamps();
         });

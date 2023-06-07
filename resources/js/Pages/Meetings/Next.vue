@@ -77,7 +77,7 @@ const form = useForm({
 
 const createMeeting = () => {
   form.post(route("meetings.store"), {
-    // onFinish: () => form.reset(),
+    onFinish: () => form.reset(),
   });
 };
 

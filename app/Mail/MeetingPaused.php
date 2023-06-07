@@ -42,7 +42,16 @@ class MeetingPaused extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            // html: 'emails.meetings.published',
+            // text: 'emails.meetings.published-text',
+            markdown: 'emails.meetings.paused',
+            with: [
+                'url' => "http://127.0.0.1:8000/meetings/" . $this->meeting->id,
+                'title' => $this->meeting->title,
+                'venue' => $this->meeting->venue,
+                'description' => $this->meeting->description,
+                'participants_notes' => $this->meeting->participants_notes,
+            ],
         );
     }
 

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('created_by'); // login user who create the meeting
             $table->unsignedBigInteger('organizable_id')->comment('meeting_id');; //meeting_id
             $table->string('organizable_type');
+            $table->boolean('visible')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

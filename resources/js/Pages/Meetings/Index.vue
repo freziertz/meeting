@@ -19,6 +19,7 @@ const props = defineProps({
   meetings: Array,
   meeting_date: String,
   url_prefix: String,
+  can: Object,
 });
 
 
@@ -51,7 +52,7 @@ const props = defineProps({
 
 
 
-                                <Link class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" :href="`/meetings/create`">
+                                <Link v-if="can.create_meeting" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" :href="`/meetings/create`">
                                     <span>Create</span>
                                     <span class="hidden md:inline">&nbsp;Meeting</span>
                                 </Link>
@@ -65,13 +66,13 @@ const props = defineProps({
                                     <th class="pb-4 pt-6 px-6">Schedule</th>
                                     <th class="pb-4 pt-6 px-6">Venue</th>
                                 </tr>
-                                
+
                                 </thead>
                                 <tbody>
                                 <tr v-for="meeting in meetings" :key="meeting.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/meetings/${meeting.id}`">
-                                            {{ meeting.title }} &nbsp; 
+                                            {{ meeting.title }} &nbsp;
                                             <span class="text-red-500">{{ meeting.status === 1  ? '   Unpublished' : '' }} </span>
                                             <icon v-if="meeting.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                                         </Link>
@@ -80,8 +81,8 @@ const props = defineProps({
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/meetings/${meeting.id}`">
 
-                                        {{ moment(meeting.meeting_date).format('dddd, MMMM DD, YYYY') }} from {{ moment(meeting.meeting_start_time, 'HH:mm:ss').format('hh:mm A') }} to {{ moment(meeting.meeting_end_time, 'HH:mm').format('hh:mm A') }}    
-                                             
+                                        {{ moment(meeting.meeting_date).format('dddd, MMMM DD, YYYY') }} from {{ moment(meeting.meeting_start_time, 'HH:mm:ss').format('hh:mm A') }} to {{ moment(meeting.meeting_end_time, 'HH:mm').format('hh:mm A') }}
+
                                             <icon v-if="meeting.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                                         </Link>
                                     </td>

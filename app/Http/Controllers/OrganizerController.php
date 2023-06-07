@@ -69,6 +69,7 @@ class OrganizerController extends Controller
                         $organizer->account_id = $account->id;
                         $organizer->title = $request->input('title');
                         $organizer->primary = $request->input('primary');
+                        $organizer->visible = true;
 
 
                         $meeting->organizers()->save($organizer);
@@ -93,6 +94,7 @@ class OrganizerController extends Controller
                     $organizer->account_id = $account->id;
                     $organizer->title = $request->input('title');
                     $organizer->primary = $request->input('primary');
+                    $organizer->visible = true;
 
 
 

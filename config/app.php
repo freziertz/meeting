@@ -197,6 +197,14 @@ return [
         App\Providers\FortifyServiceProvider::class,
         App\Providers\JetstreamServiceProvider::class,
 
+         /*
+         * PDF Service Providers...
+         */
+        Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class,
+        Spatie\Permission\PermissionServiceProvider::class,
+
+
+
     ],
 
     /*
@@ -212,6 +220,8 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+        'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class,
+
     ])->toArray(),
 
 ];

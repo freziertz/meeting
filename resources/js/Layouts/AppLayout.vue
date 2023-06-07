@@ -115,6 +115,11 @@ const logout = () => {
                                             Groups
                                         </DropdownLink>
 
+
+                                        <DropdownLink :href="route('roles.index')">
+                                            User Roles
+                                        </DropdownLink>
+
                                         <!-- <DropdownLink :href="route('roles.index')">
                                             Roles
                                         </DropdownLink> -->
@@ -377,8 +382,28 @@ const logout = () => {
 
             <!-- Page Content -->
             <main>
+                <!-- <div v-if="$page.props.flash.success" class="success">
+                    {{ $page.props.flash.success }}
+                </div>
+                <div v-if="$page.props.flash.failed" class="failed">
+                    {{ $page.props.flash.success }}
+                </div>
+
+                <br> -->
+
                 <slot />
             </main>
         </div>
     </div>
 </template>
+
+<style scoped>
+.success{
+    background-color: green;
+    color: white;
+}
+.failed{
+    background-color: red;
+    color: white;
+}
+</style>

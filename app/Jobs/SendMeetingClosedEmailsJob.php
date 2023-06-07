@@ -2,12 +2,15 @@
 
 namespace App\Jobs;
 
+use App\Mail\MeetingClosed;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+
+use Illuminate\Support\Facades\Mail;
 
 class SendMeetingClosedEmailsJob implements ShouldQueue
 {
@@ -16,9 +19,13 @@ class SendMeetingClosedEmailsJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public $meeting;
+    public $user;
+
+    public function __construct($meeting, $user)
     {
-        //
+        $this->meeting = $meeting;
+        $this->user= $user;
     }
 
     /**
@@ -26,6 +33,6 @@ class SendMeetingClosedEmailsJob implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+        Mail::to($this->user)->send(new MeetingClosed($this->meeting));
     }
 }

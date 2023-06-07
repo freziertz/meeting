@@ -39,7 +39,8 @@ defineProps({
     purposes:Array,
     participants: Array,
     schedules: Array,
-    notifications: Array
+    notifications: Array,
+    can: Object,
 });
 
 
@@ -116,30 +117,30 @@ const showParticipantSection = () => {
         <div>
             <div class="max-w-7xl mx-auto pt-10 sm:px-6 lg:px-8">
 
-                 <MeetingInfoForm  :meeting = "meeting" :schedules = "schedules" :notifications="notifications" class="mt-10 sm:mt-0" >
+                 <MeetingInfoForm  :meeting = "meeting" :schedules = "schedules" :notifications="notifications" :can = "can" class="mt-10 sm:mt-0" >
                  </MeetingInfoForm>
 
 
               <div class="flex justify-end mt-5 ml-">
-                <TabButton @click="showOrganizerSection" >
+                <TabButton  @click="showOrganizerSection" >
                     Organizer
                 </TabButton>
 
-                <TabButton @click="showContributorSection" >
+                <TabButton  @click="showContributorSection" >
                     Contributor
                 </TabButton>
 
 
-                <TabButton @click="showAgendaSection" >
+                <TabButton  @click="showAgendaSection" >
                     Agenda
                 </TabButton>
 
 
-                <TabButton @click="showParticipantSection" >
+                <TabButton  @click="showParticipantSection" >
                     Participant
                 </TabButton>
 
-                <TabButton @click="showActionSection" >
+                <TabButton  @click="showActionSection" >
                     Actions
                 </TabButton>
 
@@ -159,6 +160,7 @@ const showParticipantSection = () => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
                     <MeetingOrganizerForm
+                       :can="can"
                        :users="users"
                        :organizers="organizers"
                        :meeting="meeting"
@@ -168,6 +170,7 @@ const showParticipantSection = () => {
 
 
                     <MeetingAgendaContributorForm
+                        :can="can"
                         :users="users"
                         :contributors="contributors"
                         :meeting="meeting"
@@ -177,6 +180,7 @@ const showParticipantSection = () => {
 
 
                     <MeetingAgendaForm
+                       :can="can"
                        :users="users"
                        :agendas="agendas"
                        :documents="documents"
@@ -186,6 +190,7 @@ const showParticipantSection = () => {
                        v-show="showMeetingAgendaSection" />
 
                    <ParticipantForm
+                      :can="can"
                       :users="users"
                       :groups="groups"
                       :meeting_roles="meeting_roles"
@@ -196,6 +201,7 @@ const showParticipantSection = () => {
                       />
 
                       <ActionForm
+                      :can="can"
                       :users="users"
                       :agendas="agendas"
                       :statuses="statuses"

@@ -23,7 +23,8 @@ const props = defineProps({
     users: Array,
     organizers:Array,
     schedules: Array,
-    notifications:Array
+    notifications:Array,
+    can: Object,
 });
 
 const confirmingLogout = ref(false);
@@ -70,48 +71,54 @@ const formEdit = useForm({
 });
 
 const publishMeeting = () => {
-    form.status =  2;
-    form.post(route('meeting.status', props.meeting.id), {
+    // form.status =  2;
+    form.post(route('meeting-publish', props.meeting.id), {
         preserveScroll: true,
     });
 };
 
 
 const startMeeting = () => {
-    form.status =  3;
-    form.post(route('meeting.status', props.meeting.id), {
+    // form.status =  3;
+    form.post(route('meeting-start', props.meeting.id), {
         preserveScroll: true,
     });
 };
 
 const closeMeeting = () => {
-    form.status =  4;
-    form.post(route('meeting.status', props.meeting.id), {
+    // form.status =  4;
+    form.post(route('meeting-end', props.meeting.id), {
         preserveScroll: true,
     });
 };
 
 
 const resetMeeting = () => {
-    form.status =  1;
-    form.post(route('meeting.status', props.meeting.id), {
+    // form.status =  1;
+    form.post(route('meeting-reset', props.meeting.id), {
         preserveScroll: true,
     });
 };
 
 const scheduleNextMeeting = () => {
-    formEdit.get(route('meetings.next', props.meeting.id), {
+    formEdit.get(route('next-meeting', props.meeting.id), {
         preserveScroll: true,
     });
 };
 
-const exportDraftMeeting = () => {
-    formEdit.get(route('meetings.edit', props.meeting.id), {
+const exportDraftMinutes = () => {
+    formEdit.get(route('generate-draft-minutes', props.meeting.id), {
         preserveScroll: true,
     });
 };
 
-const exportSendMeeting = () => {
+const sendExportMeetingPack = () => {
+    formEdit.get(route('generate-meeting-pack', props.meeting.id), {
+        preserveScroll: true,
+    });
+};
+
+const exportSendMinute = () => {
     formEdit.get(route('meetings.edit', props.meeting.id), {
         preserveScroll: true,
     });
@@ -160,16 +167,16 @@ const closeModal = () => {
 
             <div class="flex space-x-2 mb-2 justify-end">
 
-               <NotificationButton @click="scheduleNextMeeting" >
+               <NotificationButton v-if="can.create_meeting"  @click="scheduleNextMeeting" >
                     Schedule Next Meeting
                </NotificationButton>
-               <EditButtonLink @click="exportDraftMinutes" >
+               <EditButtonLink v-if="can.export_meeting_minutes" @click="exportDraftMinutes" >
                     Export Draft Minutes
                 </EditButtonLink>
-               <NotificationButton @click="sendExportMeetingPack" >
+               <NotificationButton v-if="can.send_meeting_pack" @click="sendExportMeetingPack" >
                     Export/ Send Meeting Pack
                </NotificationButton>
-               <EditButtonLink @click="editMeeting" >
+               <EditButtonLink v-if="can.edit_meeting" @click="editMeeting" >
                     Edit
                 </EditButtonLink>
             </div>
@@ -267,7 +274,7 @@ const closeModal = () => {
 
                                 <tr class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t p-2">
-                                        Notes for participants
+                                        Notes for Organizers
                                     </td>
                                     <td class="border-t p-2">
                                         {{ meeting.organizer_notes }}
@@ -291,8 +298,8 @@ const closeModal = () => {
 
 
 
-            <div class="flex items-center mt-5" v-show="meetingStatus ==='UnPublished'">
-                <PrimaryButton @click="publishMeeting" >
+            <div class="flex items-center mt-5"  v-if="can.publish_meeting" v-show="meetingStatus ==='UnPublished'">
+                <PrimaryButton  @click="publishMeeting" >
                     Publish
                 </PrimaryButton>
 
@@ -302,8 +309,8 @@ const closeModal = () => {
             </div>
 
 
-            <div class="flex items-center mt-5" v-show="meetingStatus ==='Published'">
-                <PrimaryButton @click="startMeeting" >
+            <div class="flex items-center mt-5" v-if="can.start_meeting" v-show="meetingStatus ==='Published'">
+                <PrimaryButton  @click="startMeeting" >
                     Start Meeting
                 </PrimaryButton>
 
@@ -313,8 +320,8 @@ const closeModal = () => {
             </div>
 
 
-            <div class="flex items-center mt-5" v-show="meetingStatus ==='Progress'">
-                <PrimaryButton @click="closeMeeting" >
+            <div class="flex items-center mt-5" v-if="can.close_meeting" v-show="meetingStatus ==='Progress'">
+                <PrimaryButton  @click="closeMeeting" >
                     Close Meeting
                 </PrimaryButton>
 
@@ -325,8 +332,8 @@ const closeModal = () => {
 
 
 
-            <div class="flex items-center mt-5" >
-                <PrimaryButton @click="resetMeeting" >
+            <div class="flex items-center mt-5" v-if="can.reset_meeting" >
+                <PrimaryButton  @click="resetMeeting" >
                     Reset Meeting
                 </PrimaryButton>
 

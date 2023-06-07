@@ -1,5 +1,5 @@
 <x-mail::message>
-# Meeting Published1
+
 
 <x-mail::panel>
     Title: {{ $title }}

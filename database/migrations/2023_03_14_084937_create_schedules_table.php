@@ -20,7 +20,6 @@ return new class extends Migration
             $table->boolean('primary')->default(false);
             $table->foreignId('account_id');
             $table->foreignId('created_by'); // login user who create the meeting
-            $table->softDeletes();
             $table->timestamps();
         });
     }

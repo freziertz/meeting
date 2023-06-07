@@ -19,6 +19,7 @@ import SearchFilter from "@/Components/SearchFilter.vue";
 const props = defineProps({
   filters: Object,
   purposes: Object,
+  can: Object,
 })
 
 
@@ -73,7 +74,9 @@ const reset = () => {
                                     </select>
                                 </search-filter>
 
-                                <Link class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" :href="`/purposes/create`">
+
+
+                                <Link v-if="can.create" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" :href="`/purposes/create`">
                                     <span>Create</span>
                                     <span class="hidden md:inline">&nbsp;Purpose</span>
                                 </Link>

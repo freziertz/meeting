@@ -13,7 +13,9 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 
-defineProps({});
+defineProps({
+    can: Object,
+});
 
 const form = useForm({
   name: "",

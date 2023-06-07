@@ -20,7 +20,6 @@ return new class extends Migration
             $table->foreignId('notification_type_id');
             $table->foreignId('account_id');
             $table->foreignId('created_by'); // login user who create the meeting
-            $table->softDeletes();
             $table->timestamps();
         });
     }

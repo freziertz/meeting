@@ -7,10 +7,13 @@ use App\Models\User;
 use App\Models\Document;
 use App\Models\Agenda;
 use App\Models\Meeting;
+use App\Models\Contributor;
+use App\Models\Presenter;
 use App\Models\Resolution;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreAgendaRequest;
+use App\Http\Controllers\ContributorController;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Illuminate\Http\File;
@@ -78,6 +81,49 @@ class AgendaController extends Controller
             $agenda->recurring = $request->input('recurring');
 
             $meeting->agendas()->save($agenda);
+
+
+
+
+
+
+            $contributor_exist = Contributor::where('contributable_id', $request->input('meeting_id'))
+                                ->where('contributor_id', $request->input('contributor_id'))
+                                ->where('contributable_type', 'App\Models\Meeting')
+                                ->first();
+
+            if (is_null($contributor_exist)) {
+
+                    $contributor = new Contributor;
+
+                    $contributor->contributor_id = $request->input('contributor_id');
+                    $contributor->created_by = $created_by;
+                    $contributor->account_id = $account->id;
+                    $contributor->agenda_id = $agenda->id;
+                    $contributor->title = $request->input('title');
+
+                    $meeting->contributors()->save($contributor);
+            }
+
+
+            $presenter_exist = Presenter::where('meeting_id', $meeting->id)
+                    ->where('agenda_id', $agenda->id)
+                    ->first();
+
+                    if (is_null($presenter_exist)) {
+
+                    $presenter = new Presenter;
+
+                    $presenter->presenter_id = $request->input('presenter_id');
+                    $presenter->created_by = $created_by;
+                    $presenter->account_id = $account->id;
+                    $presenter->agenda_id = $agenda->id;
+                    $presenter->meeting_id = $meeting->id;
+
+                    $presenter->save();
+
+
+}
         }
 
 
@@ -101,6 +147,20 @@ class AgendaController extends Controller
 
             $resolution->agendas()->save($agenda);
         }
+
+
+
+
+
+
+
+
+
+        // $result = (new ContributorController)->store($request, $agenda->id);
+
+        // dd( $result);
+
+        // $result1 = (new PresenterController)->store($request, $agenda->id);
 
 
 
@@ -221,5 +281,25 @@ class AgendaController extends Controller
         Agenda::where('id', $id)->delete();
         // return redirect()->route('agendas.index')
         //                 ->with('success','Agenda deleted successfully');
+
+        DB::beginTransaction();
+
+
+           $agenda = Agenda::where('id', $id)->delete();
+
+           $contributor = Contributor::where('agenda_id', $id)->delete();
+
+           $presenter = Presenter::where('agenda_id', $id)->delete();
+
+
+
+
+        if (!$agenda and !$presenter and !$contributor )
+        {
+            DB::rollBack();
+        }else{
+            DB::commit();
+
+        }
     }
 }

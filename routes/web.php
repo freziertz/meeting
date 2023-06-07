@@ -33,6 +33,9 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\DirectoryController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\PDFController;
+use App\Http\Controllers\WordController;
+use App\Http\Controllers\RoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,9 +66,41 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
-    Route::put('/status/{id}', [MeetingController::class, 'status'])->name('meeting.status');
+    Route::put('/meeting-status/{id}', [MeetingController::class, 'status'])->name('meeting.status');
 
-    Route::get('/next/{id}', [MeetingController::class, 'next'])->name('meetings.next');
+    Route::put('/meeting-publish/{id}', [MeetingController::class, 'publish'])->name('meeting-publish');
+
+    Route::put('/meeting-start/{id}', [MeetingController::class, 'start'])->name('meeting-start');
+
+    Route::put('/meeting-end/{id}', [MeetingController::class, 'close'])->name('meeting-end');
+
+    Route::put('/meeting-reset/{id}', [MeetingController::class, 'reset'])->name('meeting-reset');
+
+    Route::get('/next-meeting/{id}', [MeetingController::class, 'next'])->name('meeting-next');
+
+    Route::put('/resolution-status/{id}', [ResolutionController::class, 'status'])->name('resolution.status');
+
+
+
+
+
+    Route::get('/next-resolution/{id}', [ResolutionController::class, 'next'])->name('next-resolution');
+
+
+
+    //Word
+
+    Route::get('/generate-draft-minutes/{id}', [WordController::class, 'generateDraftMinutesWord'])->name('generate-draft-minutes');
+
+    // PDF
+    Route::get('/generate-meeting-pack/{id}', [PDFController::class, 'generateMeetingPack'])->name('generate-meeting-pack');
+
+    Route::get('merge-pdf', [PDFController::class, 'index']);
+    Route::post('merge-pdf', [PDFController::class, 'store'])->name('merge.pdf.post');
+
+
+
+    Route::get('/notify-contributors/{id}', [ContributorController::class, 'notify_contributors'])->name('notify-contributors');
 
 
 
@@ -96,6 +131,7 @@ Route::middleware([
         'directories' => DirectoryController::class,
         'admins' => AdminController::class,
         'settings' => SettingController::class,
+        'roles' => RoleController::class,
     ]);
 
 

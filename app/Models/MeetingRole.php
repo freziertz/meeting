@@ -18,4 +18,9 @@ class MeetingRole extends Model
         'created_by',
         'account_id'
     ];
+
+    public function participants(): HasMany
+    {
+        return $this->hasMany(Participant::class,'participant_id');
+    }
 }

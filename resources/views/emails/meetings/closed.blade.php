@@ -1,5 +1,5 @@
 <x-mail::message>
-# Meeting Published1
+
 
 <x-mail::panel>
     Title: {{ $title }}
@@ -13,7 +13,7 @@
 
     Participant Notes
 
-    {{ participants_notes }}
+    {{ $participants_notes }}
 
 <x-mail::button :url="$url">
 View Meeting

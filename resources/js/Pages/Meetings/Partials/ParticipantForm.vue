@@ -25,6 +25,7 @@ const props = defineProps({
     sessions: Array,
     participants: Array,
     meeting: Object,
+    can: Object,
 });
 
 const confirmingLogout = ref(false);
@@ -78,8 +79,8 @@ const showParticipantForm = () => {
 };
 
 
-const deleteParticipant = (id) => {
-    form.delete(route('participants.destroy', id), {
+const deleteParticipant = (id, participantable_type) => {
+    form.delete(route('participants.destroy', {id, participantable_type}), {
         preserveScroll: true,
     });
 };
@@ -168,7 +169,7 @@ const deleteParticipant = (id) => {
 
                                     <td class="border-t">
 
-                                    <delete-button @delete="deleteParticipant(`${participant.id}`)">Delete</delete-button>
+                                    <delete-button v-if="can.organize_meeting" @delete="deleteParticipant(`${participant.id}`, `${participant.participantable_type}` )">Delete</delete-button>
 
                                     </td>
 
@@ -177,7 +178,7 @@ const deleteParticipant = (id) => {
                     </table>
             </div>
 
-            <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showParticipantForm">
+            <button v-if="can.organize_meeting" class="flex items-center px-6 py-4 focus:text-indigo-500 " v-on:click="showParticipantForm">
                 <p v-show="!showForm">Add Meeting Participant</p>
                 <p v-show="showForm">Close Meeting Participant</p>
             </button>
@@ -188,7 +189,7 @@ const deleteParticipant = (id) => {
 
 
 
-            <div v-show="showForm">
+            <div v-show="showForm" >
 
             <PartialFormSection @submitted="createMeetingParticipant" >
 

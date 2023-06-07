@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Mail;
+use App\Models\Meeting;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,7 +17,7 @@ class NotifyParticipants extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(protected Meeting $meeting)
     {
         //
     }

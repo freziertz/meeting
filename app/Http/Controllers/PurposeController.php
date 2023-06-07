@@ -10,16 +10,19 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StorePurposeRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request as Req;
+use App\Traits\InteractsWithBanner;
 
 
 class PurposeController extends Controller
 {
+
+    use InteractsWithBanner;
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        // $purposes = Purpose::all();
+        // $purposes = Purpose::query();
         // return Inertia::render('Purposes/Index',compact('purposes'));
 
 
@@ -28,11 +31,23 @@ class PurposeController extends Controller
         // $purposes = Purpose::query();
         // dd($purposes);
 
+        $this->authorize( ability: 'viewAny' , arguments: Purpose::class);
+
+        // if ($request->user()->cannot('viewAny', Purpose::class)) {
+        //     $this->banner('Meeting created successfully!');
+        //     abort(403);
+
+        // }
+
+        // dd($request->user()->can('create', Purpose::class));
+        // $user->hasPermissionTo('create purposes');
+
 
 
         return Inertia::render('Purposes/Index', [
+
             'filters' => $request->all('search', 'trashed'),
-            'purposes' => Purpose::query()
+            'purposes' =>  Purpose::query()
                 ->orderBy('name')
                 ->filter($request->only('search', 'trashed'))
                 ->paginate(10)
@@ -43,6 +58,12 @@ class PurposeController extends Controller
                     'description' => $purpose->description,
                     'deleted_at' => $purpose->deleted_at,
                 ]),
+                'can' => [
+                    'create' => $request->user()->can('create', Purpose::class),
+                    'edit' => $request->user()->can('edit', Purpose::class),
+                    'list' => $request->user()->can('list', Purpose::class),
+                    // 'delete' => $request->user()->can('delete', Purpose::class),
+                ],
         ]);
 
         //  dd($purposes);
@@ -56,8 +77,12 @@ class PurposeController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
+        if ($request->user()->cannot('create', Purpose::class)) {
+            abort(403);
+        }
+
         return Inertia::render('Purposes/Create');
     }
 
@@ -66,6 +91,10 @@ class PurposeController extends Controller
      */
     public function store(Request $request)
     {
+
+        if ($request->user()->cannot('create', Purpose::class)) {
+            abort(403);
+        }
 
         $request['created_by'] =  Auth::user()->id;
 
@@ -82,19 +111,38 @@ class PurposeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         $purpose = Purpose::findOrFail($id);
+
+        if ($request->user()->cannot('list', $purpose)) {
+            abort(403);
+        }
+
+
         return Inertia::render('Purposes/Show',compact('purpose'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Request $request, string $id)
     {
-       $purpose = Purpose::findOrFail($id);
-       return Inertia::render('Purposes/Edit',compact('purpose'));
+        $purpose = Purpose::findOrFail($id);
+
+        if ($request->user()->cannot('update', $purpose)) {
+            abort(403);
+        }
+
+        $can =[
+            'create' => $request->user()->can('create', Purpose::class),
+            'edit' => $request->user()->can('create', Purpose::class),
+            'list' => $request->user()->can('create', Purpose::class),
+            'delete' => $request->user()->can('create', Purpose::class),
+        ];
+
+
+        return Inertia::render('Purposes/Edit',compact('purpose', 'can'));
     }
 
     /**
@@ -102,7 +150,11 @@ class PurposeController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $purpose = Purpose::find($id);
+        $purpose = Purpose::findOrFail($id);
+
+        if ($request->user()->cannot('update', $purpose)) {
+            abort(403);
+        }
 
         $purpose->name = $request->input('name');
         $purpose->description = $request->input('description');
@@ -117,9 +169,19 @@ class PurposeController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-        Purpose::where('id', $id)->delete();
+        $purpose = Purpose::findOrFail($id);
+
+        $this->authorize('delete', $purpose);
+
+        $purpose->delete();
+
+
+        // if ($request->user()->cannot('delete', Purpose::class)) {
+        //     abort(403);
+        // }
+
         return redirect()->route('purposes.index')
                         ->with('success','Purpose deleted successfully');
     }

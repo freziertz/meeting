@@ -2,6 +2,8 @@
 
 namespace App\Mail;
 
+use App\Models\Meeting;
+
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -16,7 +18,7 @@ class NotifyContributors extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(protected Meeting $meeting)
     {
         //
     }
@@ -27,7 +29,12 @@ class NotifyContributors extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Notify Contributors',
+            subject: 'You are among agenda contributor to meeting ' .$this->meeting->title,
+
+            tags: ['Notify Contributor'],
+            metadata: [
+                'meeting_id' => $this->meeting->id,
+            ],
         );
     }
 
@@ -37,7 +44,16 @@ class NotifyContributors extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            // html: 'emails.meetings.published',
+            // text: 'emails.meetings.published-text',
+            markdown: 'emails.meetings.notify_contributor',
+            with: [
+                'url' => "http://127.0.0.1:8000/meetings/" . $this->meeting->id,
+                'title' => $this->meeting->title,
+                'venue' => $this->meeting->venue,
+                'description' => $this->meeting->description,
+                'participants_notes' => $this->meeting->participants_notes,
+            ],
         );
     }
 

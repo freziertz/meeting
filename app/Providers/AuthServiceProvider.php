@@ -15,6 +15,11 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Team::class => TeamPolicy::class,
+
+        Meeting::class => MeetingPolicy::class,
+
+        Purpose::class => PurposePolicy::class,
+
     ];
 
     /**

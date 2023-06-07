@@ -20,10 +20,7 @@ const props = defineProps({
   meeting_types: Array,
   events: Array,
   reminders: Array,
-
 });
-
-
 
 const events = reactive([{
     id: 0,
@@ -35,18 +32,14 @@ const events = reactive([{
 
 const reminders = reactive([{
     reminder:'',
-
 }]);
 
 const addField = (value, fieldType) => {
-
     fieldType.push({ })
-
 };
 
 const removeField = (index, fieldType) => {
       fieldType.splice(index, 1)
-
 }
 
 

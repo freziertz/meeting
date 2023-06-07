@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use App\Enums\MeetingStatusEnum;
 
 class Meeting extends Model
 {
@@ -47,6 +48,10 @@ class Meeting extends Model
     // {
     //     return 'slug';
     // }
+
+    protected $casts = [
+        'status' => MeetingStatusEnum::class
+    ];
 
     public function user(): BelongsTo
     {

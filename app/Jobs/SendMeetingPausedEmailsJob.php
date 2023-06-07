@@ -8,6 +8,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Mail\MeetingPaused;
+use Illuminate\Support\Facades\Mail;
 
 class SendMeetingPausedEmailsJob implements ShouldQueue
 {
@@ -16,9 +18,13 @@ class SendMeetingPausedEmailsJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public $meeting;
+    public $user;
+
+    public function __construct($meeting, $user)
     {
-        //
+        $this->meeting = $meeting;
+        $this->user= $user;
     }
 
     /**
@@ -26,6 +32,6 @@ class SendMeetingPausedEmailsJob implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+        Mail::to($this->user)->send(new MeetingPaused($this->meeting));
     }
 }

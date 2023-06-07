@@ -50,12 +50,6 @@ class MeetingPublished extends Mailable implements ShouldQueue
      */
     public function content(): Content
     {
-
-
-
-
-
-
         return new Content(
             // html: 'emails.meetings.published',
             // text: 'emails.meetings.published-text',

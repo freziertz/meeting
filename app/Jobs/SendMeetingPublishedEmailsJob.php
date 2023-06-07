@@ -2,8 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Models\Meeting;
-use App\Models\User;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;

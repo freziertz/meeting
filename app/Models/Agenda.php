@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Psy\VarDumper\Presenter;
 
 class Agenda extends Model
 {
@@ -46,12 +47,18 @@ class Agenda extends Model
        return $this->belongsTo(User::class);
     }
 
-    public function presenter()
-    {
-        $presenter = User::find($this->presenter_id)->value('name');
 
-        return $presenter;
-    }
+    // public function presenter()
+    // {
+    //     $presenter = User::find($this->presenter_id)->value('name');
+
+    //     return $presenter;
+    // }
+
+    // public function presenter()
+    // {
+    //    return $this->belongsTo(Presenter::class, 'presenter_id');
+    // }
 
 
     public function contributor()

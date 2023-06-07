@@ -24,6 +24,7 @@ const props = defineProps({
     contributors: Array,
     meeting: Object,
     contributor:Object,
+    can: Object,
 });
 
 
@@ -41,6 +42,11 @@ const form = useForm({
     meeting_id: props.meeting.id,
 });
 
+const formEdit = useForm({
+    // id: props.meeting.id,
+
+});
+
 
 const createMeetingAgendaContributor = () => {
     form.post(route('contributors.store'), {
@@ -53,7 +59,7 @@ const createMeetingAgendaContributor = () => {
 
 
 const sendNotificationToContributors = () => {
-    form.post(route('notifications.contributor', props.meeting.id), {
+    formEdit.get(route('notify-contributors', props.meeting.id), {
         preserveScroll: true,
     });
 };
@@ -112,7 +118,7 @@ const closeModal = () => {
           <div class="flex justify-end">
 
 
-               <NotificationButton @click="sendNotificationToContributors" >
+               <NotificationButton v-if="can.organize_meeting" @click="sendNotificationToContributors" >
                     Send Notification
                 </NotificationButton>
 
@@ -146,7 +152,7 @@ const closeModal = () => {
                                     </td>
 
                                     <td class="border-t">
-                                        <delete-button @delete="deleteContributor(`${contributor.id}`)">Delete</delete-button>
+                                        <delete-button v-if="can.organize_meeting" @delete="deleteContributor(`${contributor.id}`)">Delete</delete-button>
                                     </td>
 
 
@@ -157,7 +163,7 @@ const closeModal = () => {
                     </table>
             </div>
 
-            <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showOrganizerForm">
+            <button v-if="can.organize_meeting" class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showOrganizerForm">
                 <p v-show="!showForm">Add Meeting Agenda Contributor</p>
                 <p v-show="showForm">Close Meeting Agenda Contributor</p>
             </button>

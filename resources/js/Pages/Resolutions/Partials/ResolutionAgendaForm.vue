@@ -234,16 +234,7 @@ const showAgenda = (id) => {
 
         <template #content>
             <div class="flex space-x-2 justify-end">
-                <CalendarButton @click="deliveryStatus" >
-                    Delivery Status
-                </CalendarButton>
-               <NotificationButton @click="addVote" >
-                    Add Vote
-               </NotificationButton>
 
-               <CalendarButton @click="permissions" >
-                    Permissions
-                </CalendarButton>
                <NotificationButton @click="documentOptions" >
                     Options
                </NotificationButton>
@@ -377,76 +368,25 @@ const showAgenda = (id) => {
                    :error="form.errors.presenter_id"
                    class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Presenter">
 
-                        <option v-for="user in users" :key="user.id" :value="user.id">{{ user.first_name + " " + user.last_name}}</option>
+                        <option value="0">Draft</option>
+                        <option value="1">Final</option>
                 </select>
             </div>
 
-            <!-- Contributor Id -->
-
-            <div class="col-span-6 sm:col-span-4">
-            <InputLabel for="contributor_id" value="Select contributor" />
-
-                <select
-                   v-model="form.contributor_id"
-                   :error="form.errors.contributor_id"
-                   class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Contributor">
-
-                        <option v-for="user in users" :key="user.id" :value="user.id">{{ user.first_name + " " + user.last_name}}</option>
-                </select>
-            </div>
-
-            <!-- Purpose -->
-
-                 <div class="col-span-6 sm:col-span-4">
-                 <InputLabel for="purpose" value="Purpose" />
-                    <select
-                       v-model="form.purpose_id"
-                       :error="form.errors.purpose_id"
-
-                       class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Organization">
-
-                            <option v-for="purpose in purposes" :key="purpose.id" :value="purpose.id">{{ purpose.name }}</option>
-                    </select>
-                </div>
 
 
 
-            <!-- External Url -->
-            <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="external_url" value="External Url" />
-                <TextInput
-                    id="external_url"
-                    v-model="form.external_url"
-                    type="text"
-                    class="mt-1 block w-full"
-                    autocomplete="external_url"
-                />
-                <InputError :message="form.errors.external_url" class="mt-2" />
-            </div>
+
+
 
 
             <!-- Minutes -->
             <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="minutes" value="Minutes" />
-                <TextInput
-                    id="minutes"
-                    v-model="form.minutes"
-                    type="text"
-                    class="mt-1 block w-full"
-                    autocomplete="minutes"
-                />
-                <InputError :message="form.errors.minutes" class="mt-2" />
 
 
-            <!-- Primary -->
 
 
-            <div class="block mt-4 mb-4">
-                <label class="flex items-center">
-                    <Checkbox v-model:checked="form.recurring" name="recurring" />
-                    <span class="ml-2 text-sm text-gray-600">Recuring</span>
-                </label>
-            </div>
+
 
 
 

@@ -72,6 +72,7 @@ const props = defineProps({
     purposes: Array,
     documents:Array,
     meeting: Object,
+    can: Object,
 
 });
 
@@ -125,7 +126,7 @@ const createMeetingAgenda = () => {
     form.post(route('agendas.store'), {
         errorBag: 'updateProfileInformation',
         preserveScroll: true,
-        // onSuccess: () => form.reset(),
+        onSuccess: () => form.reset(),
         // onSuccess: () => clearPhotoFileInput(),
     });
 };
@@ -255,17 +256,17 @@ const showAgenda = (id) => {
 
         <template #content>
             <div class="flex space-x-2 justify-end">
-                <CalendarButton @click="deliveryStatus" >
+                <CalendarButton v-if="can.organize_meeting" @click="deliveryStatus" >
                     Delivery Status
                 </CalendarButton>
-               <NotificationButton @click="addVote" >
+               <NotificationButton v-if="can.add_vote" @click="addVote" >
                     Add Vote
                </NotificationButton>
 
-               <CalendarButton @click="permissions" >
+               <CalendarButton v-if="can.organize_meeting" @click="permissions" >
                     Permissions
                 </CalendarButton>
-               <NotificationButton @click="agendaOptions" >
+               <NotificationButton v-if="can.organize_meeting" @click="agendaOptions" >
                     Options
                </NotificationButton>
          </div>
@@ -347,9 +348,9 @@ const showAgenda = (id) => {
 
                                     <td class="border-t">
 
-                                    <edit-button @submit="editAgenda(`${agenda.id}`)">Edit</edit-button>
+                                    <edit-button v-if="can.organize_meeting || can.contribute_meeting" @submit="editAgenda(`${agenda.id}`)">Edit</edit-button>
 
-                                    <delete-button @delete="deleteAgenda(`${agenda.id}`)">Delete</delete-button>
+                                    <delete-button v-if="can.organize_meeting || can.contribute_meeting" @delete="deleteAgenda(`${agenda.id}`)">Delete</delete-button>
 
                                     </td>
 
@@ -383,7 +384,7 @@ const showAgenda = (id) => {
                     </table>
             </div>
 
-            <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showAgendaCreateForm">
+            <button v-if="can.organize_meeting || can.contribute_meeting" class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showAgendaCreateForm">
                 <p v-show="!showCreateForm">Add Agenda</p>
                 <p v-show="showCreateForm">Close Agenda Form</p>
             </button>

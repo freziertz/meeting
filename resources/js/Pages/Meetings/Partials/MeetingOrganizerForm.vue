@@ -21,6 +21,7 @@ const props = defineProps({
     sessions: Array,
     organizers: Array,
     meeting: Object,
+    can: Object,
 });
 
 const confirmingLogout = ref(false);
@@ -175,7 +176,7 @@ const closeModal = () => {
 
                                    <td class="border-t">
 
-                                    <delete-button @delete="deleteOrganizer(`${organizer.id}`)">Delete</delete-button>
+                                    <delete-button v-if="can.organize_meeting" @delete="deleteOrganizer(`${organizer.id}`)">Delete</delete-button>
 
                                     </td>
 
@@ -184,7 +185,7 @@ const closeModal = () => {
                     </table>
             </div>
 
-            <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showOrganizerForm">
+            <button v-if="can.organize_meeting" class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showOrganizerForm">
                 <p v-show="!showForm">Add Meeting Organizer</p>
                 <p v-show="showForm">Close Meeting Organizer</p>
             </button>

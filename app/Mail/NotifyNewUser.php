@@ -27,7 +27,8 @@ class NotifyNewUser extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Notify New User',
+            subject: 'Your Account was created in a MeetingPro',
+            tags: ['Account Created'],
         );
     }
 

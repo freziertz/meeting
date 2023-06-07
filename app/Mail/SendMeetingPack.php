@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Mail;
+use App\Models\Meeting;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -8,6 +9,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Attachment;
 
 class SendMeetingPack extends Mailable
 {
@@ -16,9 +18,11 @@ class SendMeetingPack extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+
+
+    public function __construct(protected Meeting $meeting,protected $data)
     {
-        //
+        $this->data = $data;
     }
 
     /**
@@ -27,7 +31,13 @@ class SendMeetingPack extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Send Meeting Pack',
+
+            subject: 'Meeting Pack for ' . $this->meeting->title,
+
+            tags: ['Meeting Pack'],
+            metadata: [
+                'meeting_id' => $this->meeting->id,
+            ],
         );
     }
 
@@ -37,7 +47,17 @@ class SendMeetingPack extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            // html: 'emails.meetings.published',
+            // text: 'emails.meetings.published-text',
+            markdown: 'emails.meetings.meeting_pack',
+            with: [
+                'url' => "http://127.0.0.1:8000/meetings/" . $this->meeting->id,
+                'title' => $this->meeting->title,
+                'venue' => $this->meeting->venue,
+                'description' => $this->meeting->description,
+                'participants_notes' => $this->meeting->participants_notes,
+                'data' => $this->data
+            ],
         );
     }
 
@@ -48,6 +68,10 @@ class SendMeetingPack extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        return [
+            Attachment::fromPath($this->data['attachment'])
+                ->as('meeting_pack.pdf')
+                ->withMime('application/pdf')
+        ];
     }
 }

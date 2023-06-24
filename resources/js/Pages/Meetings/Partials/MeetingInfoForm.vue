@@ -100,6 +100,13 @@ const resetMeeting = () => {
     });
 };
 
+const joinMeeting = () => {
+    // form.status =  1;
+    form.post(route('meeting-join', props.meeting.id), {
+        preserveScroll: true,
+    });
+};
+
 const scheduleNextMeeting = () => {
     formEdit.get(route('next-meeting', props.meeting.id), {
         preserveScroll: true,
@@ -308,6 +315,23 @@ const closeModal = () => {
                 </ActionMessage>
             </div>
 
+            <div class="flex items-center mt-5"  v-if="can.participate_meeting" v-show="meetingStatus ==='Progress'">
+                <!-- <PrimaryButtonk  @click="startMeeting" >
+                    Join Meeting
+                </PrimaryButtonk> -->
+
+                <Link      :href="route('live-meeting', { meeting_id: meeting.id, agenda_id: 0, document_id: 0 })" >
+                    <!-- <Link  :href="`/live-meeting/${meeting.id}/`" > -->
+                    Join Meeting
+                </Link>
+
+              
+
+                <ActionMessage :on="form.recentlySuccessful" class="ml-3">
+                    Done.
+                </ActionMessage>
+            </div>
+
 
             <div class="flex items-center mt-5" v-if="can.start_meeting" v-show="meetingStatus ==='Published'">
                 <PrimaryButton  @click="startMeeting" >
@@ -318,6 +342,8 @@ const closeModal = () => {
                     Done.
                 </ActionMessage>
             </div>
+
+
 
 
             <div class="flex items-center mt-5" v-if="can.close_meeting" v-show="meetingStatus ==='Progress'">

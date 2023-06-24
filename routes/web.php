@@ -1,5 +1,7 @@
 <?php
 
+use App\Events\MessageSent;
+use App\Events\PusherPublicEvent;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,6 +38,10 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\WordController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\LiveController;
+
+use App\Http\Controllers\ChatsController;
+use App\Http\Controllers\MinuteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +53,18 @@ use App\Http\Controllers\RoleController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+
+// Route::get('/event', function () {
+//     // $array = ['name' => 'Ekpono Ambrose']; //data we want to pass
+
+//     event(new PusherPublicEvent('test'));
+
+//     // event(new MessageSent('[]','test'));
+
+
+//     return 'done';
+// });
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -66,6 +84,23 @@ Route::middleware([
         return Inertia::render('Dashboard');
     })->name('dashboard');
 
+    // Broadcast test
+
+
+    Route::get('/event', function () {
+        // $array = ['name' => 'Ekpono Ambrose']; //data we want to pass
+
+        event(new PusherPublicEvent('test'));
+
+        $message = new App\Models\Message(['test']);
+
+        event(new MessageSent(auth()->user(), $message));
+
+
+        return 'done';
+    });
+
+
     Route::put('/meeting-status/{id}', [MeetingController::class, 'status'])->name('meeting.status');
 
     Route::put('/meeting-publish/{id}', [MeetingController::class, 'publish'])->name('meeting-publish');
@@ -78,7 +113,16 @@ Route::middleware([
 
     Route::get('/next-meeting/{id}', [MeetingController::class, 'next'])->name('meeting-next');
 
+    Route::get('/live-meeting/{meeting_id}/agenda/{agenda_id}/document/{document_id}', [LiveController::class, 'show'])->name('live-meeting');
+
     Route::put('/resolution-status/{id}', [ResolutionController::class, 'status'])->name('resolution.status');
+
+
+    Route::get('/chat', [ChatsController::class, 'index'])->name('chat-index');
+    Route::get('/messages', [ChatsController::class, 'fetchMessages'])->name('fetch-messages');
+    Route::post('/messages', [ChatsController::class, 'sendMessage'])->name('send-message');
+
+
 
 
 
@@ -130,6 +174,7 @@ Route::middleware([
         'reviews' => ReviewRoomController::class,
         'directories' => DirectoryController::class,
         'admins' => AdminController::class,
+        'minutes' => MinuteController::class,
         'settings' => SettingController::class,
         'roles' => RoleController::class,
     ]);

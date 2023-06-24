@@ -36,6 +36,7 @@ class Document extends Model
     {
         return $this->morphedByMany(Agenda::class, 'documentable');
     }
+    
 
 
     public function resolutions(): MorphToMany

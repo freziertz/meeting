@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('organizers', function (Blueprint $table) {
-            $table->boolean('visible')->nullable();
+        Schema::create('messages', function (Blueprint $table) {
+            $table->id();
+            $table->integer('user_id')->unsigned();
+            $table->text('message');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('organizers', function (Blueprint $table) {
-            $table->dropColumn('visible');
-        });
+        Schema::dropIfExists('messages');
     }
 };

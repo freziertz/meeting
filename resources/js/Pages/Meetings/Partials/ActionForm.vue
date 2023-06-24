@@ -127,13 +127,13 @@ const removeField = (index, fieldType) => {
         <template #content>
 
         <div class="flex space-x-2 justify-end">
-               <NotificationButton @click="sendNotificationToActioner" >
+               <NotificationButton v-if="can.organize_meeting" @click="sendNotificationToActioner" >
                     Send Notification
                </NotificationButton>
-                <CalendarButton @click="bringForwardAction" >
+                <CalendarButton v-if="can.organize_meeting" @click="bringForwardAction" >
                     Bring Forward
                 </CalendarButton>
-               <NotificationButton @click="exportAction" >
+               <NotificationButton v-if="can.organize_meeting" @click="exportAction" >
                     Export
                </NotificationButton>
          </div>
@@ -181,7 +181,7 @@ const removeField = (index, fieldType) => {
 
                                     <td class="border-t">
 
-                                    <delete-button @delete="deleteAction(`${action.id}`)">Delete</delete-button>
+                                    <delete-button v-if="can.organize_meeting" @delete="deleteAction(`${action.id}`)">Delete</delete-button>
 
                                     </td>
 
@@ -190,7 +190,7 @@ const removeField = (index, fieldType) => {
                     </table>
             </div>
 
-            <button class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showActionForm">
+            <button v-if="can.organize_meeting" class="flex items-center px-6 py-4 focus:text-indigo-500" v-on:click="showActionForm">
                 <p v-show="!showForm">Add Meeting Action</p>
                 <p v-show="showForm">Close Meeting Action</p>
             </button>

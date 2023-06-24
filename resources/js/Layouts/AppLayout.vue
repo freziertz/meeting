@@ -25,6 +25,16 @@ const switchToTeam = (team) => {
 const logout = () => {
     router.post(route('logout'));
 };
+
+// onMounted(() => {
+//     Echo.private(`orders.${orderId}`)
+//     .listen('OrderShipmentStatusUpdated', (e) => {
+//         console.log(e.order);
+//     });
+// })
+
+
+
 </script>
 
 <template>

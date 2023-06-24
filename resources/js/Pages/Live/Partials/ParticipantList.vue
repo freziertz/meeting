@@ -1,4 +1,5 @@
 <script setup>
+
 import { ref,computed } from 'vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import moment from "moment";
@@ -91,29 +92,9 @@ const deleteParticipant = (id, participantable_type) => {
 
 
 </script>
-
 <template>
-    <ActionSection>
-        <template #title>
-            Participants
-        </template>
 
-        <template #description>
-            Manage Participants
-        </template>
-
-        <template #content>
-
-        <div class="flex space-x-2 justify-end">
-                <CalendarButton v-if="can.organize_meeting" @click="checkScheduleConflict" >
-                    Check Schedule Conflict
-                </CalendarButton>
-               <NotificationButton v-if="can.organize_meeting" @click="sendNotificationToParticipants" >
-                    Send Notification
-               </NotificationButton>
-         </div>
-
-            <div class=" w-full text-sm text-gray-600">
+<div class=" w-full text-sm text-gray-600">
                             <table class="w-full whitespace-nowrap">
                                 <thead>
                                     <tr class="text-left font-bold">
@@ -178,165 +159,5 @@ const deleteParticipant = (id, participantable_type) => {
                     </table>
             </div>
 
-            <button v-if="can.organize_meeting" class="flex items-center px-6 py-4 focus:text-indigo-500 " v-on:click="showParticipantForm">
-                <p v-show="!showForm">Add Meeting Participant</p>
-                <p v-show="showForm">Close Meeting Participant</p>
-            </button>
-
-            <SectionBorder />
-
-
-
-
-
-            <div v-show="showForm" >
-
-            <PartialFormSection @submitted="createMeetingParticipant" >
-
-
-              <template #form>
-
-
-
-
-
-
-
-
-            <!-- User Id -->
-
-            <div class="col-span-6 sm:col-span-4">
-            <InputLabel for="user_id" value="Select user" />
-
-                <select
-                   v-model="form.participant_id"
-                   :error="form.errors.participant_id"
-                   class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User"
-                   required
-                   >
-
-                        <option v-for="user in users" :key="user.id" :value="user.id">{{ user.first_name + " " + user.last_name}}</option>
-                </select>
-
-
-            </div>
-
-
-
-            <!-- Meeting Role Id -->
-
-            <div class="col-span-6 sm:col-span-4">
-            <InputLabel for="meeting_role_id" value="Select Meeting Role" />
-
-                <select
-                   v-model="form.meeting_role_id"
-                   :error="form.errors.meeting_role_id"
-                   class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Meeting Role">
-
-                        <option v-for="meeting_role in meeting_roles" :key="meeting_role.id" :value="meeting_role.id">{{ meeting_role.name }}</option>
-                </select>
-
-
-            </div>
-
-
-
-            <!-- Group Id -->
-
-            <div class="col-span-6 sm:col-span-4">
-            <InputLabel for="group_id" value="Select Group" />
-
-                <select
-                   v-model="form.group_id"
-                   :error="form.errors.group_id"
-                   class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="Group">
-
-                        <option v-for="group in groups" :key="group.id" :value="group.id">{{ group.name}}</option>
-                </select>
-
-
-            </div>
-
-
-
-
-            <!-- Meeting Id-->
-
-
-
-
-                <TextInput
-                    id="meeting_id"
-                    v-model="form.meeting_id"
-                    type="hidden"
-                     />
-
-             <TextInput  id="participantable_type" v-model="form.participantable_type" type="hidden"  />
-
-
-
-
-
-
-
-            <!-- Title -->
-            <div class="col-span-6 sm:col-span-4">
-                <InputLabel for="title" value="Title" />
-                <TextInput
-                    id="title"
-                    v-model="form.title"
-                    type="text"
-                    class="mt-1 block w-full"
-                    autocomplete="title"
-                />
-                <InputError :message="form.errors.title" class="mt-2" />
-
-                <div v-if="$page.props.jetstream.hasEmailVerification && user.email_verified_at === null">
-                    <p class="text-sm mt-2">
-                        Your email address is unverified.
-
-                        <Link
-                            :href="route('verification.send')"
-                            method="post"
-                            as="button"
-                            class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            @click.prevent="sendEmailVerification"
-                        >
-                            Click here to re-send the verification email.
-                        </Link>
-                    </p>
-
-                    <div v-show="verificationLinkSent" class="mt-2 font-medium text-sm text-green-600">
-                        A new verification link has been sent to your email address.
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <template #actions>
-            <ActionMessage :on="form.recentlySuccessful" class="mr-3">
-                Saved.
-            </ActionMessage>
-
-            <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                Save
-            </PrimaryButton>
-
-
-
-
-        </template>
-
-
-              </PartialFormSection>
-
-              </div>
-
-
-
-
-
-
-        </template>
-    </ActionSection>
 </template>
+    

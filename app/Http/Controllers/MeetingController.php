@@ -650,6 +650,8 @@ class MeetingController extends Controller
 
                 'organize_meeting' => $request->user()->can('organize', $mt),
 
+                'participate_meeting' => $request->user()->can('participate', $mt),
+
                 'contribute_meeting' => $request->user()->can('contribute', $mt),
 
                 'send_notification' => $request->user()->can('organize', $mt),

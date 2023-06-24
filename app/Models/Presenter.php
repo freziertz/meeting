@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class Presenter extends Model
@@ -16,4 +17,9 @@ class Presenter extends Model
         'account_id',
         'created_by'
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'presenter_id');
+    }
 }

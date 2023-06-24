@@ -91,6 +91,12 @@ class User extends Authenticatable
         'profile_photo_url',
     ];
 
+
+
+
+
+
+
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
@@ -123,6 +129,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Contributor::class,'contributer_id');
     }
+
+
 
     public function actions(): HasMany
     {
@@ -157,6 +165,11 @@ class User extends Authenticatable
     public function meeting_types(): HasMany
     {
         return $this->hasMany(MeetingType::class,'created_by');
+    }
+
+    public function messages()
+    {
+        return $this->hasMany(Message::class);
     }
 
     public function notifications(): HasMany

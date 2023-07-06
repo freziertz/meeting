@@ -13,7 +13,8 @@ class Vote extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'agender_id',
+        'agenda_id',
+        'meeting_id',
         'subject',
         'created_by',
         'account_id'

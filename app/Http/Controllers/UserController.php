@@ -24,27 +24,25 @@ class UserController extends Controller
     public function index()
     {
 
-        $users = User::all();
-        return Inertia::render('Users/Index',compact('users'));
-        // return Inertia::render('Users/Index',  [
-        //     'filters' => Req::all('search', 'role', 'trashed'),
+        return Inertia::render('Users/Index',  [
+            'filters' => Req::all('search', 'role', 'trashed'),
 
-        //     'users' => Auth::user()->account->users()
-        //         ->orderByName()
-        //         ->filter(Req::only('search', 'role', 'trashed'))
-        //         ->paginate(10)
-        //         ->withQueryString()
-        //         ->through(fn ($user) => [
-        //             'id' => $user->id,
-        //             'name' => $user->name,
-        //             'email' => $user->email,
-        //             'owner' => $user->owner,
-        //             'photo' => $user->profile_photo_path ? URL::route('image', ['path' => $user->profile_photo_path, 'w' => 40, 'h' => 40, 'fit' => 'crop']) : null,
-        //             'deleted_at' => $user->deleted_at,
-        //         ]),
+            'users' => Auth::user()->account->users()
+                ->orderByName()
+                ->filter(Req::only('search', 'role', 'trashed'))
+                ->paginate(10)
+                ->withQueryString()
+                ->through(fn ($user) => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'owner' => $user->owner,
+                    'photo' => $user->profile_photo_path ? URL::route('image', ['path' => $user->profile_photo_path, 'w' => 40, 'h' => 40, 'fit' => 'crop']) : null,
+                    'deleted_at' => $user->deleted_at,
+                ]),
 
 
-        // ]);
+        ]);
 
         // dd($users);
 

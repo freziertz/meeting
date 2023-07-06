@@ -56,6 +56,21 @@ class LiveController extends Controller
 
         $users = User::all();
 
+        $participant_id = Auth::user()->id;
+
+        $participant = Participant::find($participant_id)
+        ->where('participantable_id', $meeting_id)->first();
+
+
+
+        $participant->status = 1;
+
+
+        $participant->save();
+
+
+
+
 
 
         $meeting = DB::table('meetings')
@@ -90,6 +105,7 @@ class LiveController extends Controller
                              'participants.id',
                              'participants.meeting_role_id',
                              'participants.group_id',
+                             'participants.status',
                              'participants.title as designation',
                              'groups.name as group_name',
                              'meeting_roles.name as meeting_role_name',
@@ -101,6 +117,8 @@ class LiveController extends Controller
                           ->where('participants.participantable_type', '=', 'App\Models\Meeting')
                           ->where('participants.deleted_at', NULL)
                        ->get();
+
+
 
 
 
@@ -130,8 +148,8 @@ class LiveController extends Controller
               ->where('agendas.deleted_at', NULL)
            ->get();
 
-   
-           
+
+
 
 
 
@@ -159,8 +177,8 @@ class LiveController extends Controller
                 ->where('agendas.agendable_type', '=', 'App\Models\Meeting')
                 ->first();
 
-                
-                
+
+
 
                 $document = DB::table('documents')
                 ->join('documentables', 'documentables.document_id', '=', 'documents.id')
@@ -179,7 +197,7 @@ class LiveController extends Controller
             // ->where('agenda_id', '=', $agenda->id)
             // ->first();
 
-      
+
 
 
         }else{
@@ -188,7 +206,7 @@ class LiveController extends Controller
             ->where('agendas.agendable_type', '=', 'App\Models\Meeting')
             ->where('agendas.id', '=', $agenda_id)
             ->first();
-            
+
 
             $document = DB::table('documents')
             ->join('documentables', 'documentables.document_id', '=', 'documents.id')
@@ -215,7 +233,7 @@ class LiveController extends Controller
                 'meeting_id' => $meeting_id,
                 'agenda_id' => $agenda->id,
                 'document_id'=> $document->id,
-                'body' =>"",  
+                'body' =>"",
                 'created_by'=> 0,
                 'account_id'=> 0
             ];
@@ -223,7 +241,7 @@ class LiveController extends Controller
         }
 
 
-    
+
 
 
 

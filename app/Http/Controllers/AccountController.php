@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Request as Req;
+use Illuminate\Support\Facades\URL;
+
 class AccountController extends Controller
 {
     /**
@@ -16,8 +19,25 @@ class AccountController extends Controller
      */
     public function index()
     {
-        $accounts = Account::all();
-        return Inertia::render('Accounts/Index',compact('accounts'));
+        // $accounts = Account::all();
+        // return Inertia::render('Accounts/Index',compact('accounts'));
+
+        return Inertia::render('Accounts/Index',  [
+            'filters' => Req::all('search', 'trashed'),
+
+            'accounts' => Account::query()
+                ->orderByName()
+                ->filter(Req::only('search', 'trashed'))
+                ->paginate(10)
+                ->withQueryString()
+                ->through(fn ($account) => [
+                    'id' => $account->id,
+                    'name' => $account->name,
+                    'deleted_at' => $account->deleted_at,
+                ]),
+
+
+        ]);
     }
 
     /**

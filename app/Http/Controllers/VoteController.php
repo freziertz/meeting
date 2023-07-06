@@ -40,6 +40,7 @@ class VoteController extends Controller
 
         $request['account_id'] = $account->id;
 
+        // dd($request);
         Vote::create($request->all());
 
         return redirect()->route('votes.index')

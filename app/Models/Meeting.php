@@ -118,4 +118,29 @@ class Meeting extends Model
     // {
     //     return $this->hasManyThrough(Document::class, Agenda::class,'agendable_id','documentable_id','id','id' );
     // }
+
+    public function scopeOrderByName($query)
+    {
+        $query->orderBy('meetings.created_at')->orderBy('meetings.created_at');
+    }
+
+
+
+    public function scopeFilter($query, array $filters)
+    {
+        $query->when($filters['search'] ?? null, function ($query, $search) {
+            $query->where(function ($query) use ($search) {
+                $query->where('title', 'like', '%'.$search.'%');
+
+            });
+
+
+        })->when($filters['trashed'] ?? null, function ($query, $trashed) {
+            if ($trashed === 'with') {
+                $query->withTrashed();
+            } elseif ($trashed === 'only') {
+                $query->onlyTrashed();
+            }
+        });
+    }
 }

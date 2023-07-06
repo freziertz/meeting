@@ -11,9 +11,10 @@ class Minute extends Model
 
     protected $fillable = [
         'meeting_id',
-        'agenda_id', 
+        'agenda_id',
         'document_id',
-        'body',     
+        'title',
+        'body',
         'created_by',
         'account_id'
     ];

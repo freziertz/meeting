@@ -13,9 +13,14 @@ return new class extends Migration
     {
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
+            $table->text('title');
+            $table->text('content');
+            $table->date('start_date')->nullable();
+            $table->time('start_time')->nullable();
+            $table->date('end_date')->nullable();
+            $table->time('end_time')->nullable();
             $table->foreignId('account_id');
-            $table->foreignId('created_by'); // login user who create the meeting
-            $table->softDeletes();
+            $table->foreignId('created_by'); // login user who create the meeting           
             $table->timestamps();
         });
     }

@@ -1,9 +1,9 @@
 <script setup>
-import { ref } from "vue";
-import { Head, Link, useForm } from "@inertiajs/vue3";
+import { ref, watch } from "vue";
+import { Head, Link, useForm, router} from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import SectionBorder from "@/Components/SectionBorder.vue";
-// import Pagination from "@/Components/Pagination.vue";
+import Pagination from "@/Components/Pagination.vue";
 import ActionMessage from "@/Components/ActionMessage.vue";
 import FormSection from "@/Components/FormSection.vue";
 import InputError from "@/Components/InputError.vue";
@@ -11,24 +11,46 @@ import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
+
 import SearchFilter from "@/Components/SearchFilter.vue";
+import NavLink from "@/Components/NavLink.vue";
 
 
 const props = defineProps({
-
-  action_statuses: {
-    type: Object,
-        default: () => ({}),
-  },
-  url_prefix: String,
+    filters: Object,
+    action_statuses: Object,
 });
 
-// defineProps({});
 
-const form = useForm({
-  name: "",
-  description: "",
-});
+
+const form = ref({
+    search: props.filters.search,
+    trashed: props.filters.trashed,
+})
+
+let timerId = null
+
+watch(form, function (newForm) {
+  clearTimeout(timerId)
+  timerId = setTimeout(() => {
+    const queryParams = {}
+    for (const key in newForm) {
+      if (newForm[key] !== null) {
+        queryParams[key] = newForm[key]
+      }
+    }
+    const options = { preserveState: true }
+    router.get('/action_statuses', queryParams, options)
+  }, 150)
+}, { deep: true })
+
+
+
+const reset = () => {
+  for (const key in form.value) {
+    form.value[key] = null
+  }
+}
 
 </script>
 <template>
@@ -52,10 +74,10 @@ const form = useForm({
                                     <option value="only">Only Trashed</option>
                                     </select>
                                 </search-filter> -->
-                                <Link class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" :href="`/action-statuses/create`">
+                                <NavLink class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring focus:ring-gray-300 disabled:opacity-25 transition" :href="`/action-statuses/create`">
                                     <span>Create</span>
                                     <span class="hidden md:inline">&nbsp;Action Status</span>
-                                </Link>
+                                </NavLink>
                             </div>
 
                             <div class="bg-white rounded-md shadow overflow-x-auto">
@@ -68,10 +90,10 @@ const form = useForm({
                                 <tbody>
                                 <tr v-for="action_status in action_statuses" :key="action_status.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t">
-                                        <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/action-statuses/${action_status.id}/edit`">
+                                        <NavLink class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/action-statuses/${action_status.id}/edit`">
                                             {{ action_status.name }}
                                             <icon v-if="action_status.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
-                                        </Link>
+                                        </NavLink>
                                     </td>
                                 </tr>
                                 <tr v-if="action_statuses.length === 0">

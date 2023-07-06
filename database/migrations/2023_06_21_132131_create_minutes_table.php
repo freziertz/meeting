@@ -18,7 +18,8 @@ return new class extends Migration
             $table->foreignId('created_by');
             $table->foreignId('account_id');
             $table->foreignId('document_id');
-            $table->text('body');         
+            $table->text('title');
+            $table->text('body');
             $table->timestamps();
         });
     }

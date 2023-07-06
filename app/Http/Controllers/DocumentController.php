@@ -200,8 +200,9 @@ class DocumentController extends Controller
      */
     public function destroy(string $id)
     {
+        // dd($id);
         Document::where('id', $id)->delete();
-        return redirect()->route('documents.index')
-                        ->with('success','Document deleted successfully');
+        // return redirect()->route('documents.index')
+        //                 ->with('success','Document deleted successfully');
     }
 }

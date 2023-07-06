@@ -269,8 +269,8 @@ class AgendaController extends Controller
 
         $agenda->save();
 
-        return redirect()->route('agendas.index')
-                        ->with('success','Agenda updated successfully');
+        // return redirect()->route('agendas.index')
+        //                 ->with('success','Agenda updated successfully');
     }
 
     /**

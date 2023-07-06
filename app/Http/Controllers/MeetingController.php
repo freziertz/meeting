@@ -18,6 +18,8 @@ use App\Models\Schedule;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request as Req;
+use Illuminate\Support\Facades\URL;
 
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -82,51 +84,66 @@ class MeetingController extends Controller
                 'schedules.meeting_end_time',
                 'meetings.created_by',
             )->where('schedules.primary', 1)
-            ->where('meetings.deleted_at', NULL)
             ->get();
 
-            $meetings = [];
+        $meeting_ids = [];
+
+
+        foreach ($all_meetings as $particular_meeting){
+
+
+            $meeting = Meeting::findOrFail($particular_meeting->id);
+
+
+            // dd($request->user()->can('participate', $meeting));
+
+            if (($request->user()->can('viewAny', Meeting::class))
+            &&
+
+                (
+                    ($request->user()->can('own', $meeting)) ||
+
+                ($request->user()->can('organize', $meeting))
+                    ||
+
+                    ($request->user()->can('participate', $meeting)
+
+                && $meeting->visible == true)))
+
+                {
+                    array_push($meeting_ids, $particular_meeting->id);
+                }
+        }
 
 
 
+        return Inertia::render('Meetings/Index',  [
+            'filters' => Req::all('search', 'role', 'trashed'),
+            'can' => ['create_meeting' => $request->user()->can('create', Meeting::class)],
 
-            foreach ($all_meetings as $particular_meeting){
-                // dd($meeting);
-                // dd($request->user()->can('viewAny', [Meeting::class]));
-
-                $meeting = Meeting::findOrFail($particular_meeting->id);
-
-
-                // dd($request->user()->can('participate', $meeting));
-
-                if (($request->user()->can('viewAny', Meeting::class))
-                &&
-
-                    (
-                        ($request->user()->can('own', $meeting)) ||
-
-                    ($request->user()->can('organize', $meeting))
-                        ||
-
-                        ($request->user()->can('participate', $meeting)
-
-                    && $meeting->visible == true)))
-
-                    {
-                        array_push($meetings, $particular_meeting);
-                    }
-            }
-
-            // dd($meetings);
-
-            $can =[
+            'meetings' => Meeting::query()
+                ->whereIn('meetings.id',$meeting_ids)
+                 ->join('schedules',  'meetings.id', 'schedules.meeting_id')
+                ->orderByName()
+                ->filter(Req::only('search', 'trashed'))
+                ->paginate(10)
+                ->withQueryString()
+                ->through(fn ($meeting) => [
+                    'id' => $meeting->id,
+                    'title' => $meeting->title,
+                    'venue' => $meeting->venue,
+                    'visible' => $meeting->visible,
+                    'status' => $meeting->status,
+                    'created_by' => $meeting->created_by,
+                    'deleted_at' => $meeting->deleted_at,
+                    'meeting_date' => $meeting->meeting_date,
+                    'meeting_start_time' => $meeting->meeting_start_time,
+                    'meeting_end_time' =>$meeting->meeting_end_time
+                ]),
 
 
-                'create_meeting' => $request->user()->can('create', Meeting::class),
+        ]);
 
-            ];
-
-            return Inertia::render('Meetings/Index',compact('meetings', 'can'));
     }
 
     /**
@@ -554,6 +571,11 @@ class MeetingController extends Controller
               ->where('agendas.agendable_type', '=', 'App\Models\Meeting')
               ->where('agendas.deleted_at', NULL)
            ->get();
+
+
+      $votes = DB::table('votes')
+         ->where('votes.meeting_id', $id)
+         ->get();
 
 
 

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('votes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('agendar_id');
+            $table->foreignId('agenda_id');
             $table->foreignId('meeting_id');
             $table->string('subject');
             $table->foreignId('account_id');

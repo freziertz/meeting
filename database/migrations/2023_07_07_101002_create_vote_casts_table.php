@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('decription')->nullable();
             $table->datetime('from');
             $table->datetime('to');
-            $table->boleean('status');
+            $table->boolean('status');
             $table->timestamps();
         });
     }

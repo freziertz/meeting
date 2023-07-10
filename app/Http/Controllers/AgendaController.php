@@ -100,7 +100,7 @@ class AgendaController extends Controller
                     $contributor->created_by = $created_by;
                     $contributor->account_id = $account->id;
                     // $contributor->agenda_id = $agenda->id;
-                    $contributor->title = $request->input('title');
+                    // $contributor->title = $request->input('title');
 
                     $meeting->contributors()->save($contributor);
             }

@@ -42,6 +42,7 @@ use App\Http\Controllers\LiveController;
 
 use App\Http\Controllers\ChatsController;
 use App\Http\Controllers\MinuteController;
+use App\Models\ReviewRoom;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,6 +122,9 @@ Route::middleware([
     Route::get('/chat', [ChatsController::class, 'index'])->name('chat-index');
     Route::get('/messages', [ChatsController::class, 'fetchMessages'])->name('fetch-messages');
     Route::post('/messages', [ChatsController::class, 'sendMessage'])->name('send-message');
+
+
+    Route::get('/review-agendas/{id}', [ReviewRoomController::class, 'agendas'])->name('review-agendas');
 
 
 

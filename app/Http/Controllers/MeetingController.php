@@ -703,7 +703,7 @@ class MeetingController extends Controller
             ($request->user()->can('participate', $meeting_accessed) && $meeting_accessed->visible == true)) )
             {
                 // array_push($meetings, $meeting);
-                return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','notifications','schedules','groups','meeting_roles','purposes','participants','contributors', 'users', 'documents', 'statuses', 'actions', 'can'));
+                return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','notifications','schedules','groups','meeting_roles','purposes','participants','contributors', 'users', 'documents', 'statuses', 'actions','votes', 'can'));
 
             }else{
                 abort(403);

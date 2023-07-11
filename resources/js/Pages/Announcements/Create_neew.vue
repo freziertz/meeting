@@ -13,12 +13,12 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 
-import MediumEditor from 'vuejs-medium-editor'
+// import MediumEditor from 'vuejs-medium-editor'
 
-import 'medium-editor/dist/css/medium-editor.css'
-import 'vuejs-medium-editor/dist/themes/default.css'
-// for the code highlighting
-import 'highlight.js/styles/github.css'
+// import 'medium-editor/dist/css/medium-editor.css'
+// import 'vuejs-medium-editor/dist/themes/default.css'
+// // for the code highlighting
+// import 'highlight.js/styles/github.css'
 
 // defineProps({
 
@@ -159,7 +159,7 @@ onMounted(() => {
                     <template #form>
 
 
-
+<!--
                         <medium-editor
                             :content="content"
                             :options="options"
@@ -168,7 +168,7 @@ onMounted(() => {
                             v-on:uploaded="uploadCallback"
                             custom-tag='div'
 
-                        />
+                        /> -->
 
 
 

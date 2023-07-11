@@ -305,7 +305,7 @@ const closeModal = () => {
 
 
 
-            <div class="flex items-center mt-5"  v-if="can.publish_meeting" v-show="meetingStatus ==='UnPublished'">
+            <div class="flex items-center mt-5"  v-if="can.publish_meeting" v-show="meetingStatus =='UnPublished'">
                 <PrimaryButton  @click="publishMeeting" >
                     Publish
                 </PrimaryButton>
@@ -315,7 +315,7 @@ const closeModal = () => {
                 </ActionMessage>
             </div>
 
-            <div class="flex items-center mt-5"  v-if="can.participate_meeting" v-show="meetingStatus ==='Progress'">
+            <div class="flex items-center mt-5"  v-if="can.participate_meeting" v-show="meetingStatus =='Progress'">
                 <!-- <PrimaryButtonk  @click="startMeeting" >
                     Join Meeting
                 </PrimaryButtonk> -->
@@ -325,7 +325,7 @@ const closeModal = () => {
                     Join Meeting
                 </Link>
 
-              
+
 
                 <ActionMessage :on="form.recentlySuccessful" class="ml-3">
                     Done.
@@ -333,7 +333,7 @@ const closeModal = () => {
             </div>
 
 
-            <div class="flex items-center mt-5" v-if="can.start_meeting" v-show="meetingStatus ==='Published'">
+            <div class="flex items-center mt-5" v-if="can.start_meeting" v-show="meetingStatus =='Published'">
                 <PrimaryButton  @click="startMeeting" >
                     Start Meeting
                 </PrimaryButton>
@@ -346,7 +346,7 @@ const closeModal = () => {
 
 
 
-            <div class="flex items-center mt-5" v-if="can.close_meeting" v-show="meetingStatus ==='Progress'">
+            <div class="flex items-center mt-5" v-if="can.close_meeting" v-show="meetingStatus =='Progress'">
                 <PrimaryButton  @click="closeMeeting" >
                     Close Meeting
                 </PrimaryButton>

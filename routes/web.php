@@ -112,7 +112,7 @@ Route::middleware([
 
     Route::put('/meeting-reset/{id}', [MeetingController::class, 'reset'])->name('meeting-reset');
 
-    Route::get('/next-meeting/{id}', [MeetingController::class, 'next'])->name('meeting-next');
+    Route::get('/next-meeting/{id}', [MeetingController::class, 'next'])->name('next-meeting');
 
     Route::get('/live-meeting/{meeting_id}/agenda/{agenda_id}/document/{document_id}', [LiveController::class, 'show'])->name('live-meeting');
 

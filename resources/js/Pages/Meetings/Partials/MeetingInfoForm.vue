@@ -293,7 +293,7 @@ const closeModal = () => {
                                         Status
                                     </td>
                                     <td class="border-t p-2">
-                                        {{ props.meeting.status }}
+                                        {{ meetingStatus }}
                                     </td>
                                 </tr>
                                 <tr v-if="meeting.length === 0">

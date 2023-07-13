@@ -10,6 +10,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import NotificationButton from '@/Components/NotificationButton.vue';
 import EditButtonLink from '@/Components/EditButtonLink.vue';
 import TabButton from '@/Components/TabButton.vue';
+import NavLink from '@/Components/NavLink.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import SectionBorder from '@/Components/SectionBorder.vue';

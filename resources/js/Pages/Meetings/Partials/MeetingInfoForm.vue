@@ -36,7 +36,7 @@ const passwordInput = ref(null);
 const meetingStatus = computed(() => {
 
 
-   switch (props.meeting.status){
+   switch (parseInt(props.meeting.status)){
    case 1:
        return 'UnPublished'
        break;

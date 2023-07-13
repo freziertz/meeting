@@ -293,7 +293,7 @@ const closeModal = () => {
                                         Status
                                     </td>
                                     <td class="border-t p-2">
-                                        {{ meetingStatus }}
+                                        {{ props.meeting.status }}
                                     </td>
                                 </tr>
                                 <tr v-if="meeting.length === 0">
@@ -305,7 +305,7 @@ const closeModal = () => {
 
 
 
-            <div class="flex items-center mt-5"  v-if="can.publish_meeting" v-show="meetingStatus =='UnPublished'">
+            <div class="flex items-center mt-5"  v-if="can.publish_meeting" v-show="meetingStatus ==='UnPublished'">
                 <PrimaryButton  @click="publishMeeting" >
                     Publish
                 </PrimaryButton>
@@ -315,15 +315,15 @@ const closeModal = () => {
                 </ActionMessage>
             </div>
 
-            <div class="flex items-center mt-5"  v-if="can.participate_meeting" v-show="meetingStatus =='Progress'">
+            <div class="flex items-center mt-5"  v-if="can.participate_meeting" v-show="meetingStatus ==='Progress'">
                 <!-- <PrimaryButtonk  @click="startMeeting" >
                     Join Meeting
                 </PrimaryButtonk> -->
 
-                <Link      :href="route('live-meeting', { meeting_id: meeting.id, agenda_id: 0, document_id: 0 })" >
+                <NavLink      :href="route('live-meeting', { meeting_id: meeting.id, agenda_id: 0, document_id: 0 })" >
                     <!-- <Link  :href="`/live-meeting/${meeting.id}/`" > -->
                     Join Meeting
-                </Link>
+                </NavLink>
 
 
 
@@ -333,7 +333,7 @@ const closeModal = () => {
             </div>
 
 
-            <div class="flex items-center mt-5" v-if="can.start_meeting" v-show="meetingStatus =='Published'">
+            <div class="flex items-center mt-5" v-if="can.start_meeting" v-show="meetingStatus ==='Published'">
                 <PrimaryButton  @click="startMeeting" >
                     Start Meeting
                 </PrimaryButton>
@@ -346,7 +346,7 @@ const closeModal = () => {
 
 
 
-            <div class="flex items-center mt-5" v-if="can.close_meeting" v-show="meetingStatus =='Progress'">
+            <div class="flex items-center mt-5" v-if="can.close_meeting" v-show="meetingStatus ==='Progress'">
                 <PrimaryButton  @click="closeMeeting" >
                     Close Meeting
                 </PrimaryButton>

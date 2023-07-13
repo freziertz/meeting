@@ -1,0 +1,2 @@
+import{r as s,m as n,o as l,d}from"./app-45f22811.js";const i=["value"],c={__name:"TextArea",props:{modelValue:String},emits:["update:modelValue"],setup(t,{expose:u}){const e=s(null);return n(()=>{e.value.hasAttribute("autofocus")&&e.value.focus()}),u({focus:()=>e.value.focus()}),(a,o)=>(l(),d("textarea",{ref_key:"input",ref:e,class:"border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm",value:t.modelValue,onInput:o[0]||(o[0]=r=>a.$emit("update:modelValue",r.target.value))},`
+    `,40,i))}};export{c as _};

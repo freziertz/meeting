@@ -58,7 +58,7 @@ class LiveController extends Controller
 
         $participant_id = Auth::user()->id;
 
-        $participant = Participant::find($participant_id)
+        $participant = Participant::where('participant_id' , $participant_id)
         ->where('participantable_id', $meeting_id)->first();
 
 

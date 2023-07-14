@@ -473,7 +473,7 @@ const showAgenda = (id) => {
 
                         <div v-if="document.agenda_id == agenda.id" class="flex flex-row">
                         <NavLink  class="flex items-center px-2 py-1  text-sm  focus:text-indigo-500" :href="`/documents/${document.id}`">
-                                        <img :src="`http://localhost:8000/storage/icons/${document.extension}.png`" class="image-fluid w-4 mr-2">
+                                        <img :src="`/storage/icons/${document.extension}.png`" class="image-fluid w-4 mr-2">
                                             {{ document.name }}
                                             <icon v-if="document.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                         </NavLink>
@@ -560,7 +560,7 @@ const showAgenda = (id) => {
 
 
                         <NavLink v-if="document.agenda_id == agenda.id" class="flex items-center px-2 py-1  text-sm  focus:text-indigo-500" :href="`/documents/${document.id}`">
-                                        <img :src="`http://localhost:8000/storage/icons/${document.extension}.png`" class="image-fluid w-4 mr-2">
+                                        <img :src="`/storage/icons/${document.extension}.png`" class="image-fluid w-4 mr-2">
                                             {{ document.name }}
                                             <icon v-if="document.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                         </NavLink>

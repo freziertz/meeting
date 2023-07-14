@@ -59,13 +59,13 @@ const props = defineProps({
                                     <th class="pb-4 pt-6 px-6">Size in MB</th>
                                     <th class="pb-4 pt-6 px-6">Created At</th>
                                 </tr>
-                            
+
                                 </thead>
                                 <tbody>
                                 <tr v-for="document in documents" :key="document.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
                                     <td class="border-t">
                                         <Link class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/documents/${document.id}`">
-                                        <img :src="`http://localhost:8000/storage/icons/${document.extension}.png`" class="image-fluid w-4 mr-2">
+                                        <img :src="`/storage/icons/${document.extension}.png`" class="image-fluid w-4 mr-2">
                                             {{ document.name }}
                                             <icon v-if="document.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                                         </Link>

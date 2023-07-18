@@ -355,7 +355,7 @@ const toggleRightSideBar = () => {
                             <!-- route('named.route', ['category' => $category->id, 'item' => $item->id]); -->
 
                         <NavLink v-if="document.agenda_id == agenda.id" class="flex items-center px-2 py-1  text-sm  focus:text-indigo-500 align-top " :href="route('live-meeting', { meeting_id: meeting.id  , agenda_id: agenda.id, document_id : document.id} )" >
-                                    <img :src="`http://localhost:8000/storage/icons/${document.extension}.png`" class="image-fluid w-4 mr-2">
+                                    <img :src="`/storage/icons/${document.extension}.png`" class="image-fluid w-4 mr-2">
                                     {{ document.name }}
                         </NavLink>
                     </li>

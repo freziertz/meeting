@@ -278,7 +278,7 @@ class AgendaController extends Controller
      */
     public function destroy(string $id)
     {
-        Agenda::where('id', $id)->delete();
+        // Agenda::where('id', $id)->delete();
         // return redirect()->route('agendas.index')
         //                 ->with('success','Agenda deleted successfully');
 

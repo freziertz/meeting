@@ -128,8 +128,8 @@ class DocumentController extends Controller
 
                       $file->storeAs(
                             $path,
-                            $filename,
-                            'public'
+                            $filename
+
                         );
 
 

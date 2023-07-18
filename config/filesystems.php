@@ -33,7 +33,7 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
-            // 'throw' => false,
+            'throw' => false,
             // 'permissions' => [
             //     'file' => [
             //         'public' => 0664,
@@ -52,7 +52,7 @@ return [
             // 'url' => '/storage',
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
-            // 'throw' => false,
+            'throw' => false,
             'permissions' => [
                 'file' => [
                     'public' => 0664,

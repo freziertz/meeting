@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import moment from "moment";
 // import { Inertia } from "@inertiajs/vue3";
-import { Head, Link, useForm } from "@inertiajs/vue3";
+import { Head, Link, useForm, router } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import SectionBorder from "@/Components/SectionBorder.vue";
 // import Pagination from "@/Components/Pagination.vue";

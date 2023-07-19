@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreDocumentRequest;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Process;
 
 class DocumentController extends Controller
 {
@@ -128,8 +129,7 @@ class DocumentController extends Controller
 
                       $file->storeAs(
                             $path,
-                            $filename,
-                            'public'
+                            $filename
 
                         );
 
@@ -139,6 +139,8 @@ class DocumentController extends Controller
                       $request['signature'] = md5($contents);
 
                         $document = Document::create($request->all());
+
+                        $result = Process::run('chmod -R 775 storage');
                   }
 
             }

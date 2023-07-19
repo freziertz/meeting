@@ -19,6 +19,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Process;
 
 class AgendaController extends Controller
 {
@@ -223,6 +224,8 @@ class AgendaController extends Controller
 
 
                         $agenda->documents()->save($document);
+
+                        $result = Process::run('chmod -R 775 storage');
 
                   }
 

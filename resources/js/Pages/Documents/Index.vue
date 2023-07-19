@@ -97,7 +97,7 @@ const deleteDocument = (id) => {
                                         </Link>
                                     </td>
 
-                                    <td>
+                                    <td class="border-t">
                                         <NavLink  @click="deleteDocument(`${document.id}`)" class="text-red-700 rounded-md cursor-pointer">x</NavLink>
                                     </td>
                                 </tr>

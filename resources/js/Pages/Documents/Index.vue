@@ -21,6 +21,14 @@ const props = defineProps({
 });
 
 
+const deleteDocument = (id) => {
+    console.log('delete this document ' + id)
+    router.delete(route('documents.destroy', id), {
+        preserveScroll: true,
+    });
+};
+
+
 
 </script>
 
@@ -58,6 +66,7 @@ const props = defineProps({
                                     <th class="pb-4 pt-6 px-6">Name</th>
                                     <th class="pb-4 pt-6 px-6">Size in MB</th>
                                     <th class="pb-4 pt-6 px-6">Created At</th>
+                                    <th class="pb-4 pt-6 px-6">Delete</th>
                                 </tr>
 
                                 </thead>
@@ -85,6 +94,10 @@ const props = defineProps({
                                             {{ moment(document.created_at).format('dddd, MMMM DD, YYYY HH:mm:ss') }}
                                             <icon v-if="document.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                                         </Link>
+                                    </td>
+
+                                    <td>
+                                        <NavLink  @click="deleteDocument(`${document.id}`)" class="text-red-700 rounded-md cursor-pointer">x</NavLink>
                                     </td>
                                 </tr>
                                 <tr v-if="documents.length === 0">

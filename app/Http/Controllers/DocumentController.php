@@ -128,7 +128,8 @@ class DocumentController extends Controller
 
                       $file->storeAs(
                             $path,
-                            $filename
+                            $filename,
+                            'public'
 
                         );
 
@@ -136,10 +137,6 @@ class DocumentController extends Controller
                       $contents = Storage::get($path.'/'.$filename);
 
                       $request['signature'] = md5($contents);
-
-
-
-
 
                         $document = Document::create($request->all());
                   }
@@ -202,8 +199,24 @@ class DocumentController extends Controller
     public function destroy(string $id)
     {
         // dd($id);
-        Document::where('id', $id)->delete();
-        // return redirect()->route('documents.index')
-        //                 ->with('success','Document deleted successfully');
+
+
+        DB::beginTransaction();
+
+        $document = Document::find($id);
+
+        if($document){
+
+           $remove_data = Document::where('id', $id)->delete();
+
+           $remove_file = Storage::delete($document->fullpath);
+        }
+
+        if (!$remove_data and !$remove_file )
+        {
+            DB::rollBack();
+        }else{
+            DB::commit();
+        }
     }
 }

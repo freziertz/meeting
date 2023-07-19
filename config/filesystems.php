@@ -32,11 +32,11 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app'),
+            'root' => storage_path('meetingpro'),
             'throw' => false,
             'permissions' => [
                 'file' => [
-                    'public' => 0664,
+                    'public' => 0644,
                     'private' => 0600,
                 ],
                 'dir' => [
@@ -48,14 +48,14 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
+            'root' => storage_path('meetingpro/public'),
             // 'url' => '/storage',
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
             'permissions' => [
                 'file' => [
-                    'public' => 0664,
+                    'public' => 0644,
                     'private' => 0600,
                 ],
                 'dir' => [

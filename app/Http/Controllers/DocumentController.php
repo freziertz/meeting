@@ -140,7 +140,7 @@ class DocumentController extends Controller
 
                         $document = Document::create($request->all());
 
-                        $result = Process::run('chmod -R 775 storage');
+                        // $result = Process::run('chmod -R 775 storage');
                   }
 
             }

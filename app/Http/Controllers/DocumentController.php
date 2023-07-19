@@ -130,7 +130,10 @@ class DocumentController extends Controller
                       $file->storeAs(
                             $path,
                             $filename,
-                            'public'
+                            [
+                                'visibility' => 'public',
+                                'directory_visibility' => 'public'
+                            ]
 
                         );
 

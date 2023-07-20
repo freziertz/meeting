@@ -16,70 +16,161 @@ import DangerButton from "@/Components/DangerButton.vue";
 import DialogModal from "@/Components/DialogModal.vue";
 
 const props = defineProps({
-  account: Object,
+  announcement: Object,
 });
 
 const form = useForm({
   _method: "PUT",
-  name: props.account.name,
+  title: props.announcement.title,
+  content: props.announcement.content,
+  start_date: props.announcement.start_date,
+  end_date: props.announcement.end_date,
+  start_time: props.announcement.start_time,
+  end_time: props.announcement.end_time,
 });
 
-const updateAccount = () => {
-  form.post(route("accounts.update", props.account.id), {
+const updateAnnouncement = () => {
+  form.post(route("announcements.update", props.announcement.id), {
     onFinish: () => form.reset(),
   });
 };
 
-const deleteAccount = () => {
-  form.delete(route("accounts.destroy", props.account.id), {
+const deleteAnnouncement = () => {
+  form.delete(route("announcements.destroy", props.announcement.id), {
     preserveScroll: true,
     onFinish: () => form.reset(),
   });
 };
 </script>
 <template>
-    <AppLayout title="Accounts">
+    <AppLayout title="Announcements">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Accounts
+                Announcements
             </h2>
         </template>
 
         <div>
        <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
             <div>
-                <FormSection @submitted="updateAccount">
+                <FormSection @submitted="updateAnnouncement">
                     <template #title>
-                        Account Information
+                        Announcement Information
                     </template>
 
                     <template #description>
-                        Edit account.
+                        Edit announcement.
                     </template>
 
                     <template #form>
 
-                        <!-- Role Name -->
+                        <!-- Announcement Title -->
                         <div class="col-span-6 sm:col-span-4">
-                            <InputLabel for="name" value="Name" />
+                            <InputLabel for="title" value="Title" />
                             <TextInput
-                                id="name"
-                                v-model="form.name"
+                                id="title"
+                                v-model="form.title"
                                 type="text"
                                 class="mt-1 block w-full"
-                                autocomplete="name"
+                                autocomplete="title"
                             />
-                            <InputError :message="form.errors.name" class="mt-2" />
+                            <InputError :message="form.errors.title" class="mt-2" />
                         </div>
 
-                    <!-- country -->
+                    <!-- Announcement Content -->
 
-                        <!-- <div   v-for="permission in permissions" :key="permission.id" class="col-span-6 sm:col-span-4">
-                            <label  class="flex items-center">
-                                <Checkbox  v-model="form.permissionIds" :id="permission.id" :value="permission.id" />
-                                <span class="ml-2 text-sm text-gray-600">{{ permission.name }}</span>
-                            </label>
-                        </div> -->
+                    <div class="col-span-6 sm:col-span-4">
+                        <InputLabel for="content" value="Content" />
+                        <TextInput
+                            id="content"
+                            v-model="form.content"
+                            type="text"
+                            class="mt-1 block w-full"
+                            autocomplete="content"
+                        />
+                        <InputError :message="form.errors.content" class="mt-2" />
+                    </div>
+
+
+
+                    <!-- Start Date -->
+
+                    <div class="col-span-4 sm:col-span-3">
+
+                        <InputLabel for="start_date" value="Start Date"/>
+                        <TextInput
+                            id="start_date"
+                            v-model="form.start_date"
+                            type="date"
+                            class="mt-1 block w-full"
+                            autocomplete="start_date"
+                            required
+                        />
+
+                        <InputError :message="form.errors.start_date" class="mt-2" />
+
+                    </div>
+
+                        <!-- Start Time -->
+
+
+                    <div class="col-span-4 sm:col-span-2 ml-2">
+
+                        <InputLabel for="start_time" value="Start time" />
+                        <TextInput
+                            id="start_time"
+                            v-model="form.start_time"
+                            type="time"
+                            class="mt-1  block w-full"
+                            autocomplete="start_time"
+                            required
+                        />
+                        <InputError :message="form.errors.start_time" class="mt-2" />
+                    </div>
+
+
+
+
+
+                        <!-- End Date -->
+                    <div class="col-span-5 sm:col-span-3">
+
+                    <InputLabel for="end_date" value="End Date"/>
+                    <TextInput
+                        id="end_date"
+                        v-model="form.end_date"
+                        type="date"
+                        class="mt-1 block w-full"
+                        autocomplete="end_date"
+                        required
+                    />
+
+                    <InputError :message="form.errors.end_date" class="mt-2" />
+
+                    </div>
+
+                    <!-- End Time -->
+
+
+                    <div class="col-span-2 sm:col-span-2 ml-2">
+
+                    <InputLabel for="end_time" value="End Time" />
+                    <TextInput
+                        id="end_time"
+                        v-model="form.end_time"
+                        type="time"
+                        class="mt-1  block w-full"
+                        autocomplete="end_time"
+                        required
+                    />
+                    <InputError :message="form.errors.end_time" class="mt-2" />
+                    </div>
+
+
+
+
+
+
 
                     </template>
 
@@ -95,17 +186,17 @@ const deleteAccount = () => {
                         class="mx-3"
                         :class="{ 'opacity-25': form.processing }"
                         :disabled="form.processing"
-                        @click="deleteAccount"
+                        @click="deleteAnnouncement"
                     >
-                        Delete Account
+                        Delete Announcement
                     </DangerButton>
 
 
 
 
-                        <!-- <Link class="inline-flex items-center px-4 py-2 bg-red-800 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-red-700 active:bg-red-900 focus:outline-none focus:border-red-900 focus:ring focus:ring-red-300 disabled:opacity-25 transition" :href="`/accounts/${account.id}`" >
+                        <!-- <Link class="inline-flex items-center px-4 py-2 bg-red-800 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest hover:bg-red-700 active:bg-red-900 focus:outline-none focus:border-red-900 focus:ring focus:ring-red-300 disabled:opacity-25 transition" :href="`/announcements/${announcement.id}`" >
                             <span>Delete</span>
-                            <span class="hidden md:inline">&nbsp;Account</span>
+                            <span class="hidden md:inline">&nbsp;Announcement</span>
                         </Link> -->
 
                         <ActionMessage :on="form.recentlySuccessful" class="mr-3">

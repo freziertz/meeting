@@ -151,7 +151,7 @@ class UserController extends Controller
                 $this->validate($request, [
 
              'name' => ['required', 'string', 'max:255'],
-            'email' => 'required|email|unique:users,email,'.$id,
+             'email' => 'required|email|unique:users,email,'.$id,
             // 'photo' => ['nullable', 'mimes:jpg,jpeg,png', 'max:1024'],
             // 'roles' => 'required'
         ]);

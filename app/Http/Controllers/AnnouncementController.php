@@ -68,7 +68,24 @@ class AnnouncementController extends Controller
      */
     public function update(Request $request, Announcement $announcement)
     {
-        //
+        $announcement = Announcement::findOrFail($announcement->id);
+
+        // if ($request->user()->cannot('update', $announcement)) {
+        //     abort(403);
+        // }
+
+        $announcement->title = $request->input('title');
+        $announcement->content = $request->input('content');
+        $announcement->start_date = $request->input('start_date');
+        $announcement->end_date = $request->input('end_date');
+        $announcement->start_time = $request->input('start_time');
+        $announcement->end_time = $request->input('end_time');
+
+
+        $announcement->save();
+
+        return redirect()->route('announcements.index')
+                        ->with('success','Announcement updated successfully');
     }
 
     /**

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, onMounted} from "vue";
+import { ref } from "vue";
 // import { Inertia } from "@inertiajs/inertia";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 // import { Head, Link, useForm } from "@inertiajs/inertia-vue3";
@@ -13,162 +13,150 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 
-// import MediumEditor from 'vuejs-medium-editor'
-
-// import 'medium-editor/dist/css/medium-editor.css'
-// import 'vuejs-medium-editor/dist/themes/default.css'
-// // for the code highlighting
-// import 'highlight.js/styles/github.css'
-
-// defineProps({
-
-
-
-
-
-// });
-
-// // let content = ref("")
-
-const count = ref(0)
-console.log(count)
-console.log(count.value)
-
-const first_name = ref("John")
-const last_name = ref('Doe')
-
-const full_name = computed(() => {
-    return first_name.value + ' ' + last_name.value
-})
-
-
-
-
-
-const options = reactive({
-        disableEditing: false,
-        uploadUrl: "https://api.imgur.com/3/image",
-        uploadUrlHeader: {'Authorization': 'Client-ID a3tw6ve4wss3c'},
-        file_input_name: "image",
-        file_size: 1024 * 1024 * 10,
-        imgur: true,
-
-        placeholder:{
-            text:"try"
-
-        },
-
-        toolbar: {
-            allowMultiParagraphSelection: true,
-            buttons:
-            [
-
-            'bold',
-            'italic',
-            'underline',
-            'quote',
-
-            'h2',
-            'h3',
-            'pre',
-            'unorderedlist',
-            'anchor',
-                {
-                name: 'pre',
-                action: 'append-pre',
-                aria: 'code highlight',
-                tagNames: ['pre'],
-                contentDefault: '<b><\\></b>',
-                contentFA: '<i class="fa fa-code fa-lg"></i>',
-                }
-            ] ,
-
-
-        },
+defineProps({
+    can: Object,
 });
 
 const form = useForm({
-
-  contentf: [],
+  title: "",
+  content: "",
+  start_date:"",
+  end_date:"",
+  start_time:"",
+  end_time:""
 });
 
-
-const ida = ref(null)
-
-onMounted(() => {
-  ida.value.focus()
-})
-
-// const createAnnouncement = () => {
-//   form.post(route("announcements.store"), {
-//     // onFinish: () => form.reset(),
-//   });
-// };
-// // const onChange = () => {
-// //     console.log((content.value));
-// // }
-
-// // const processEditOperation = (operation) => {
-// //       content.value = operation.event.srcElement.innerHTML
-// //       console.log(content.value)
-// //  }
-
-
-
-//  const content = ref("A medium editor")
-
-// //  const applyTextEdit = (content) => {
-// //     content = content.value
-// //     console.log(this.content)
-// //  }
-
-// const uploadCallback = (url) => {
-//       console.log('uploaded url', url)
-//     }
+const createAnnouncement = () => {
+  form.post(route("announcements.store"), {
+    onFinish: () => form.reset(),
+  });
+};
 </script>
 <template>
-    <AppLayout title="Announcement">
+    <AppLayout title="Announcements">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Create Announcement
+                Announcements
             </h2>
         </template>
 
+        <div>
+       <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
 
-       <div class="max-w-7xl mx-auto py-2 sm:px-6 lg:px-8">
-
-
-        <input ref="ida" />
-
-
-
-
-
-        {{ full_name }}
-
-
+            <div>
                 <FormSection @submitted="createAnnouncement">
                     <template #title>
-                        Account Information
+                        Announcement Information
                     </template>
 
                     <template #description>
-                        Create new account.
+                        Create new announcement.
                     </template>
 
                     <template #form>
 
+                        <!-- Announcement Title -->
+                        <div class="col-span-6 sm:col-span-4">
+                            <InputLabel for="title" value="Title" />
+                            <TextInput
+                                id="title"
+                                v-model="form.title"
+                                type="text"
+                                class="mt-1 block w-full"
+                                autocomplete="title"
+                            />
+                            <InputError :message="form.errors.title" class="mt-2" />
+                        </div>
+
+                    <!-- Announcement Content -->
+
+                    <div class="col-span-6 sm:col-span-4">
+                        <InputLabel for="content" value="Content" />
+                        <TextInput
+                            id="content"
+                            v-model="form.content"
+                            type="text"
+                            class="mt-1 block w-full"
+                            autocomplete="content"
+                        />
+                        <InputError :message="form.errors.content" class="mt-2" />
+                    </div>
 
 
-                        <!-- <medium-editor
-                            :content="content"
-                            :options="options"
 
-                            v-on:edit="applyTextEdit"
-                            v-on:uploaded="uploadCallback"
-                            custom-tag='div'
+                    <!-- Start Date -->
 
-                        /> -->
+                    <div class="col-span-4 sm:col-span-3">
+
+                        <InputLabel for="start_date" value="Start Date"/>
+                        <TextInput
+                            id="start_date"
+                            v-model="form.start_date"
+                            type="date"
+                            class="mt-1 block w-full"
+                            autocomplete="start_date"
+                            required
+                        />
+
+                        <InputError :message="form.errors.start_date" class="mt-2" />
+
+                    </div>
+
+                        <!-- Start Time -->
+
+
+                    <div class="col-span-2 sm:col-span-2 ml-2">
+
+                        <InputLabel for="start_time" value="Start time" />
+                        <TextInput
+                            id="start_time"
+                            v-model="form.start_time"
+                            type="time"
+                            class="mt-1  block w-full"
+                            autocomplete="start_time"
+                            required
+                        />
+                        <InputError :message="form.errors.start_time" class="mt-2" />
+                    </div>
+
+
+
+
+
+                        <!-- End Date -->
+                    <div class="col-span-4 sm:col-span-3">
+
+                    <InputLabel for="end_date" value="End Date"/>
+                    <TextInput
+                        id="end_date"
+                        v-model="form.end_date"
+                        type="date"
+                        class="mt-1 block w-full"
+                        autocomplete="end_date"
+                        required
+                    />
+
+                    <InputError :message="form.errors.end_date" class="mt-2" />
+
+                    </div>
+
+                    <!-- End Time -->
+
+
+                    <div class="col-span-2 sm:col-span-2 ml-2">
+
+                    <InputLabel for="end_time" value="End Time" />
+                    <TextInput
+                        id="end_time"
+                        v-model="form.end_time"
+                        type="time"
+                        class="mt-1  block w-full"
+                        autocomplete="end_time"
+                        required
+                    />
+                    <InputError :message="form.errors.end_time" class="mt-2" />
+                    </div>
+
 
 
 
@@ -188,9 +176,7 @@ onMounted(() => {
                     <SectionBorder />
                 </div>
 
-
-
-
-
+            </div>
+        </div>
     </AppLayout>
 </template>

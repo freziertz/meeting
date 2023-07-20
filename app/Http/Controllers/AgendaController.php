@@ -211,7 +211,11 @@ class AgendaController extends Controller
 
                        $file->storeAs(
                             $path,
-                            $filename
+                            $filename,
+                            [
+                                'visibility' => 'public',
+                                'directory_visibility' => 'public'
+                            ]
                         );
 
                         $contents = Storage::get($path.'/'.$filename);
@@ -225,7 +229,7 @@ class AgendaController extends Controller
 
                         $agenda->documents()->save($document);
 
-                        $result = Process::run('chmod -R 775 storage');
+                        // $result = Process::run('chmod -R 775 storage');
 
                   }
 

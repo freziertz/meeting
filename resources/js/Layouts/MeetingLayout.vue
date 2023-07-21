@@ -16,6 +16,7 @@ import NavLink from '@/Components/NavLink.vue';
 import SectionBorder from "@/Components/SectionBorder.vue";
 import ActionMessage from "@/Components/ActionMessage.vue";
 import FormMeetingSection from "@/Components/FormMeetingSection.vue";
+import FormActionSection from "@/Components/FormActionSection.vue";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
@@ -55,6 +56,7 @@ library.add(faCheck)
 
 const props = defineProps({
     title: String,
+    actions:Array,
     user: Object,
     sessions: Array,
     agendas: Array,
@@ -64,6 +66,7 @@ const props = defineProps({
     meeting: Object,
     minute: Object,
     agenda: Object,
+    statuses: Array,
     can: Object,
 });
 
@@ -167,17 +170,52 @@ const minuteForm = useForm({
     agenda_id:  props.agenda.id
 });
 
-
-
-
-
-
 const createMinute = () => {
-    minuteForm.post(route("agendas.update", props.group.id), {
+    minuteForm.post(route("agendas.update", props.agenda.id), {
     onFinish: () => minuteForm.reset(),
   });
   minuteForm.body = '';
 };
+
+
+const actionForm = useForm({
+    agenda_id: null,
+    name: 'test',
+    actioners:[{
+      actioner_id: null
+,
+      }],
+    due_date: null,
+    reminders: [{
+       reminder: null,
+    }],
+    status_id: null,
+    notes: '',
+    as_of_date: null,
+    meeting_id: props.meeting.id,
+});
+
+const createAction = () => {
+  actionForm.post(route("actions.store"), {
+    onFinish: () => form.reset(),
+  });
+};
+
+const addField = (value, fieldType) => {
+        fieldType.push({ })
+};
+
+const removeField = (index, fieldType) => {
+      fieldType.splice(index, 1)
+
+}
+
+
+
+
+
+
+
 
 
 
@@ -547,7 +585,275 @@ const toggleRightSideBar = () => {
                             Actions
                 </ActionButton>
                 <div v-show="showAction" class="mx-2 p-4">
-                Action
+
+                    <SectionBorder />
+
+                    <div class=" w-full text-sm text-gray-600">
+                            <table class="w-full whitespace-nowrap">
+                                <thead>
+                                    <tr class="text-left font-bold">
+                                        <th class="pb-4 pt-6 px-6">Action</th>
+                                        <th class="pb-4 pt-6 px-6">Responsible</th>
+                                        <th class="pb-4 pt-6 px-6">Due Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <tr v-for="action in actions" :key="action.id" class="hover:bg-gray-100 focus-within:bg-gray-100">
+
+
+                                    <td class="border-t">
+                                        <NavLink class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/actions/${action.id}`">
+                                            {{ action.name }}
+
+                                        </NavLink>
+                                    </td>
+
+                                    <td class="border-t">
+                                        <NavLink class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/actions/${action.id}`">
+                                            {{ action.first_name }} {{ action.last_name }}
+
+                                        </NavLink>
+                                    </td>
+
+
+                                    <td class="border-t">
+                                        <NavLink class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/actions/${action.id}`">
+                                            {{ action.due_date }}
+
+                                        </NavLink>
+                                    </td>
+
+
+
+
+
+
+
+                                    <td class="border-t">
+
+                                    <delete-button v-if="can.organize_meeting" @delete="deleteAction(`${action.id}`)">Delete</delete-button>
+
+                                    </td>
+
+                                </tr>
+                                </tbody>
+                    </table>
+            </div>
+
+
+
+            <SectionBorder />
+
+            <div class="text-2xl mb-2"> New Action</div>
+
+                    <FormActionSection @submitted="createAction">
+
+                    <template #actionForm>
+
+                        <!-- User Id -->
+
+                        <div class="col-span-6 sm:col-span-4">
+                        <InputLabel for="agenda_id" value="Select agenda" />
+
+                            <select
+                            v-model="actionForm.agenda_id"
+                            :error="actionForm.errors.agenda_id"
+                            class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User"
+                            required
+                            >
+
+                                    <option v-for="agenda in agendas" :key="agenda.id" :value="agenda.id">{{ agenda.title}}</option>
+                            </select>
+
+
+                        </div>
+
+                        <!-- Action -->
+                        <div class="col-span-6 sm:col-span-4">
+                            <InputLabel for="name" value="Action"/>
+                            <TextArea
+                                id="name"
+                                v-model="actionForm.name"
+                                type="textarea"
+                                class="mt-1 block w-full"
+                                autocomplete="name"
+                                required
+                            />
+                            <InputError :message="actionForm.errors.name" class="mt-2" />
+                        </div>
+
+
+
+
+
+
+                        <!-- Responsible Person -->
+
+
+
+                        <div v-for="( input , index) in actionForm.actioners" :key="`Actioner-${index}`" class="col-span-6 sm:col-span-4 flex" >
+
+                                <!-- Actioner - responsible person -->
+
+                                <div class="col-span-6 sm:col-span-4">
+                            <InputLabel for="actioner_id" :value="`Assined to ${index + 1}`" />
+                            <select
+                            id = "actioner_id"
+                            v-model="input.actioner_id"
+                            :error="actionForm.errors.actioner_id"
+                            class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User"
+                            required
+                            >
+
+                                    <option v-for="user in participants" :key="user.id" :value="user.id">{{ user.first_name }} {{ user.last_name }}</option>
+                            </select>
+
+                        </div>
+
+
+
+
+
+                                <div class="col-span-1 sm:col-span-1 ml-2 mt-8">
+                                    <button type="button" @click="addField(input, actionForm.actioners)"  class="text-xl">+</button>
+                                </div>
+
+                                <div class="col-span-1 sm:col-span-1 ml-2 mt-8">
+                                    <button v-show="actionForm.actioners.length > 1" type="button" @click ="removeField(index, actionForm.actioners)" class="text-xl">-</button>
+                                </div>
+
+
+                        </div>
+
+
+                        <!-- Due Date -->
+                        <div class="col-span-6 sm:col-span-4">
+                            <InputLabel for="due_date" value="Due Date" />
+                            <TextInput
+                                id="due_date"
+                                v-model="actionForm.due_date"
+                                type="date"
+                                class="mt-1 block w-full"
+                                autocomplete="due_date"
+                                required
+                            />
+                            <InputError :message="actionForm.errors.due_date" class="mt-2" />
+                        </div>
+
+                        <div v-for="( input , index) in actionForm.reminders" :key="`Reminder-${index}`" class="col-span-6 sm:col-span-4 flex" >
+
+
+
+
+                            <!-- Meeting Reminder -->
+                            <div class="col-span-4 sm:col-span-2">
+
+                                <InputLabel for="reminder" :value="`Remainder in days`" />
+                                <TextInput
+                                    id="reminder"
+                                    v-model="input.reminder"
+                                    type="number"
+                                    min="1"
+                                    class="mt-1 block w-full"
+                                    autocomplete="reminder"
+
+                                />
+
+                            <InputError :message="actionForm.errors.reminder" class="mt-2" />
+
+                            </div>
+
+
+
+
+                            <div class="col-span-1 sm:col-span-1 ml-2 mt-8">
+                            <button type="button" @click="addField(input, actionForm.reminders)"  class="text-xl">+</button>
+
+                            </div>
+
+                            <div class="col-span-1 sm:col-span-1 ml-2 mt-8">
+                            <button v-show="actionForm.reminders.length > 1" type="button" @click ="removeField(index, actionForm.reminders)" class="text-xl">-</button>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <!-- Status_id -->
+
+                        <div class="col-span-6 sm:col-span-4">
+                        <InputLabel for="status_id" value="Status" />
+
+                            <select
+                            v-model="actionForm.status_id"
+                            :error="actionForm.errors.status_id"
+                            class="mt-1 block w-full border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md shadow-sm" label="User">
+
+                                    <option v-for="status in statuses" :key="status.id" :value="status.id">{{ status.name }}</option>
+                            </select>
+
+
+                        </div>
+
+
+
+
+
+                        <!-- As of -->
+                        <div class="col-span-6 sm:col-span-4">
+                            <InputLabel for="as_of_date" value="As of" />
+                            <TextInput
+                                id="as_of_date"
+                                v-model="actionForm.as_of_date"
+                                type="date"
+                                class="mt-1 block w-full"
+                                autocomplete="as_of_date"
+
+                            />
+                            <InputError :message="actionForm.errors.as_of_date" class="mt-2" />
+                        </div>
+
+
+
+                        <!-- Action -->
+                        <div class="col-span-6 sm:col-span-4">
+                            <InputLabel for="notes" value="Progress/ Note"/>
+                            <TextArea
+                                id="notes"
+                                v-model="actionForm.notes"
+                                type="textarea"
+                                class="mt-1 block w-full"
+                                autocomplete="notes"
+                            />
+                            <InputError :message="actionForm.errors.notes" class="mt-2" />
+                        </div>
+
+                        <!-- Meeting Id-->
+
+                            <TextInput
+                                id="meeting_id"
+                                v-model="actionForm.meeting_id"
+                                type="hidden"
+                                />
+
+                            <TextInput
+                            id="meeting_id"
+                            v-model="actionForm.meeting_id"
+                            type="hidden"
+                                />
+                    </template>
+
+                    <template #actions>
+                        <ActionMessage :on="actionForm.recentlySuccessful" class="mr-3">
+                            Saved.
+                        </ActionMessage>
+
+                        <PrimaryButton :class="{ 'opacity-25': actionForm.processing }" :disabled="actionForm.processing">
+                            Save
+                        </PrimaryButton>
+                    </template>
+                </FormActionSection>
 
                 </div>
 

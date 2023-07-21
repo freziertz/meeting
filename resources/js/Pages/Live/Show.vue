@@ -36,7 +36,9 @@ const props = defineProps({
     minute: Object,
     participants:Array,
     meeting: Object,
-    agenda: Object,  
+    agenda: Object,
+    statuses:Array,
+    actions:Array,
     pdfFile: String,
     can: Object,
 });
@@ -50,9 +52,12 @@ const props = defineProps({
 <template>
     <MeetingLayout
         title="Live Meeting"
-        :user="user" :agendas="agendas"
+        :user="user"
+        :actions="actions"
+        :agendas="agendas"
         :documents="documents"
         :participants="participants"
+        :statuses="statuses"
         :meeting="meeting"
         :document="document"
         :minute="minute"

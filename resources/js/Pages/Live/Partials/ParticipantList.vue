@@ -160,4 +160,4 @@ const deleteParticipant = (id, participantable_type) => {
             </div>
 
 </template>
-    
+

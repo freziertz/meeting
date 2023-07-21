@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Action;
 use App\Models\User;
 use App\Models\Notification;
+use App\Models\ActionStatus;
 use App\Models\Participant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,11 +38,13 @@ class ActionController extends Controller
     //   return Company::find($user->company_id);
     // }
 
-    public function index(string $meeting_id)
+    public function index()
     {
         $actions = Action::all();
+
+        // dd($actions);
         // $actions = Action::find($meeting_id)->actions;
-        return Inertia::render('Actions/Index',compact('actions'));
+        return Inertia::render('Actions/Index', compact('actions'));
     }
 
     /**
@@ -49,6 +52,7 @@ class ActionController extends Controller
      */
     public function create()
     {
+        $statuses = ActionStatus::all();
         return Inertia::render('Actions/Create');
     }
 
@@ -97,6 +101,7 @@ class ActionController extends Controller
             $participant_exist = Participant::where(
                 'participantable_id', $action->id)
                  ->where('participant_id', $actioner['actioner_id'])
+                 ->where('participantable_type','App\Models\Action')
               ->first();
 
                 if (is_null($participant_exist)) {
@@ -144,8 +149,8 @@ class ActionController extends Controller
             }else{
                 DB::commit();
 
-                return redirect()->route('meetings.show',compact('meeting'))
-                        ->with('success','Action created successfully.');
+                // return redirect()->route('meetings.show',compact('meeting'))
+                //         ->with('success','Action created successfully.');
             }
 
 

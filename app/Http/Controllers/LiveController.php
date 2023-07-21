@@ -7,6 +7,7 @@ use Inertia\Inertia;
 use App\Models\Meeting;
 use App\Models\User;
 use App\Models\Agenda;
+use App\Models\ActionStastus;
 use App\Models\Organizer;
 use App\Models\Document;
 use App\Models\Minute;
@@ -58,6 +59,11 @@ class LiveController extends Controller
 
         $participant_id = Auth::user()->id;
 
+        $statuses = ActionStatus::all();
+
+
+
+
         $participant = Participant::where('participant_id' , $participant_id)
         ->where('participantable_id', $meeting_id)->first();
 
@@ -86,6 +92,15 @@ class LiveController extends Controller
             ->where('meetings.id', '=', $meeting_id)
             ->where('meetings.deleted_at', NULL)
             ->first();
+
+            $actions = DB::table('actions')
+            ->join('meetings', 'meetings.id', '=', 'actions.meeting_id')
+            // ->join('users', 'users.id', '=', 'actions.actioner_id')
+            ->select(
+                    'actions.*',
+                )->where('meetings.id', '=', $meeting->id)
+                ->where('actions.deleted_at', NULL)
+            ->get();
 
 
 
@@ -262,12 +277,15 @@ class LiveController extends Controller
 
         $actions = DB::table('actions')
             ->join('meetings', 'meetings.id', '=', 'actions.meeting_id')
-            // ->join('users', 'users.id', '=', 'actions.actioner_id')
+            // ->join('participants', 'participant_id', '=', 'actions.actioner_id')
             ->select(
                     'actions.*',
                 )->where('meetings.id', '=', $meeting_id)
                 ->where('actions.deleted_at', NULL)
             ->get();
+
+        // $actioners = Participant::where('participantable_id', $action->id)
+        //                         ->where('participantable_type','App\Models\Action')->first();
 
 
             $mt = Meeting::find($meeting->id);
@@ -345,7 +363,7 @@ class LiveController extends Controller
             ($request->user()->can('participate', $meeting_accessed) && $meeting_accessed->visible == true)) )
             {
                 // array_push($meetings, $meeting);
-                return Inertia::render('Live/Show',compact('meeting', 'agenda','minute','agendas','participants', 'documents',  'actions', 'document', 'can'));
+                return Inertia::render('Live/Show',compact('meeting', 'agenda','minute','agendas','participants', 'documents',  'actions', 'document', 'statuses', 'can'));
 
             }else{
                 abort(403);

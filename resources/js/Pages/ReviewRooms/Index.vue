@@ -94,7 +94,7 @@ const reset = () => {
                             <table class="w-full whitespace-nowrap">
                                 <thead>
                                 <tr class="text-left font-bold">
-                                    <th class="pb-4 pt-6 px-6">Name1</th>
+                                    <th class="pb-4 pt-6 px-6">Name</th>
                                     <th class="pb-4 pt-6 px-6">Schedule</th>
                                     <th class="pb-4 pt-6 px-6">Venue</th>
                                 </tr>

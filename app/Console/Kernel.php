@@ -15,6 +15,10 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         $schedule->command('database:backup')
                  ->daily();
+
+        $schedule->command('queue:work --stop-when-empty')
+                 ->everyMinute()
+                 ->withoutOverlapping();
     }
 
     /**

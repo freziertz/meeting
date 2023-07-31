@@ -184,7 +184,7 @@ class PDFController extends Controller
     //  }
 
 
-    $pdf = PDF::loadView('pdf.meeting_pack', $data);
+    $pdf = Pdf::loadView('pdf.meeting_pack', $data);
 
     $fileName = time().'.pdf';
 

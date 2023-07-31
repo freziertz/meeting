@@ -223,6 +223,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
         'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class,
+        'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
         // 'Pusher' => Pusher\Pusher::class,
 
 

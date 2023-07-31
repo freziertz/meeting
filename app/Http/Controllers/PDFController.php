@@ -9,7 +9,8 @@ use App\Models\Meeting;
 use App\Models\Agenda;
 use App\Models\Schedule;
 use App\Models\Participant;
-use Barryvdh\DomPDF\Facade\PDF;
+// use Barryvdh\DomPDF\Facade\PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Mail;
@@ -184,7 +185,7 @@ class PDFController extends Controller
     //  }
 
 
-    $pdf = Pdf::loadView('pdf.meeting_pack', $data);
+    $pdf = PDF::loadView('pdf.meeting_pack', $data);
 
     $fileName = time().'.pdf';
 

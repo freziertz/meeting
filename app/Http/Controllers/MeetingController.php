@@ -86,6 +86,8 @@ class MeetingController extends Controller
             )->where('schedules.primary', 1)
             ->get();
 
+           
+
         $meeting_ids = [];
 
 
@@ -93,6 +95,8 @@ class MeetingController extends Controller
 
 
             $meeting = Meeting::findOrFail($particular_meeting->id);
+
+         
 
 
             // dd($request->user()->can('participate', $meeting));
@@ -115,6 +119,14 @@ class MeetingController extends Controller
                 }
         }
 
+       
+
+        // $meetings = Meeting::query()
+        //         ->whereIn('meetings.id',$meeting_ids)
+        //          ->join('schedules',  'meetings.id', 'schedules.meeting_id')->get();
+
+        //          dd($meetings);
+
 
 
         return Inertia::render('Meetings/Index',  [
@@ -122,14 +134,18 @@ class MeetingController extends Controller
             'can' => ['create_meeting' => $request->user()->can('create', Meeting::class)],
 
             'meetings' => Meeting::query()
+          
+             
                 ->whereIn('meetings.id',$meeting_ids)
                  ->join('schedules',  'meetings.id', 'schedules.meeting_id')
+                 ->where('schedules.primary', 1)
                 ->orderByName()
                 ->filter(Req::only('search', 'trashed'))
                 ->paginate(10)
+                
                 ->withQueryString()
                 ->through(fn ($meeting) => [
-                    'id' => $meeting->id,
+                    'id' => $meeting->meeting_id,
                     'title' => $meeting->title,
                     'venue' => $meeting->venue,
                     'visible' => $meeting->visible,
@@ -438,6 +454,8 @@ class MeetingController extends Controller
 
         $users = User::all();
 
+        // dd($id);
+
 
         $user = User::find(Auth::user()->id);
 
@@ -452,18 +470,18 @@ class MeetingController extends Controller
         $statuses = ActionStatus::all();
 
         $meeting = DB::table('meetings')
-            ->join('meeting_types', 'meeting_types.id', '=', 'meetings.meeting_type_id')
+            // ->join('meeting_types', 'meeting_types.id', '=', 'meetings.meeting_type_id')
             ->join('schedules', 'schedules.meeting_id', '=', 'meetings.id')
             ->select(
                 'meetings.*',
-                'meeting_types.name as meeting_type',
+                // 'meeting_types.name as meeting_type',
                 'schedules.meeting_date',
                 'schedules.meeting_start_time',
                 'schedules.meeting_end_time'
             )->distinct()
             ->where('meetings.id', '=', $id)
             ->where('meetings.deleted_at', NULL)
-            ->first();
+            ->first();        
 
 
 

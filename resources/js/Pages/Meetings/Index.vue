@@ -116,7 +116,7 @@ const reset = () => {
                                     <td class="border-t">
                                         <NavLink class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/meetings/${meeting.id}`">
 
-                                        {{ moment(meeting.meeting_date).format('dddd, MMMM DD, YYYY') }} from {{ moment(meeting.meeting_start_time, 'HH:mm:ss').format('hh:mm A') }} to {{ moment(meeting.meeting_end_time, 'HH:mm').format('hh:mm A') }}
+                                        {{ moment(meeting.meeting_date).format('dddd, MMMM DD, YYYY') }} from {{ moment(meeting.meeting_start_time, 'HH:mm:ss').format('hh:mm A') }} to {{ moment(meeting.meeting_end_time, 'HH:mm').format('hh:mm A') }} 
 
                                             <icon v-if="meeting.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                                         </NavLink>
@@ -124,7 +124,7 @@ const reset = () => {
 
                                     <td class="border-t">
                                         <NavLink class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/meetings/${meeting.id}`">
-                                            {{ meeting.venue }}
+                                            {{ meeting.venue }} {{ meeting.id }}
                                             <icon v-if="meeting.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                                         </NavLink>
                                     </td>

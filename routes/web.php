@@ -108,6 +108,8 @@ Route::middleware([
 
     Route::put('/meeting-start/{id}', [MeetingController::class, 'start'])->name('meeting-start');
 
+    Route::post('/meeting-leave/{id}', [LiveController::class, 'leave'])->name('meeting-leave');
+
     Route::put('/meeting-end/{id}', [MeetingController::class, 'close'])->name('meeting-end');
 
     Route::put('/meeting-reset/{id}', [MeetingController::class, 'reset'])->name('meeting-reset');

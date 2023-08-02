@@ -19,6 +19,7 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\Word2007;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\File;
+use PhpOffice\PhpWord\Shared\ZipArchive;
 
 use PhpOffice\PhpWord\TemplateProcessor;
 

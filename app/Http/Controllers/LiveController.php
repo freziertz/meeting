@@ -396,4 +396,27 @@ class LiveController extends Controller
         //     dispatch(new SendMeetingStartedEmailsJob($meeting, $recipient));
         // }
     }
+
+    public function leave(Request $request, $meeting_id)
+    {
+        $participant_id = Auth::user()->id;
+
+        // $statuses = ActionStatus::all();
+
+
+
+
+        $participant = Participant::where('participant_id' , $participant_id)
+        ->where('participantable_id', $meeting_id)->first();
+
+
+
+        $participant->status = 0;
+
+
+        $participant->save();
+
+        return redirect()->route('meetings.index');
+
+    }
 }

@@ -124,7 +124,7 @@ const reset = () => {
 
                                     <td class="border-t">
                                         <NavLink class="flex items-center px-6 py-4 focus:text-indigo-500" :href="`/meetings/${meeting.id}`">
-                                            {{ meeting.venue }} {{ meeting.id }}
+                                            {{ meeting.venue }} 
                                             <icon v-if="meeting.deleted_at" name="trash" class="flex-shrink-0 ml-2 w-3 h-3 fill-gray-400" />
                                         </NavLink>
                                     </td>

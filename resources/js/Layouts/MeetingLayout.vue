@@ -20,6 +20,8 @@ import FormActionSection from "@/Components/FormActionSection.vue";
 import InputError from "@/Components/InputError.vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+
+import DangerButton from "@/Components/DangerButton.vue";
 import CancelButton from "@/Components/CancelButton.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
@@ -210,6 +212,11 @@ const removeField = (index, fieldType) => {
 
 }
 
+const leaveMeeting = () => {
+    router.post(route('meeting-leave', props.meeting.id));
+
+}
+
 
 
 
@@ -344,6 +351,10 @@ const toggleRightSideBar = () => {
             <TabButton  @click="toggleLeftSideBar" >
                     left side
             </TabButton>
+
+            <DangerButton  @click="leaveMeeting" >
+                Leave meeting
+           </DangerButton>
 
         </div>
 

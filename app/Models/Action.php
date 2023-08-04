@@ -30,9 +30,9 @@ class Action extends Model
         return $this->belongsTo(Meeting::class);
     }
 
-    public function notifications(): MorphMany
+    public function reminders(): MorphMany
     {
-        return $this->morphMany(Notification::class, 'notifiable');
+        return $this->morphMany(Reminder::class, 'reminderable');
     }
 
     public function participants(): MorphMany

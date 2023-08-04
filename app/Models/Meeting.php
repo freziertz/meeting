@@ -74,9 +74,9 @@ class Meeting extends Model
     //     return $this->hasMany(Contributor::class);
     // }
 
-    public function notifications(): MorphMany
+    public function reminders(): MorphMany
     {
-        return $this->morphMany(Notification::class, 'notifiable');
+        return $this->morphMany(Reminder::class, 'reminderable');
     }
 
     public function participants(): MorphMany

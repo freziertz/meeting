@@ -15,7 +15,7 @@ use App\Models\MeetingRole;
 use App\Models\Purpose;
 use App\Models\MeetingType;
 use App\Models\Schedule;
-use App\Models\Notification;
+use App\Models\Reminder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request as Req;
@@ -35,7 +35,7 @@ use App\Enums\MeetingStatusEnum;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\Word2007;
 
-//Notification
+//Reminder
 use App\Notifications\MeetingPublishedNotification;
 
 // Email
@@ -267,22 +267,22 @@ class MeetingController extends Controller
             // $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
             // $objWriter->save('MeetingInfo.html');
 
-            $notifications = array();
+            $reminders = array();
 
             foreach ($request->input('reminders') as $day ) {
 
-             $notification = new Notification;
+             $reminder = new Reminder;
 
-             $notification->notification_type_id = 1;
-             $notification->created_by = $created_by;
-             $notification->account_id = $account->id;
+             $reminder->reminder_type_id = 1;
+             $reminder->created_by = $created_by;
+             $reminder->account_id = $account->id;
 
-             $notification->reminder = $day['reminder'];
-             $notification->notification_date =  (new Carbon($meeting_start_date))->subDays($day['reminder']);
+             $reminder->reminder = $day['reminder'];
+             $reminder->reminder_date =  (new Carbon($meeting_start_date))->subDays($day['reminder']);
 
-             $meeting->notifications()->save($notification);
+             $meeting->reminders()->save($reminder);
 
-             array_push($notifications, $notification);
+             array_push($reminders, $reminder);
 
             }
 
@@ -410,7 +410,7 @@ class MeetingController extends Controller
 
 
 
-            if (!$meeting and !$schedule and !$notifications and !$organizer)
+            if (!$meeting and !$schedule and !$reminders and !$organizer)
             {
                 DB::rollBack();
             }else{
@@ -627,13 +627,13 @@ class MeetingController extends Controller
 
            ->get();
 
-       $notifications = DB::table('notifications')
-            ->join('meetings', 'meetings.id', '=', 'notifications.notifiable_id')
+       $reminders = DB::table('reminders')
+            ->join('meetings', 'meetings.id', '=', 'reminders.reminderable_id')
             ->select(
-                    'notifications.notification_date',
+                    'reminders.reminder_date',
                     'meetings.id',
                 )->where('meetings.id', '=', $id)
-                ->where('notifications.notifiable_type', '=', 'App\Models\Meeting')
+                ->where('reminders.reminderable_type', '=', 'App\Models\Meeting')
 
             ->get();
 
@@ -694,7 +694,7 @@ class MeetingController extends Controller
 
                 'contribute_meeting' => $request->user()->can('contribute', $mt),
 
-                'send_notification' => $request->user()->can('organize', $mt),
+                'send_reminder' => $request->user()->can('organize', $mt),
                 'view_delivery_status' => $request->user()->can('organize', $mt),
                 'add_vote' => $request->user()->can('organizeMeeting', $mt),
                 'manage_action' => $request->user()->can('organizeMeeting', $mt),
@@ -721,7 +721,7 @@ class MeetingController extends Controller
             ($request->user()->can('participate', $meeting_accessed) && $meeting_accessed->visible == true)) )
             {
                 // array_push($meetings, $meeting);
-                return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','notifications','schedules','groups','meeting_roles','purposes','participants','contributors', 'users', 'documents', 'statuses', 'actions','votes', 'can'));
+                return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','reminders','schedules','groups','meeting_roles','purposes','participants','contributors', 'users', 'documents', 'statuses', 'actions','votes', 'can'));
 
             }else{
                 abort(403);
@@ -730,7 +730,7 @@ class MeetingController extends Controller
 
 
 
-        // return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','notifications','schedules','groups','meeting_roles','purposes','participants','contributors', 'users', 'documents', 'statuses', 'actions'));
+        // return Inertia::render('Meetings/Show',compact('meeting', 'organizers','agendas','reminders','schedules','groups','meeting_roles','purposes','participants','contributors', 'users', 'documents', 'statuses', 'actions'));
     }
 
     /**
@@ -751,8 +751,8 @@ class MeetingController extends Controller
 
        $events = Schedule::where('meeting_id',$id)->get();
 
-       $reminders = Notification::where('notifiable_id',$id)
-       ->where('notifiable_type','App\Models\Meeting')
+       $reminders = Reminder::where('reminderable_id',$id)
+       ->where('reminderable_type','App\Models\Meeting')
 
        ->get();
 
@@ -852,33 +852,33 @@ class MeetingController extends Controller
 
         foreach ($request->input('reminders') as $day ) {
             if(isset($day['id'])){
-                Notification::where('notifiable_id', $id)
-                ->where('notifiable_type','App\Models\Meeting')->delete();
+                Reminder::where('reminderable_id', $id)
+                ->where('reminderable_type','App\Models\Meeting')->delete();
             }
         }
 
 
-        $notifications = array();
+        $reminders = array();
 
         foreach ($request->input('reminders') as $day ) {
 
-         $notification = new Notification;
+         $reminder = new Reminder;
 
-         $notification->notification_type_id = 1;
-         $notification->created_by = $created_by;
-         $notification->account_id = $account->id;
+         $reminder->reminder_type_id = 1;
+         $reminder->created_by = $created_by;
+         $reminder->account_id = $account->id;
 
-         $notification->reminder = $day['reminder'];
-         $notification->notification_date =  (new Carbon($meeting_start_date))->subDays($day['reminder']);
+         $reminder->reminder = $day['reminder'];
+         $reminder->reminder_date =  (new Carbon($meeting_start_date))->subDays($day['reminder']);
 
-         $meeting->notifications()->save($notification);
+         $meeting->reminders()->save($reminder);
 
-         array_push($notifications, $notification);
+         array_push($reminders, $reminder);
 
         }
 
 
-        if (!$meeting and !$schedule and !$notifications)
+        if (!$meeting and !$schedule and !$reminders)
         {
             DB::rollBack();
             return redirect()->route('meetings.index')
@@ -909,10 +909,10 @@ class MeetingController extends Controller
            $participants = Participant::where('participantable_id', $id)->delete();
            $agendas = Agenda::where('agendable_id', $id)->delete();
             //$actions = Action::where('actionable_id', $id)->delete(); // through agenda
-           $notifications = Notification::where('notifiable_id', $id)->delete();
+           $reminders = Reminder::where('reminderable_id', $id)->delete();
            $schedules = Schedule::where('meeting_id', $id)->delete();
 
-        if (!$meeting and !$schedules and !$notifications and !$organizers and !$contributors and !$participants and !$agendas )
+        if (!$meeting and !$schedules and !$reminders and !$organizers and !$contributors and !$participants and !$agendas )
         {
             DB::rollBack();
         }else{
@@ -932,8 +932,8 @@ class MeetingController extends Controller
 
        $events = Schedule::where('meeting_id',$id)->get();
 
-       $reminders = Notification::where('notifiable_id',$id)
-          ->where('notifiable_type','App\Models\Meeting')
+       $reminders = Reminder::where('reminderable_id',$id)
+          ->where('reminderable_type','App\Models\Meeting')
        ->get();
 
 

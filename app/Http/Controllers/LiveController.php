@@ -34,7 +34,7 @@ use App\Enums\MeetingStatusEnum;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\Word2007;
 
-//Notification
+//Reminder
 use App\Notifications\MeetingPublishedNotification;
 
 // Email
@@ -44,6 +44,7 @@ use App\Mail\MeetingStarted;
 use App\Mail\MeetingClosed;
 use App\Jobs\SendMeetingStartedEmailsJob;
 use App\Jobs\SendMeetingClosedEmailsJob;
+use App\Notifications\ParticipantOnlineStatus;
 
 use App\Jobs\SendMeetingPublishedEmailsJob;
 use App\Models\Contributor;
@@ -73,6 +74,8 @@ class LiveController extends Controller
 
 
         $participant->save();
+
+        $participant->notify(new ParticipantOnlineStatus($participant));
 
 
 
@@ -411,10 +414,17 @@ class LiveController extends Controller
 
 
 
-        $participant->status = 0;
+        $participant->status = 0;        
 
 
         $participant->save();
+
+
+        $participant_status = Participant::where('participant_id' , $participant_id)
+        ->where('participantable_id', $meeting_id)->first();
+        
+
+        $participant_status->notify(new ParticipantOnlineStatus($participant_status));
 
         return redirect()->route('meetings.index');
 

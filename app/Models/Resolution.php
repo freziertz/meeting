@@ -60,8 +60,8 @@ class Resolution extends Model
         return $this->morphMany(Agenda::class, 'agendable');
     }
 
-    public function notifications(): MorphMany
+    public function reminders(): MorphMany
     {
-        return $this->morphMany(Notification::class, 'notifiable');
+        return $this->morphMany(Reminder::class, 'reminderable');
     }
 }

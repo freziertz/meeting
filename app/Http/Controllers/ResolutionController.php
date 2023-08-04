@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Group;
 use App\Models\ActionStatus;
 use App\Models\Purpose;
-use App\Models\Notification;
+use App\Models\Reminder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -65,30 +65,30 @@ class ResolutionController extends Controller
 
             $resolution = Resolution::create($request->all());
 
-            $notifications = array();
+            $reminders = array();
 
 
 
             foreach ($request->input('reminders') as $day ) {
 
-             $notification = new Notification;
+             $reminder = new Reminder;
 
-             $notification->notification_type_id = 1;
-             $notification->created_by = $request['created_by'];
-             $notification->account_id = $account->id;
+             $reminder->reminder_type_id = 1;
+             $reminder->created_by = $request['created_by'];
+             $reminder->account_id = $account->id;
 
-             $notification->reminder = $day['reminder'];
-             $notification->notification_date =  (new Carbon($voting_deadline))->subDays($day['reminder']);
+             $reminder->reminder = $day['reminder'];
+             $reminder->reminder_date =  (new Carbon($voting_deadline))->subDays($day['reminder']);
 
-             $resolution->notifications()->save($notification);
+             $resolution->reminders()->save($reminder);
 
-             array_push($notifications, $notification);
+             array_push($reminders, $reminder);
 
             }
 
 
 
-        if (!$resolution and !$notifications)
+        if (!$resolution and !$reminders)
         {
             DB::rollBack();
         }else{
@@ -194,17 +194,17 @@ class ResolutionController extends Controller
 
 
 
-       $notifications = DB::table('notifications')
-            ->join('resolutions', 'resolutions.id', '=', 'notifications.notifiable_id')
+       $reminders = DB::table('reminders')
+            ->join('resolutions', 'resolutions.id', '=', 'reminders.reminderable_id')
             ->select(
-                    'notifications.notification_date',
+                    'reminders.reminder_date',
                     'resolutions.id',
                 )->where('resolutions.id', '=', $id)
-                ->where('notifications.notifiable_type', '=', 'App\Models\Resolution')
+                ->where('reminders.reminderable_type', '=', 'App\Models\Resolution')
 
             ->get();
 
-        return Inertia::render('Resolutions/Show',compact('resolution', 'organizers','agendas','notifications','groups','purposes','voters', 'users', 'documents', 'statuses'));
+        return Inertia::render('Resolutions/Show',compact('resolution', 'organizers','agendas','reminders','groups','purposes','voters', 'users', 'documents', 'statuses'));
     }
 
 
@@ -213,8 +213,8 @@ class ResolutionController extends Controller
      */
     public function edit(string $id)
     {
-        $reminders = Notification::where('notifiable_id',$id)
-        ->where('notifiable_type','App\Models\Resolution')
+        $reminders = Reminder::where('reminderable_id',$id)
+        ->where('reminderable_type','App\Models\Resolution')
         ->get();
         $resolution = Resolution::findOrFail($id);
         return Inertia::render('Resolutions/Edit',compact('resolution','reminders'));
@@ -242,58 +242,58 @@ class ResolutionController extends Controller
         // foreach ($request->input('reminders') as $day ) {
 
         //     if(isset($day['id'])){
-        //         $notification = Notification::find($day['id']);
+        //         $reminder = Reminder::find($day['id']);
 
-        //         $notification->notifiable_id = $resolution->id;
-        //         $notification->notification_type_id = $day['notification_type_id'];
-        //         $notification->reminder = $day['reminder'];
-        //         $notification->created_by = $created_by;
-        //         $notification->account_id = $account->id;
-        //         $notification->notification_date = (new Carbon($resolution->voting_deadline))->subDays($day['reminder']);
-        //         $notification->save();
+        //         $reminder->reminderable_id = $resolution->id;
+        //         $reminder->reminder_type_id = $day['reminder_type_id'];
+        //         $reminder->reminder = $day['reminder'];
+        //         $reminder->created_by = $created_by;
+        //         $reminder->account_id = $account->id;
+        //         $reminder->reminder_date = (new Carbon($resolution->voting_deadline))->subDays($day['reminder']);
+        //         $reminder->save();
 
         //     }else{
-        //         $notification = Notification::create([
-        //             'notifiable_id' => $resolution->id,
-        //             'notifiable_type' => 'App\Models\Resolution',
-        //             'notification_type_id' => 1,
+        //         $reminder = Reminder::create([
+        //             'reminderable_id' => $resolution->id,
+        //             'reminderable_type' => 'App\Models\Resolution',
+        //             'reminder_type_id' => 1,
         //             'reminder' => $day['reminder'],
         //             'created_by' => $created_by,
         //             'account_id' => $account->id,
-        //             'notification_date'=> (new Carbon($resolution->voting_deadline))->subDays($day['reminder']),
+        //             'reminder_date'=> (new Carbon($resolution->voting_deadline))->subDays($day['reminder']),
         //         ]);
         //     }
         // }
 
         foreach ($request->input('reminders') as $day ) {
             if(isset($day['id'])){
-                Notification::where('notifiable_id', $id)
-                ->where('notifiable_type','App\Models\Resolution')->delete();
+                Reminder::where('reminderable_id', $id)
+                ->where('reminderable_type','App\Models\Resolution')->delete();
             }
         }
 
 
-        $notifications = array();
+        $reminders = array();
 
         foreach ($request->input('reminders') as $day ) {
 
-         $notification = new Notification;
+         $reminder = new Reminder;
 
-         $notification->notification_type_id = 1;
-         $notification->created_by = $created_by;
-         $notification->account_id = $account->id;
+         $reminder->reminder_type_id = 1;
+         $reminder->created_by = $created_by;
+         $reminder->account_id = $account->id;
 
-         $notification->reminder = $day['reminder'];
-         $notification->notification_date =  (new Carbon($resolution->voting_deadline))->subDays($day['reminder']);
+         $reminder->reminder = $day['reminder'];
+         $reminder->reminder_date =  (new Carbon($resolution->voting_deadline))->subDays($day['reminder']);
 
-         $resolution->notifications()->save($notification);
+         $resolution->reminders()->save($reminder);
 
-         array_push($notifications, $notification);
+         array_push($reminders, $reminder);
 
         }
 
 
-        if (!$resolution  and !$notifications )
+        if (!$resolution  and !$reminders )
         {
             DB::rollBack();
             return redirect()->route('resolutions.index')
@@ -321,8 +321,8 @@ class ResolutionController extends Controller
     {
        $resolution = Resolution::findOrFail($id);
 
-       $reminders = Notification::where('notifiable_id',$id)
-          ->where('notifiable_type','App\Models\Resolution')
+       $reminders = Reminder::where('reminderable_id',$id)
+          ->where('reminderable_type','App\Models\Resolution')
        ->get();
 
 

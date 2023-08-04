@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Action;
 use App\Models\User;
-use App\Models\Notification;
+use App\Models\Reminder;
 use App\Models\ActionStatus;
 use App\Models\Participant;
 use Illuminate\Http\Request;
@@ -82,16 +82,16 @@ class ActionController extends Controller
 
         foreach ($request->input('reminders') as $day ) {
 
-                $notification = new Notification;
+                $reminder = new Reminder;
 
-                $notification->notifiable_id = $action->id;
-                $notification->notification_type_id = 1;
-                $notification->account_id = $account->id;
-                $notification->created_by = $created_by;
-                $notification->reminder = $day['reminder'] ? $day['reminder'] : 1 ;
-                $notification->notification_date = (new Carbon($action_due_date))->subDays($notification->reminder);
+                $reminder->reminderable_id = $action->id;
+                $reminder->reminder_type_id = 1;
+                $reminder->account_id = $account->id;
+                $reminder->created_by = $created_by;
+                $reminder->reminder = $day['reminder'] ? $day['reminder'] : 1 ;
+                $reminder->reminder_date = (new Carbon($action_due_date))->subDays($reminder->reminder);
 
-                $action->notifications()->save($notification);
+                $action->reminders()->save($reminder);
 
 
             }
@@ -143,7 +143,7 @@ class ActionController extends Controller
 
 
 
-            if (!$action and !$notification and !$participant and !$action_history) // add participant
+            if (!$action and !$reminder and !$participant and !$action_history) // add participant
             {
                 DB::rollBack();
             }else{
